@@ -273,8 +273,8 @@
         // JSON 데이터 로드 및 공지사항 표시
         async function loadNotices() {
             try {
-                // 가장 최신 JSON 파일 직접 참조
-                const fileResponse = await fetch('data/인천반도체고등학교_notices_api_20250516_111358.json');
+                // GitHub Pages URL 구조에 맞게 경로 수정
+                const fileResponse = await fetch('/school_notice_crawl/data/인천반도체고등학교_notices_api_20250516_111358.json');
                 if (!fileResponse.ok) {
                     throw new Error('공지사항 데이터를 로드할 수 없습니다.');
                 }
