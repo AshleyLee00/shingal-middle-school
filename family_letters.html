@@ -7,7 +7,10 @@
     <style>
         @font-face {
             font-family: 'NanumSquare';
-            src: url('https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css');
+            src: url('./fonts/NanumSquareR.woff2') format('woff2'),
+                 url('./fonts/NanumSquareR.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
         }
         
         * {
@@ -273,30 +276,13 @@
         // JSON 데이터 로드 및 가정통신문 표시
         async function loadLetters() {
             try {
-                // data 폴더의 모든 JSON 파일 가져오기
-                const response = await fetch('./data/');
-                const text = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(text, 'text/html');
-                
-                // family_letters_api가 포함된 JSON 파일들 찾기
-                const files = Array.from(doc.querySelectorAll('a'))
-                    .map(a => a.href)
-                    .filter(href => href.includes('family_letters_api') && href.endsWith('.json'))
-                    .sort()
-                    .reverse(); // 최신 파일이 먼저 오도록 정렬
-                
-                if (files.length === 0) {
-                    throw new Error('가정통신문 데이터 파일을 찾을 수 없습니다.');
-                }
-                
-                // 가장 최신 파일 로드
-                const fileResponse = await fetch(files[0]);
-                if (!fileResponse.ok) {
+                // 특정 JSON 파일 직접 참조
+                const response = await fetch('./data/인천반도체고등학교_family_letters_api_20250516_112057.json');
+                if (!response.ok) {
                     throw new Error('가정통신문 데이터를 로드할 수 없습니다.');
                 }
                 
-                const lettersData = await fileResponse.json();
+                const lettersData = await response.json();
                 
                 // 학교 이름 및 정보 설정
                 document.getElementById('school-name').textContent = lettersData.meta.source;
