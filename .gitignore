@@ -36,8 +36,9 @@ ENV/
 Thumbs.db
 
 # Project specific
-data/*.json
-!data/.gitkeep
+data/*.log
+data/backup_*
+!data/*.json
 
 # 로그 파일
 *.log
