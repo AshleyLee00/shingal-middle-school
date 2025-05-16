@@ -273,30 +273,13 @@
         // JSON 데이터 로드 및 공지사항 표시
         async function loadNotices() {
             try {
-                // data 폴더의 모든 JSON 파일 가져오기
-                const response = await fetch('./data/');
-                const text = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(text, 'text/html');
-                
-                // notices_api가 포함된 JSON 파일들 찾기
-                const files = Array.from(doc.querySelectorAll('a'))
-                    .map(a => a.href)
-                    .filter(href => href.includes('notices_api') && href.endsWith('.json'))
-                    .sort()
-                    .reverse(); // 최신 파일이 먼저 오도록 정렬
-                
-                if (files.length === 0) {
-                    throw new Error('공지사항 데이터 파일을 찾을 수 없습니다.');
-                }
-                
-                // 가장 최신 파일 로드
-                const fileResponse = await fetch(files[0]);
-                if (!fileResponse.ok) {
+                // 가장 최신 공지사항 파일 직접 로드
+                const response = await fetch('./data/인천반도체고등학교_notices_api_20250516_111358.json');
+                if (!response.ok) {
                     throw new Error('공지사항 데이터를 로드할 수 없습니다.');
                 }
                 
-                const noticesData = await fileResponse.json();
+                const noticesData = await response.json();
                 
                 // 학교 이름 및 정보 설정
                 document.getElementById('school-name').textContent = noticesData.meta.source;
