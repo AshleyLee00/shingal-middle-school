@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인천반도체고등학교 디지털 사이니지</title>
+    <style>
+        @font-face {
+            font-family: 'NanumSquare';
+            src: url('https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css');
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'NanumSquare', 'Noto Sans KR', sans-serif;
+            background-color: #0a192f;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .header {
+            margin-bottom: 50px;
+        }
+        
+        .school-logo {
+            height: 120px;
+            width: auto;
+            margin-bottom: 20px;
+        }
+        
+        .title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.8rem;
+            color: #8bc6fc;
+            margin-bottom: 50px;
+        }
+        
+        .menu-container {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .menu-item {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            width: 300px;
+            text-decoration: none;
+            color: white;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+        
+        .menu-item:hover {
+            transform: translateY(-5px);
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .menu-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        .menu-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .menu-description {
+            font-size: 1.2rem;
+            color: #8bc6fc;
+        }
+        
+        .footer {
+            margin-top: 50px;
+            color: #8bc6fc;
+            font-size: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.4rem;
+            }
+            
+            .menu-item {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <img class="school-logo" src="images/인천반도체고.jpg" alt="인천반도체고등학교 로고">
+            <h1 class="title">인천반도체고등학교</h1>
+            <p class="subtitle">디지털 사이니지 시스템</p>
+        </header>
+        
+        <nav class="menu-container">
+            <a href="digital_signage.html" class="menu-item">
+                <div class="menu-icon">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                <h2 class="menu-title">공지사항</h2>
+                <p class="menu-description">학교의 최신 공지사항을 확인하세요</p>
+            </a>
+            
+            <a href="family_letters.html" class="menu-item">
+                <div class="menu-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <h2 class="menu-title">가정통신문</h2>
+                <p class="menu-description">가정통신문을 확인하세요</p>
+            </a>
+        </nav>
+        
+        <footer class="footer">
+            <p>© 2024 인천반도체고등학교. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,29 @@
+name: GitHub Pages 배포
+
+on:
+  push:
+    branches:
+      - main  # 메인 브랜치 푸시시 실행
+  workflow_run:
+    workflows: ["일일 크롤링 및 RSS 업데이트"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' }}
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v3
+
+      - name: feeds 디렉토리 확인
+        run: |
+          mkdir -p feeds
+          touch feeds/.gitkeep
+
+      - name: GitHub Pages 배포
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages  # 배포할 브랜치
+          folder: .  # 배포할 폴더 (프로젝트 루트) 

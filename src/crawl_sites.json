@@ -1,0 +1,10 @@
+{
+  "sites": [
+    {
+      "name": "인천반도체고등학교",
+      "url": "https://isc.icehs.kr/boardCnts/list.do?boardID=11101&m=0202&s=inchon_ii",
+      "family_letter_url": "https://isc.icehs.kr/boardCnts/list.do?boardID=11107&m=0203&s=inchon_ii",
+      "family_letter_board_id": "11107"
+    }
+  ]
+} 

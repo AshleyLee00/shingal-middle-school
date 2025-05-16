@@ -1,0 +1,59 @@
+name: 일일 크롤링 및 RSS 업데이트
+
+on:
+  schedule:
+    - cron: '0 1 * * *'  # 매일 UTC 01:00 (한국 시간으로는 약 10:00)에 실행
+  workflow_dispatch:  # 수동 실행 가능하도록 설정
+
+jobs:
+  crawl_and_update:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 저장소 체크아웃
+      uses: actions/checkout@v3
+      
+    - name: Python 환경 설정
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: 의존성 설치
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: 크롤링 실행
+      run: python notice_crawler.py
+      
+    - name: RSS 피드 생성
+      run: python rss_feed_generator.py
+      
+    - name: feeds 디렉토리 생성 (필요한 경우)
+      run: mkdir -p feeds
+      
+    - name: RSS 파일 이동
+      run: |
+        mv *_feed.xml feeds/ 2>/dev/null || true
+        
+    - name: signage 디렉토리 생성
+      run: |
+        mkdir -p signage
+        cp digital_signage.html signage/index.html
+        
+    - name: JSON 파일 복사 (사이니지용)
+      run: |
+        cp *_notices_api.json signage/ 2>/dev/null || true
+        
+    - name: 변경 내용 커밋
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add *_notices_api.json feeds/ signage/
+        git commit -m "자동 크롤링 데이터 업데이트 $(date +'%Y-%m-%d')" || echo "No changes to commit"
+        
+    - name: 변경 내용 푸시
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }} 

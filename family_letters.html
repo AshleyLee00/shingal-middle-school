@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학교 가정통신문 디지털 사이니지</title>
+    <style>
+        @font-face {
+            font-family: 'NanumSquare';
+            src: url('https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css');
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'NanumSquare', 'Noto Sans KR', sans-serif;
+            background-color: #0a192f;
+            color: white;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            line-height: 1.4;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+            padding: 30px;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
+        
+        .school-logo {
+            height: 80px;
+            width: auto;
+        }
+        
+        .title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            text-align: center;
+            flex-grow: 1;
+            color: #ffffff;
+            margin: 0 20px;
+        }
+        
+        .clock {
+            font-size: 2.5rem;
+            font-weight: 500;
+            color: #f1c40f;
+            text-align: right;
+        }
+        
+        .date {
+            font-size: 1.8rem;
+            font-weight: 400;
+            color: #f1c40f;
+            margin-top: 5px;
+        }
+        
+        .content {
+            display: flex;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+        
+        .letter-container {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .letter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: #1a365d;
+            border-radius: 10px 10px 0 0;
+            margin-bottom: 10px;
+        }
+        
+        .letter-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        
+        .letter-source {
+            font-size: 1.6rem;
+            color: #f1c40f;
+        }
+        
+        .letter-list {
+            list-style: none;
+            overflow: hidden;
+            flex-grow: 1;
+        }
+        
+        .letter-item {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            transition: transform 0.5s ease;
+            animation: fadeIn 1s;
+        }
+        
+        .letter-item-title {
+            font-size: 3.2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #ffffff;
+            word-break: keep-all;
+            line-height: 1.3;
+        }
+        
+        .letter-item-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 2.4rem;
+            margin-bottom: 10px;
+            color: #8bc6fc;
+        }
+        
+        .letter-item-date {
+            color: #f39c12;
+        }
+        
+        .letter-item-author {
+            color: #8bc6fc;
+        }
+        
+        .footer {
+            padding-top: 15px;
+            height: 20px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(0); }
+            to { transform: translateY(-100%); }
+        }
+        
+        /* 반응형 디자인 */
+        @media (max-width: 1200px) {
+            .title {
+                font-size: 3.2rem;
+            }
+            .clock {
+                font-size: 2.4rem;
+            }
+            .letter-item-title {
+                font-size: 2.8rem;
+            }
+            .letter-item-info {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            .title {
+                font-size: 2.6rem;
+            }
+            .clock {
+                font-size: 2.2rem;
+            }
+            .letter-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .letter-title {
+                font-size: 2.4rem;
+                margin-bottom: 5px;
+            }
+            .letter-source {
+                font-size: 2rem;
+            }
+            .letter-item-title {
+                font-size: 2.4rem;
+            }
+            .letter-item-info {
+                flex-direction: column;
+                font-size: 1.8rem;
+            }
+            .letter-item-date, .letter-item-author {
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <img class="school-logo" id="school-logo" src="" alt="학교 로고">
+            <h1 class="title" id="school-name">학교 가정통신문</h1>
+            <div>
+                <div class="clock" id="clock">00:00:00</div>
+                <div class="date" id="date">0000년 00월 00일</div>
+            </div>
+        </header>
+        
+        <main class="content">
+            <div class="letter-container">
+                <div class="letter-header">
+                    <div class="letter-title">최신 가정통신문</div>
+                    <div class="letter-source" id="letter-count">로딩 중...</div>
+                </div>
+                <ul class="letter-list" id="letter-list">
+                    <!-- 가정통신문이 여기에 동적으로 추가됩니다 -->
+                    <li class="letter-item">
+                        <div class="letter-item-title">가정통신문 로딩 중...</div>
+                        <div class="letter-item-info">
+                            <div class="letter-item-date"> ...</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 시계 업데이트 함수
+        function updateClock() {
+            const now = new Date();
+            
+            // 시간 표시
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+            
+            // 날짜 표시
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            
+            const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
+            const weekDay = weekDays[now.getDay()];
+            
+            document.getElementById('date').textContent = 
+                `${year}년 ${month}월 ${day}일 (${weekDay})`;
+        }
+        
+        // 1초마다 시계 업데이트
+        setInterval(updateClock, 1000);
+        updateClock(); // 초기 업데이트
+        
+        // JSON 데이터 로드 및 가정통신문 표시
+        async function loadLetters() {
+            try {
+                // data 폴더의 모든 JSON 파일 가져오기
+                const dirResponse = await fetch('data/');
+                const text = await dirResponse.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                const files = Array.from(doc.querySelectorAll('a'))
+                    .map(a => a.href)
+                    .filter(href => href.includes('family_letters_api') && href.endsWith('.json'))
+                    .sort()
+                    .reverse(); // 최신 파일이 먼저 오도록 정렬
+                
+                if (files.length === 0) {
+                    throw new Error('가정통신문 데이터 파일을 찾을 수 없습니다.');
+                }
+                
+                // 가장 최신 파일 로드
+                const fileResponse = await fetch(files[0]);
+                if (!fileResponse.ok) {
+                    throw new Error('가정통신문 데이터를 로드할 수 없습니다.');
+                }
+                
+                const lettersData = await fileResponse.json();
+                
+                // 학교 이름 및 정보 설정
+                document.getElementById('school-name').textContent = lettersData.meta.source;
+                document.getElementById('letter-count').textContent = 
+                    `총 ${lettersData.letters.length}개의 가정통신문`;
+                
+                // 학교 로고 설정
+                setSchoolLogo(lettersData.meta.source);
+                
+                // 가정통신문 목록 생성
+                const letterList = document.getElementById('letter-list');
+                letterList.innerHTML = ''; // 기존 내용 제거
+                
+                // 상위 10개 가정통신문만 표시
+                const displayLetters = lettersData.letters.slice(0, 10);
+                
+                displayLetters.forEach((letter, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'letter-item';
+                    li.style.animationDelay = `${index * 0.2}s`;
+                    
+                    li.innerHTML = `
+                        <div class="letter-item-title">${letter.title || '제목 없음'}</div>
+                        <div class="letter-item-info">
+                            <div class="letter-item-view">${letter.view || ''}</div>
+                            <div class="letter-item-author">${letter.author || ''}</div>
+                        </div>
+                    `;
+                    
+                    letterList.appendChild(li);
+                });
+                
+                // 주기적으로 가정통신문 순환
+                setupLetterRotation();
+                
+            } catch (error) {
+                console.error('가정통신문 로드 중 오류 발생:', error);
+                document.getElementById('letter-list').innerHTML = `
+                    <li class="letter-item">
+                        <div class="letter-item-title">가정통신문을 불러올 수 없습니다</div>
+                        <div class="letter-item-info">
+                            <div class="letter-item-date">오류: ${error.message}</div>
+                        </div>
+                    </li>
+                `;
+            }
+        }
+        
+        // 학교 로고 설정
+        function setSchoolLogo(schoolName) {
+            // 학교별 로고 매핑
+            const schoolLogos = {
+                '인천반도체고등학교': 'images/인천반도체고.jpg'
+            };
+            
+            // 기본 로고 또는 학교별 로고 설정
+            const logoElement = document.getElementById('school-logo');
+            logoElement.src = schoolLogos[schoolName] || 'https://upload.wikimedia.org/wikipedia/commons/b/b4/South_Korean_Education.svg';
+            logoElement.alt = `${schoolName} 로고`;
+        }
+        
+        // 가정통신문 순환 설정
+        function setupLetterRotation() {
+            const letterItems = document.querySelectorAll('.letter-item');
+            if (letterItems.length <= 1) return; // 항목이 하나 이하면 순환 불필요
+            
+            let currentIndex = 0;
+            const visibleCount = 6; // 한 번에 보여줄 가정통신문 수를 6개로 변경
+            
+            // 초기에 필요한 항목만 표시
+            updateVisibleLetters();
+            
+            // 주기적으로 가정통신문 순환
+            setInterval(() => {
+                currentIndex = (currentIndex + 1) % letterItems.length;
+                updateVisibleLetters();
+            }, 8000); // 8초마다 순환
+            
+            function updateVisibleLetters() {
+                letterItems.forEach((item, index) => {
+                    // 현재 인덱스부터 visibleCount 만큼만 표시
+                    const shouldShow = Array.from({length: visibleCount}, (_, i) => 
+                        (currentIndex + i) % letterItems.length
+                    ).includes(index);
+                    
+                    item.style.display = shouldShow ? 'flex' : 'none';
+                });
+            }
+        }
+        
+        // 페이지 로드 시 가정통신문 로드
+        document.addEventListener('DOMContentLoaded', loadLetters);
+    </script>
+</body>
+</html> 
