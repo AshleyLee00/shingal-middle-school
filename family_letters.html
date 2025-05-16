@@ -273,8 +273,25 @@
         // JSON 데이터 로드 및 가정통신문 표시
         async function loadLetters() {
             try {
-                // 상대 경로로 수정
-                const fileResponse = await fetch('./data/인천반도체고등학교_family_letters_api_20250516_112057.json');
+                // data 폴더의 모든 JSON 파일 가져오기
+                const response = await fetch('./data/');
+                const text = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                
+                // family_letters_api가 포함된 JSON 파일들 찾기
+                const files = Array.from(doc.querySelectorAll('a'))
+                    .map(a => a.href)
+                    .filter(href => href.includes('family_letters_api') && href.endsWith('.json'))
+                    .sort()
+                    .reverse(); // 최신 파일이 먼저 오도록 정렬
+                
+                if (files.length === 0) {
+                    throw new Error('가정통신문 데이터 파일을 찾을 수 없습니다.');
+                }
+                
+                // 가장 최신 파일 로드
+                const fileResponse = await fetch(files[0]);
                 if (!fileResponse.ok) {
                     throw new Error('가정통신문 데이터를 로드할 수 없습니다.');
                 }
