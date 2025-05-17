@@ -177,8 +177,8 @@ def crawl_school_letters(url, site_name=None):
                         "number": columns[0].get_text(strip=True),
                         "title": columns[1].get_text(strip=True),
                         "author": columns[3].get_text(strip=True),
-                        "date": formatted_date,
-                        "views": columns[5].get_text(strip=True),
+                        "date": columns[5].get_text(strip=True),
+                        "views": columns[4].get_text(strip=True),
                         "url": ""
                     }
                     title_element = columns[1].select_one("a")
@@ -208,7 +208,7 @@ def crawl_school_letters(url, site_name=None):
                         "number": columns[0].get_text(strip=True),
                         "title": columns[1].get_text(strip=True),
                         "author": "",
-                        "date": formatted_date,
+                        "date": columns[-1].get_text(strip=True) if len(columns) >= 4 else columns[-1].get_text(strip=True),
                         "views": columns[-2].get_text(strip=True) if len(columns) >= 4 else "0",
                         "url": ""
                     }
