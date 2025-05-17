@@ -7,30 +7,30 @@
 """
 
 import os
+import requests
 from notice_crawler import crawl_school_notices
 from family_letter_crawler import crawl_school_letters
 from datetime import datetime
+from dotenv import load_dotenv
+
+# .env 파일 로드
+load_dotenv()
 
 def generate_notice_html(notices, school_name):
-    html_content = f"""<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{school_name} 공지사항</title>
-    <style>
-        @font-face {{
+    # CSS 스타일을 일반 문자열로 정의
+    css_style = """
+        @font-face {
             font-family: 'NanumSquare';
             src: url('https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css');
-        }}
+        }
         
-        * {{
+        * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-        }}
+        }
         
-        body {{
+        body {
             font-family: 'NanumSquare', 'Noto Sans KR', sans-serif;
             background-color: #0a192f;
             color: white;
@@ -38,67 +38,67 @@ def generate_notice_html(notices, school_name):
             margin: 0;
             padding: 0;
             line-height: 1.4;
-        }}
+        }
         
-        .container {{
+        .container {
             display: flex;
             flex-direction: column;
             height: 100vh;
             width: 100vw;
             padding: 30px;
-        }}
+        }
         
-        .header {{
+        .header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding-bottom: 20px;
             border-bottom: 2px solid rgba(255, 255, 255, 0.2);
             margin-bottom: 20px;
-        }}
+        }
         
-        .school-logo {{
+        .school-logo {
             height: 80px;
             width: auto;
-        }}
+        }
         
-        .title {{
+        .title {
             font-size: 3.5rem;
             font-weight: 800;
             text-align: center;
             flex-grow: 1;
             color: #ffffff;
             margin: 0 20px;
-        }}
+        }
         
-        .clock {{
+        .clock {
             font-size: 2.5rem;
             font-weight: 500;
             color: #f1c40f;
             text-align: right;
-        }}
+        }
         
-        .date {{
+        .date {
             font-size: 1.8rem;
             font-weight: 400;
             color: #f1c40f;
             margin-top: 5px;
-        }}
+        }
         
-        .content {{
+        .content {
             display: flex;
             flex-grow: 1;
             overflow: hidden;
-        }}
+        }
         
-        .notice-container {{
+        .notice-container {
             flex: 1;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-        }}
+        }
         
-        .notice-header {{
+        .notice-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -106,26 +106,26 @@ def generate_notice_html(notices, school_name):
             background-color: #1a365d;
             border-radius: 10px 10px 0 0;
             margin-bottom: 10px;
-        }}
+        }
         
-        .notice-title {{
+        .notice-title {
             font-size: 2.2rem;
             font-weight: 700;
             color: #ffffff;
-        }}
+        }
         
-        .notice-source {{
+        .notice-source {
             font-size: 1.6rem;
             color: #f1c40f;
-        }}
+        }
         
-        .notice-list {{
+        .notice-list {
             list-style: none;
             overflow: hidden;
             flex-grow: 1;
-        }}
+        }
         
-        .notice-item {{
+        .notice-item {
             display: flex;
             flex-direction: column;
             margin-bottom: 20px;
@@ -134,124 +134,88 @@ def generate_notice_html(notices, school_name):
             padding: 20px;
             transition: transform 0.5s ease;
             animation: fadeIn 1s;
-        }}
+        }
         
-        .notice-item-title {{
+        .notice-item-title {
             font-size: 3.2rem;
             font-weight: 700;
             margin-bottom: 15px;
             color: #ffffff;
             word-break: keep-all;
             line-height: 1.3;
-        }}
+        }
         
-        .notice-item-info {{
+        .notice-item-info {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             font-size: 2.4rem;
             margin-bottom: 10px;
             color: #8bc6fc;
-        }}
+        }
         
-        .notice-item-date {{
+        .notice-item-date {
             color: #f39c12;
-        }}
+        }
         
-        @keyframes fadeIn {{
-            from {{ opacity: 0; transform: translateY(30px); }}
-            to {{ opacity: 1; transform: translateY(0); }}
-        }}
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         
-        @keyframes slideUp {{
-            from {{ transform: translateY(0); }}
-            to {{ transform: translateY(-100%); }}
-        }}
+        @keyframes slideUp {
+            from { transform: translateY(0); }
+            to { transform: translateY(-100%); }
+        }
         
         /* 반응형 디자인 */
-        @media (max-width: 1200px) {{
-            .title {{
+        @media (max-width: 1200px) {
+            .title {
                 font-size: 3.2rem;
-            }}
-            .clock {{
+            }
+            .clock {
                 font-size: 2.4rem;
-            }}
-            .notice-item-title {{
+            }
+            .notice-item-title {
                 font-size: 2.8rem;
-            }}
-            .notice-item-info {{
+            }
+            .notice-item-info {
                 font-size: 2rem;
-            }}
-        }}
+            }
+        }
         
-        @media (max-width: 768px) {{
-            .container {{
+        @media (max-width: 768px) {
+            .container {
                 padding: 15px;
-            }}
-            .title {{
+            }
+            .title {
                 font-size: 2.6rem;
-            }}
-            .clock {{
+            }
+            .clock {
                 font-size: 2.2rem;
-            }}
-            .notice-header {{
+            }
+            .notice-header {
                 flex-direction: column;
                 align-items: flex-start;
-            }}
-            .notice-title {{
+            }
+            .notice-title {
                 font-size: 2.4rem;
                 margin-bottom: 5px;
-            }}
-            .notice-source {{
+            }
+            .notice-source {
                 font-size: 2rem;
-            }}
-            .notice-item-title {{
+            }
+            .notice-item-title {
                 font-size: 2.4rem;
-            }}
-            .notice-item-info {{
+            }
+            .notice-item-info {
                 flex-direction: column;
                 font-size: 1.8rem;
-            }}
-        }}
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div class="container">
-        <header class="header">
-            <img class="school-logo" id="school-logo" src="images/인천반도체고.jpg" alt="{school_name} 로고">
-            <h1 class="title">{school_name} 공지사항</h1>
-            <div>
-                <div class="clock" id="clock">00:00:00</div>
-                <div class="date" id="date">0000년 00월 00일</div>
-            </div>
-        </header>
-        
-        <main class="content">
-            <div class="notice-container">
-                <div class="notice-header">
-                    <div class="notice-title">최신 공지사항</div>
-                    <div class="notice-source">총 {len(notices)}개의 공지사항</div>
-                </div>
-                <ul class="notice-list" id="notice-list">
-"""
-    
-    # 공지사항 추가
-    for notice in notices:
-        html_content += f"""
-                    <li class="notice-item">
-                        <div class="notice-item-title">{notice['title']}</div>
-                        <div class="notice-item-info">
-                            <div class="notice-item-date">{notice['date']}</div>
-                        </div>
-                    </li>"""
-    
-    html_content += """
-                </ul>
-            </div>
-        </main>
-    </div>
+            }
+        }
+    """
 
-    <script>
+    # JavaScript 코드를 일반 문자열로 정의
+    js_code = """
         // 시계 업데이트 함수
         function updateClock() {
             const now = new Date();
@@ -306,6 +270,59 @@ def generate_notice_html(notices, school_name):
         
         // 페이지 로드 시 공지사항 순환 시작
         document.addEventListener('DOMContentLoaded', setupNoticeRotation);
+    """
+
+    # HTML 템플릿 생성
+    html_content = f"""<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{school_name} 공지사항</title>
+    <style>
+    {css_style}
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <img class="school-logo" id="school-logo" src="images/인천반도체고.jpg" alt="{school_name} 로고">
+            <h1 class="title">{school_name} 공지사항</h1>
+            <div>
+                <div class="clock" id="clock">00:00:00</div>
+                <div class="date" id="date">0000년 00월 00일</div>
+            </div>
+        </header>
+        
+        <main class="content">
+            <div class="notice-container">
+                <div class="notice-header">
+                    <div class="notice-title">최신 공지사항</div>
+                    <div class="notice-source">총 {len(notices)}개의 공지사항</div>
+                </div>
+                <ul class="notice-list" id="notice-list">
+"""
+    
+    # 공지사항 추가
+    for notice in notices:
+        html_content += f"""
+                    <li class="notice-item">
+                        <div class="notice-item-title">{notice['title']}</div>
+                        <div class="notice-item-info">
+                            <div class="notice-item-date">{notice['date']}</div>
+                        </div>
+                    </li>"""
+    
+    # HTML 닫기
+    html_content += f"""
+                </ul>
+            </div>
+        </main>
+    </div>
+
+    <script>
+    {js_code}
     </script>
 </body>
 </html>"""
@@ -448,7 +465,7 @@ def generate_letter_html(letters, school_name):
         
         .letter-item-info {{
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             font-size: 2.4rem;
             margin-bottom: 10px;
             color: #8bc6fc;
@@ -620,9 +637,6 @@ def main():
         "notice_url": "https://isc.icehs.kr/boardCnts/list.do?boardID=11101&m=0202&s=inchon_ii",
         "letter_url": "https://isc.icehs.kr/boardCnts/list.do?boardID=11107&m=0203&s=inchon_ii"
     }
-    
-    # data 디렉토리 생성
-    os.makedirs("data", exist_ok=True)
     
     # 공지사항 크롤링
     print(f"{school_info['name']} 공지사항 크롤링 시작...")

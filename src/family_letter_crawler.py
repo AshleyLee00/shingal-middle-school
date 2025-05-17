@@ -25,7 +25,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     filename=log_file,
-    filemode='a',
+    filemode='w',
     encoding='utf-8'
 )
 
@@ -112,7 +112,7 @@ def crawl_school_letters(url, site_name=None):
             "letters": [],
             "meta": {
                 "total_count": 0,
-                "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "last_updated": datetime.now().strftime("%Y-%m-%d"),
                 "source": site_name,
                 "url": url,
                 "error": str(e)
@@ -131,7 +131,7 @@ def crawl_school_letters(url, site_name=None):
             "letters": [],
             "meta": {
                 "total_count": 0,
-                "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "last_updated": datetime.now().strftime("%Y-%m-%d"),
                 "source": site_name,
                 "url": url,
                 "error": "가정통신문 테이블을 찾을 수 없습니다."
@@ -152,7 +152,7 @@ def crawl_school_letters(url, site_name=None):
                 "letters": [],
                 "meta": {
                     "total_count": 0,
-                    "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "last_updated": datetime.now().strftime("%Y-%m-%d"),
                     "source": site_name,
                     "url": url,
                     "error": "가정통신문 행을 찾을 수 없습니다."
@@ -164,57 +164,68 @@ def crawl_school_letters(url, site_name=None):
                 # 각 컬럼 데이터 추출
                 columns = row.select("td")
                 
-                if len(columns) >= 3:  # 최소 3개 컬럼(번호, 제목, 날짜)이 있는지 확인
-                    # 기본값 설정
+                if len(columns) >= 6:  # 6개 컬럼(번호, 제목, 첨부, 작성자, 날짜, 조회수)
+                    date_text = columns[4].get_text(strip=True)
+                    try:
+                        # 날짜 형식 변환 (YYYY-MM-DD)
+                        date_obj = datetime.strptime(date_text, "%Y-%m-%d")
+                        formatted_date = date_obj.strftime("%Y-%m-%d")
+                    except ValueError:
+                        formatted_date = date_text
+
                     letter_data = {
-                        "number": "",
-                        "title": "",
-                        "author": "",
-                        "date": "",
-                        "views": "",
+                        "number": columns[0].get_text(strip=True),
+                        "title": columns[1].get_text(strip=True),
+                        "author": columns[3].get_text(strip=True),
+                        "date": formatted_date,
+                        "views": columns[5].get_text(strip=True),
                         "url": ""
                     }
-                    
-                    # 번호 (첫번째 컬럼)
-                    letter_data["number"] = columns[0].get_text(strip=True)
-                    
-                    # 제목 및 URL (두번째 컬럼)
                     title_element = columns[1].select_one("a")
-                    if title_element:
-                        letter_data["title"] = title_element.get_text(strip=True)
-                        
-                        # URL 추출
-                        if title_element.has_attr('href'):
-                            href = title_element['href']
-                            # JavaScript 함수 처리
-                            if href.startswith('javascript:'):
-                                # 다양한 자바스크립트 패턴 처리
-                                match = re.search(r"['\(](\d+)['\)]", href)
-                                if match:
-                                    article_id = match.group(1)
-                                    # URL 패턴 추측
-                                    domain = re.search(r'https?://(?:www\.)?([^/]+)', url).group(0)
-                                    letter_data["url"] = f"{domain}/board/view?id={article_id}"
-                            # 상대 경로 처리
-                            elif not href.startswith(('http://', 'https://')):
-                                letter_data["url"] = urljoin(url, href)
-                            else:
-                                letter_data["url"] = href
-                    else:
-                        letter_data["title"] = columns[1].get_text(strip=True)
-                    
-                    # 날짜와 조회수 처리
-                    if len(columns) >= 4:
-                        # 마지막에서 두 번째 열이 날짜
-                        letter_data["date"] = columns[-2].get_text(strip=True)
-                        # 마지막 열이 조회수
-                        letter_data["views"] = columns[-1].get_text(strip=True)
-                    else:
-                        # 열이 3개인 경우 마지막 열이 날짜
-                        letter_data["date"] = columns[-1].get_text(strip=True)
-                        letter_data["views"] = "0"  # 조회수 정보가 없는 경우
-                    
-                    letters.append(letter_data)
+                    if title_element and title_element.has_attr('href'):
+                        href = title_element['href']
+                        if href.startswith('javascript:'):
+                            match = re.search(r"['\\(](\\d+)['\\)]", href)
+                            if match:
+                                article_id = match.group(1)
+                                domain = re.search(r'https?://(?:www\\.)?([^/]+)', url).group(0)
+                                letter_data["url"] = f"{domain}/board/view?id={article_id}"
+                        elif not href.startswith(('http://', 'https://')):
+                            letter_data["url"] = urljoin(url, href)
+                        else:
+                            letter_data["url"] = href
+                else:
+                    # 기존 방식(컬럼 수가 적은 경우)
+                    date_text = columns[-1].get_text(strip=True) if len(columns) >= 4 else columns[-1].get_text(strip=True)
+                    try:
+                        # 날짜 형식 변환 (YYYY-MM-DD)
+                        date_obj = datetime.strptime(date_text, "%Y-%m-%d")
+                        formatted_date = date_obj.strftime("%Y-%m-%d")
+                    except ValueError:
+                        formatted_date = date_text
+
+                    letter_data = {
+                        "number": columns[0].get_text(strip=True),
+                        "title": columns[1].get_text(strip=True),
+                        "author": "",
+                        "date": formatted_date,
+                        "views": columns[-2].get_text(strip=True) if len(columns) >= 4 else "0",
+                        "url": ""
+                    }
+                    title_element = columns[1].select_one("a")
+                    if title_element and title_element.has_attr('href'):
+                        href = title_element['href']
+                        if href.startswith('javascript:'):
+                            match = re.search(r"['\\(](\\d+)['\\)]", href)
+                            if match:
+                                article_id = match.group(1)
+                                domain = re.search(r'https?://(?:www\\.)?([^/]+)', url).group(0)
+                                letter_data["url"] = f"{domain}/board/view?id={article_id}"
+                        elif not href.startswith(('http://', 'https://')):
+                            letter_data["url"] = urljoin(url, href)
+                        else:
+                            letter_data["url"] = href
+                letters.append(letter_data)
             except Exception as e:
                 logging.error(f"데이터 추출 중 오류 발생: {e}")
                 continue
@@ -229,22 +240,11 @@ def crawl_school_letters(url, site_name=None):
         "letters": letters,
         "meta": {
             "total_count": len(letters),
-            "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "last_updated": datetime.now().strftime("%Y-%m-%d"),
             "source": site_name,
             "url": url
         }
     }
-    
-    # 결과 JSON 파일로 저장
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = os.path.join(log_dir, f"{site_name.replace('.', '_')}_family_letters_api_{timestamp}.json")
-    try:
-        # 새 데이터 저장
-        with open(filename, "w", encoding="utf-8") as f:
-            json.dump(result, f, ensure_ascii=False, indent=2)
-        logging.info(f"크롤링 완료: {len(letters)}개 가정통신문이 {filename}에 저장되었습니다.")
-    except Exception as e:
-        logging.error(f"파일 저장 중 오류 발생: {e}")
     
     return result
 

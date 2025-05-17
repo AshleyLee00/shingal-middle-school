@@ -158,59 +158,52 @@ def crawl_school_notices(url, site_name=None):
                 # 각 컬럼 데이터 추출
                 columns = row.select("td")
                 
-                if len(columns) >= 3:  # 최소 3개 컬럼(번호, 제목, 날짜)이 있는지 확인
-                    # 기본값 설정
+                if len(columns) >= 6:  # 6개 컬럼(번호, 제목, 첨부, 작성자, 날짜, 조회수)
                     notice_data = {
-                        "number": "",
-                        "title": "",
-                        "author": "",
-                        "date": "",
-                        "views": "",
+                        "number": columns[0].get_text(strip=True),
+                        "title": columns[1].get_text(strip=True),
+                        "author": columns[3].get_text(strip=True),
+                        "date": columns[5].get_text(strip=True),
+                        "views": columns[4].get_text(strip=True),
                         "url": ""
                     }
-                    
-                    # 번호 (첫번째 컬럼)
-                    notice_data["number"] = columns[0].get_text(strip=True)
-                    
-                    # 제목 및 URL (두번째 컬럼)
                     title_element = columns[1].select_one("a")
-                    if title_element:
-                        notice_data["title"] = title_element.get_text(strip=True)
-                        
-                        # URL 추출
-                        if title_element.has_attr('href'):
-                            href = title_element['href']
-                            # JavaScript 함수 처리
-                            if href.startswith('javascript:'):
-                                # 다양한 자바스크립트 패턴 처리
-                                # 예: javascript:fnView('123456')
-                                # 또는: javascript:view(123)
-                                match = re.search(r"['\(](\d+)['\)]", href)
-                                if match:
-                                    article_id = match.group(1)
-                                    # URL 패턴 추측
-                                    domain = re.search(r'https?://(?:www\.)?([^/]+)', url).group(0)
-                                    notice_data["url"] = f"{domain}/board/view?id={article_id}"
-                            # 상대 경로 처리
-                            elif not href.startswith(('http://', 'https://')):
-                                notice_data["url"] = urljoin(url, href)
-                            else:
-                                notice_data["url"] = href
-                    else:
-                        notice_data["title"] = columns[1].get_text(strip=True)
-                    
-                    # 날짜와 조회수 처리
-                    if len(columns) >= 4:
-                        # 마지막에서 두 번째 열이 날짜
-                        notice_data["date"] = columns[-2].get_text(strip=True)
-                        # 마지막 열이 조회수
-                        notice_data["views"] = columns[-1].get_text(strip=True)
-                    else:
-                        # 열이 3개인 경우 마지막 열이 날짜
-                        notice_data["date"] = columns[-1].get_text(strip=True)
-                        notice_data["views"] = "0"  # 조회수 정보가 없는 경우
-                    
-                    notices.append(notice_data)
+                    if title_element and title_element.has_attr('href'):
+                        href = title_element['href']
+                        if href.startswith('javascript:'):
+                            match = re.search(r"['\\(](\\d+)['\\)]", href)
+                            if match:
+                                article_id = match.group(1)
+                                domain = re.search(r'https?://(?:www\\.)?([^/]+)', url).group(0)
+                                notice_data["url"] = f"{domain}/board/view?id={article_id}"
+                        elif not href.startswith(('http://', 'https://')):
+                            notice_data["url"] = urljoin(url, href)
+                        else:
+                            notice_data["url"] = href
+                else:
+                    # 기존 방식(컬럼 수가 적은 경우)
+                    notice_data = {
+                        "number": columns[0].get_text(strip=True),
+                        "title": columns[1].get_text(strip=True),
+                        "author": "",
+                        "date": columns[-1].get_text(strip=True) if len(columns) >= 4 else columns[-1].get_text(strip=True),
+                        "views": columns[-2].get_text(strip=True) if len(columns) >= 4 else "0",
+                        "url": ""
+                    }
+                    title_element = columns[1].select_one("a")
+                    if title_element and title_element.has_attr('href'):
+                        href = title_element['href']
+                        if href.startswith('javascript:'):
+                            match = re.search(r"['\\(](\\d+)['\\)]", href)
+                            if match:
+                                article_id = match.group(1)
+                                domain = re.search(r'https?://(?:www\\.)?([^/]+)', url).group(0)
+                                notice_data["url"] = f"{domain}/board/view?id={article_id}"
+                        elif not href.startswith(('http://', 'https://')):
+                            notice_data["url"] = urljoin(url, href)
+                        else:
+                            notice_data["url"] = href
+                notices.append(notice_data)
             except Exception as e:
                 logging.error(f"데이터 추출 중 오류 발생: {e}")
                 continue
