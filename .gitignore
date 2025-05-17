@@ -4,7 +4,6 @@ __pycache__/
 *$py.class
 *.so
 .Python
-env/
 build/
 develop-eggs/
 dist/
@@ -24,6 +23,7 @@ wheels/
 # Virtual Environment
 venv/
 ENV/
+env/
 
 # IDE
 .idea/
@@ -31,31 +31,16 @@ ENV/
 *.swp
 *.swo
 
+# Logs
+*.log
+logs/
+crawler.log
+
 # OS
 .DS_Store
 Thumbs.db
 
 # Project specific
-data/*.log
-data/backup_*
-!data/*.json
-
-# 로그 파일
-*.log
-
-# 백업 파일
-backup_*
-
-# 로컬 환경 설정
-.env
-.venv
-
-# 에디터 설정
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# 운영체제 파일
-.DS_Store
-Thumbs.db 
+data/
+feeds/
+*_feed.xml 

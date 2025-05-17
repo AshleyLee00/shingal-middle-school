@@ -9,6 +9,9 @@ on:
     types:
       - completed
 
+permissions:
+  contents: write  # 저장소에 쓰기 권한 부여
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -16,6 +19,8 @@ jobs:
     steps:
       - name: 저장소 체크아웃
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # 전체 히스토리 가져오기
 
       - name: feeds 디렉토리 확인
         run: |
@@ -23,7 +28,9 @@ jobs:
           touch feeds/.gitkeep
 
       - name: GitHub Pages 배포
-        uses: JamesIves/github-pages-deploy-action@v4
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          branch: gh-pages  # 배포할 브랜치
-          folder: .  # 배포할 폴더 (프로젝트 루트) 
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          publish_branch: gh-pages
+          commit_message: "Deploy: ${{ github.event.head_commit.message }}" 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>학교 가정통신문 디지털 사이니지</title>
+    <title>인천반도체고등학교 가정통신문</title>
     <style>
         @font-face {
             font-family: 'NanumSquare';
@@ -143,15 +143,6 @@
             color: #f39c12;
         }
         
-        .letter-item-author {
-            color: #8bc6fc;
-        }
-        
-        .footer {
-            padding-top: 15px;
-            height: 20px;
-        }
-        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
@@ -206,9 +197,6 @@
                 flex-direction: column;
                 font-size: 1.8rem;
             }
-            .letter-item-date, .letter-item-author {
-                margin-bottom: 5px;
-            }
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
@@ -216,8 +204,8 @@
 <body>
     <div class="container">
         <header class="header">
-            <img class="school-logo" id="school-logo" src="" alt="학교 로고">
-            <h1 class="title" id="school-name">학교 가정통신문</h1>
+            <img class="school-logo" id="school-logo" src="images/인천반도체고.jpg" alt="인천반도체고등학교 로고">
+            <h1 class="title">인천반도체고등학교 가정통신문</h1>
             <div>
                 <div class="clock" id="clock">00:00:00</div>
                 <div class="date" id="date">0000년 00월 00일</div>
@@ -228,14 +216,68 @@
             <div class="letter-container">
                 <div class="letter-header">
                     <div class="letter-title">최신 가정통신문</div>
-                    <div class="letter-source" id="letter-count">로딩 중...</div>
+                    <div class="letter-source">총 10개의 가정통신문</div>
                 </div>
                 <ul class="letter-list" id="letter-list">
-                    <!-- 가정통신문이 여기에 동적으로 추가됩니다 -->
+
                     <li class="letter-item">
-                        <div class="letter-item-title">가정통신문 로딩 중...</div>
+                        <div class="letter-item-title">[인천교육소식] 2025학년도 인천사이버진로교육원 「학생·학부모 5월 진로특강」</div>
                         <div class="letter-item-info">
-                            <div class="letter-item-date"> ...</div>
+                            <div class="letter-item-date">7</div>
+                        </div>
+                    </li>
+                    <li class="letter-item">
+                        <div class="letter-item-title">[인천교육소식] 「2025 고교학점제 진로·학업 지원 학부모 연수 신청」 안내</div>
+                        <div class="letter-item-info">
+                            <div class="letter-item-date">7</div>
+                        </div>
+                    </li>
+                    <li class="letter-item">
+                        <div class="letter-item-title">2025년도 책임규약 서명 안내 가정통신문 안내</div>
+                        <div class="letter-item-info">
+                            <div class="letter-item-date">3</div>
+                        </div>
+                    </li>
+                    <li class="letter-item">
+                        <div class="letter-item-title">[인천교육소식] 「2022 개정 교육과정 고등학교 과목 안내서」 개발 안내</div>
+                        <div class="letter-item-info">
+                            <div class="letter-item-date">5</div>
+                        </div>
+                    </li>
+                    <li class="letter-item">
+                        <div class="letter-item-title">- PC 운영체제 윈도우10 기술지원 종료 안내 -</div>
+                        <div class="letter-item-info">
+                            <div class="letter-item-date">6</div>
+                        </div>
+                    </li>
+                    <li class="letter-item">
+                        <div class="letter-item-title">2025학년도 다자녀가정 학생 신학년 학습준비비 신청안내</div>
+                        <div class="letter-item-info">
+                            <div class="letter-item-date">12</div>
+                        </div>
+                    </li>
+                    <li class="letter-item">
+                        <div class="letter-item-title">AI 디지털교과서 교육주체 인식 국회 설문조사</div>
+                        <div class="letter-item-info">
+                            <div class="letter-item-date">7</div>
+                        </div>
+                    </li>
+                    <li class="letter-item">
+                        <div class="letter-item-title">반도체장비과 1학년 공동실습소 입소 안내</div>
+                        <div class="letter-item-info">
+                            <div class="letter-item-date">14</div>
+                        </div>
+                    </li>
+                    <li class="letter-item">
+                        <div class="letter-item-title">2025학년도 반도체 명장[TALENT 인증제] 안내</div>
+                        <div class="letter-item-info">
+                            <div class="letter-item-date">14</div>
+                        </div>
+                    </li>
+                    <li class="letter-item">
+                        <div class="letter-item-title">[인천교육소식] 난독증 학생 및 경계선지능 학생 진단 및 맞춤지원 신청 안내</div>
+                        <div class="letter-item-info">
+                            <div class="letter-item-date">8</div>
                         </div>
                     </li>
                 </ul>
@@ -270,97 +312,16 @@
         setInterval(updateClock, 1000);
         updateClock(); // 초기 업데이트
         
-        // JSON 데이터 로드 및 가정통신문 표시
-        async function loadLetters() {
-            try {
-                // 특정 JSON 파일 직접 참조
-                const response = await fetch('./data/인천반도체고등학교_family_letters_api_20250516_112057.json');
-                if (!response.ok) {
-                    throw new Error('가정통신문 데이터를 로드할 수 없습니다.');
-                }
-                
-                const lettersData = await response.json();
-                
-                // 학교 이름 및 정보 설정
-                document.getElementById('school-name').textContent = lettersData.meta.source;
-                document.getElementById('letter-count').textContent = 
-                    `총 ${lettersData.letters.length}개의 가정통신문`;
-                
-                // 학교 로고 설정
-                setSchoolLogo(lettersData.meta.source);
-                
-                // 가정통신문 목록 생성
-                const letterList = document.getElementById('letter-list');
-                letterList.innerHTML = ''; // 기존 내용 제거
-                
-                // 상위 10개 가정통신문만 표시
-                const displayLetters = lettersData.letters.slice(0, 10);
-                
-                displayLetters.forEach((letter, index) => {
-                    const li = document.createElement('li');
-                    li.className = 'letter-item';
-                    li.style.animationDelay = `${index * 0.2}s`;
-                    
-                    li.innerHTML = `
-                        <div class="letter-item-title">${letter.title || '제목 없음'}</div>
-                        <div class="letter-item-info">
-                            <div class="letter-item-view">${letter.view || ''}</div>
-                            <div class="letter-item-author">${letter.author || ''}</div>
-                        </div>
-                    `;
-                    
-                    letterList.appendChild(li);
-                });
-                
-                // 주기적으로 가정통신문 순환
-                setupLetterRotation();
-                
-            } catch (error) {
-                console.error('가정통신문 로드 중 오류 발생:', error);
-                document.getElementById('letter-list').innerHTML = `
-                    <li class="letter-item">
-                        <div class="letter-item-title">가정통신문을 불러올 수 없습니다</div>
-                        <div class="letter-item-info">
-                            <div class="letter-item-date">오류: ${error.message}</div>
-                        </div>
-                    </li>
-                `;
-            }
-        }
-        
-        // 학교 로고 설정
-        function setSchoolLogo(schoolName) {
-            // 학교별 로고 매핑
-            const schoolLogos = {
-                '인천반도체고등학교': 'images/인천반도체고.jpg'
-            };
-            
-            // 기본 로고 또는 학교별 로고 설정
-            const logoElement = document.getElementById('school-logo');
-            logoElement.src = schoolLogos[schoolName] || 'https://upload.wikimedia.org/wikipedia/commons/b/b4/South_Korean_Education.svg';
-            logoElement.alt = `${schoolName} 로고`;
-        }
-        
         // 가정통신문 순환 설정
         function setupLetterRotation() {
             const letterItems = document.querySelectorAll('.letter-item');
-            if (letterItems.length <= 1) return; // 항목이 하나 이하면 순환 불필요
+            if (letterItems.length <= 1) return;
             
             let currentIndex = 0;
-            const visibleCount = 6; // 한 번에 보여줄 가정통신문 수를 6개로 변경
-            
-            // 초기에 필요한 항목만 표시
-            updateVisibleLetters();
-            
-            // 주기적으로 가정통신문 순환
-            setInterval(() => {
-                currentIndex = (currentIndex + 1) % letterItems.length;
-                updateVisibleLetters();
-            }, 8000); // 8초마다 순환
+            const visibleCount = 6;
             
             function updateVisibleLetters() {
                 letterItems.forEach((item, index) => {
-                    // 현재 인덱스부터 visibleCount 만큼만 표시
                     const shouldShow = Array.from({length: visibleCount}, (_, i) => 
                         (currentIndex + i) % letterItems.length
                     ).includes(index);
@@ -368,10 +329,17 @@
                     item.style.display = shouldShow ? 'flex' : 'none';
                 });
             }
+            
+            updateVisibleLetters();
+            
+            setInterval(() => {
+                currentIndex = (currentIndex + 1) % letterItems.length;
+                updateVisibleLetters();
+            }, 8000);
         }
         
-        // 페이지 로드 시 가정통신문 로드
-        document.addEventListener('DOMContentLoaded', loadLetters);
+        // 페이지 로드 시 가정통신문 순환 시작
+        document.addEventListener('DOMContentLoaded', setupLetterRotation);
     </script>
 </body>
-</html> 
+</html>
