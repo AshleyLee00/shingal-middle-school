@@ -658,10 +658,11 @@ def main():
     notice_html = generate_notice_html(notices_result['notices'], school_info['name'])
     letter_html = generate_letter_html(letters_result['letters'], school_info['name'])
     
-    # HTML 파일 저장
-    with open("digital_signage.html", "w", encoding="utf-8") as f:
+    # HTML 파일 저장 (상위 디렉토리에 저장)
+    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    with open(os.path.join(parent_dir, "digital_signage.html"), "w", encoding="utf-8") as f:
         f.write(notice_html)
-    with open("family_letters.html", "w", encoding="utf-8") as f:
+    with open(os.path.join(parent_dir, "family_letters.html"), "w", encoding="utf-8") as f:
         f.write(letter_html)
     print("HTML 파일들이 생성되었습니다.")
 

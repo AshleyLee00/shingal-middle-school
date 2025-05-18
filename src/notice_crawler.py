@@ -224,19 +224,7 @@ def crawl_school_notices(url, site_name=None):
         }
     }
     
-    # 결과 JSON 파일로 저장
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = os.path.join("..", "data", f"{site_name.replace('.', '_')}_notices_api_{timestamp}.json")
-    try:
-        # 백업 로직 제거 (이제 매번 새 파일이 생성되므로 백업 불필요)
-        
-        # 새 데이터 저장
-        with open(filename, "w", encoding="utf-8") as f:
-            json.dump(result, f, ensure_ascii=False, indent=2)
-        logging.info(f"크롤링 완료: {len(notices)}개 공지사항이 {filename}에 저장되었습니다.")
-    except Exception as e:
-        logging.error(f"파일 저장 중 오류 발생: {e}")
-    
+    logging.info(f"크롤링 완료: {len(notices)}개 공지사항")
     return result
 
 if __name__ == "__main__":
