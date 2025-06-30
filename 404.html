@@ -1,72 +1,104 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>페이지를 찾을 수 없습니다</title>
-    <style>
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            text-align: center;
-        }
-        .container {
-            max-width: 600px;
-            padding: 30px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #2c3e50;
-            margin-top: 0;
-            font-size: 2.5em;
-        }
-        p {
-            color: #555;
-            font-size: 1.1em;
-            line-height: 1.6;
-        }
-        .home-button {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #2c3e50;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-        .home-button:hover {
-            background-color: #1c2e40;
-        }
-        .error-code {
-            font-size: 7em;
-            font-weight: bold;
-            color: #e74c3c;
-            margin: 0;
-            line-height: 1;
-        }
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>공지사항</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #b99cdc, #b3c6f5);
+      color: #333;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1em 2em;
+      color: white;
+    }
+
+    .header .info {
+      display: flex;
+      gap: 2em;
+      align-items: center;
+    }
+
+    .header .info div {
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+    }
+
+    .board {
+      background-color: white;
+      margin: 2em auto;
+      padding: 2em;
+      width: 80%;
+      border-radius: 10px;
+    }
+
+    .board h2 {
+      font-size: 2em;
+      color: #333;
+      margin-bottom: 1em;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 1.1em;
+    }
+
+    th, td {
+      padding: 0.8em;
+      text-align: left;
+      border-bottom: 1px solid #ccc;
+    }
+
+    td:last-child {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .footer-img {
+      width: 80%;
+      margin: 0 auto 2em auto;
+      display: block;
+      border-radius: 10px;
+    }
+
+    .sun {
+      font-size: 1.5em;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <p class="error-code">404</p>
-        <h1>페이지를 찾을 수 없습니다</h1>
-        <p>
-            요청하신 페이지가 존재하지 않거나 이동되었을 수 있습니다.
-            URL을 확인하시거나 홈페이지로 이동하여 다시 시도해주세요.
-        </p>
-        <a href="/" class="home-button">홈페이지로 이동</a>
+
+  <div class="header">
+    <div class="info">
+      <div><span class="sun">☀️</span> 맑음 18°C</div>
+      <div>2025.05.22 목요일</div>
+      <div>오후 12:12</div>
     </div>
+    <div>○○고등학교</div>
+  </div>
+
+  <div class="board">
+    <h2>공지사항</h2>
+    <table>
+      <tr><td>2025학년도 재학생의 3개년 교육화정 편성표</td><td>2025.05.21</td></tr>
+      <tr><td>2025 학부모 학교참여 컨설팅 신청 안내</td><td>2025.05.21</td></tr>
+      <tr><td>난독증 학생 및 경계선지능 학생 진단 및 맞춤지원 신청 안내</td><td>2025.05.21</td></tr>
+      <tr><td>2025 인천직업교육 i-Job 랜선박람회 참여 안내</td><td>2025.05.21</td></tr>
+      <tr><td>2025년 읽겹쓰 출판전시회 개최 안내</td><td>2025.05.21</td></tr>
+      <tr><td>2025학년도 책마루 상반기 1회차 도서 구입 예정 목록</td><td>2025.05.21</td></tr>
+      <tr><td>2025학년도 교육활동 침해 예방</td><td>2025.05.21</td></tr>
+    </table>
+  </div>
+
+  <img src="KakaoTalk_20250528_160131579.jpg" alt="학교 이미지" class="footer-img">
+
 </body>
-</html> 
+</html>

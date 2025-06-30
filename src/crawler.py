@@ -16,626 +16,351 @@ from dotenv import load_dotenv
 # .env 파일 로드
 load_dotenv()
 
-def generate_notice_html(notices, school_name):
-    # CSS 스타일을 일반 문자열로 정의
+def generate_html_base(title, items, school_name, item_type):
     css_style = """
         @font-face {
-            font-family: 'NanumSquare';
-            src: url('https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css');
+            font-family: 'SeoulAlrim';
+            src: url('font/SeoulAlrimTTF-Medium.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
         }
-        
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
+
         body {
-            font-family: 'NanumSquare', 'Noto Sans KR', sans-serif;
-            background-color: #0a192f;
-            color: white;
-            overflow: hidden;
-            margin: 0;
+            background: #9B7EDC;
+            font-family: 'SeoulAlrim', sans-serif;
+            margin: 0; 
             padding: 0;
-            line-height: 1.4;
-        }
-        
-        .container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            width: 100vw;
-            padding: 30px;
-        }
-        
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-bottom: 20px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-            margin-bottom: 20px;
-        }
-        
-        .school-logo {
-            height: 80px;
-            width: auto;
-        }
-        
-        .title {
-            font-size: 3.5rem;
-            font-weight: 800;
-            text-align: center;
-            flex-grow: 1;
-            color: #ffffff;
-            margin: 0 20px;
-        }
-        
-        .clock {
-            font-size: 2.5rem;
-            font-weight: 500;
-            color: #f1c40f;
-            text-align: right;
-        }
-        
-        .date {
-            font-size: 1.8rem;
-            font-weight: 400;
-            color: #f1c40f;
-            margin-top: 5px;
-        }
-        
-        .content {
-            display: flex;
-            flex-grow: 1;
-            overflow: hidden;
-        }
-        
-        .notice-container {
-            flex: 1;
-            overflow: hidden;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
-        
-        .notice-header {
+
+        .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px;
-            background-color: #1a365d;
-            border-radius: 10px 10px 0 0;
-            margin-bottom: 10px;
+            background: linear-gradient(90deg, #9B7EDC, #6C4EB6);
+            padding: 30px 90px;
+            box-shadow: 0 8px 32px rgba(74, 27, 140, 0.18);
+            flex-shrink: 0;
         }
-        
-        .notice-title {
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .header-main-title {
+            font-size: 5.8rem;
+            font-weight: 900; 
+            color: #FFFFFF;
+            letter-spacing: -2px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 0;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 60px;
+        }
+
+        .page-header .weather, 
+        .page-header .date-time {
             font-size: 2.2rem;
-            font-weight: 700;
-            color: #ffffff;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
         }
-        
-        .notice-source {
-            font-size: 1.6rem;
-            color: #f1c40f;
+
+        .page-header .date-time {
+            line-height: 1.3;
+            text-align: right;
+            font-size: 1.8rem;
         }
-        
-        .notice-list {
-            list-style: none;
-            overflow: hidden;
-            flex-grow: 1;
+
+        .page-header .weather {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
-        
-        .notice-item {
+
+        .page-header .weather-content {
             display: flex;
             flex-direction: column;
-            margin-bottom: 20px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 20px;
-            transition: transform 0.5s ease;
-            animation: fadeIn 1s;
+            align-items: flex-start;
+            gap: 5px;
         }
-        
-        .notice-item-title {
-            font-size: 3.2rem;
+
+        .page-header .weather-icon {
+            width: 45px;
+            height: 45px;
+            flex-shrink: 0;
+        }
+
+        .page-header .weather-temp {
+            font-size: 2.2rem;
+        }
+
+        .page-header .school-name {
+            font-size: 2.2rem;
+            color: #FFFFFF;
             font-weight: 700;
-            margin-bottom: 15px;
-            color: #ffffff;
-            word-break: keep-all;
-            line-height: 1.3;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
         }
-        
-        .notice-item-info {
-            display: flex;
-            justify-content: flex-end;
-            font-size: 2.4rem;
-            margin-bottom: 10px;
-            color: #8bc6fc;
-        }
-        
-        .notice-item-date {
-            color: #f39c12;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes slideUp {
-            from { transform: translateY(0); }
-            to { transform: translateY(-100%); }
-        }
-        
-        /* 반응형 디자인 */
-        @media (max-width: 1200px) {
-            .title {
-                font-size: 3.2rem;
+
+        @media (max-width: 1380px) {
+            .page-header {
+                flex-direction: column;
+                padding: 25px;
+                gap: 20px;
             }
-            .clock {
-                font-size: 2.4rem;
+            .header-left, .header-right {
+                width: 100%;
+                justify-content: center;
+                gap: 40px;
             }
-            .notice-item-title {
-                font-size: 2.8rem;
+            .header-main-title {
+                font-size: 5rem;
             }
-            .notice-item-info {
-                font-size: 2rem;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-            .title {
-                font-size: 2.6rem;
-            }
-            .clock {
+            .page-header .school-name {
                 font-size: 2.2rem;
             }
-            .notice-header {
+        }
+
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 20px;
+            }
+            .header-main-title {
+                font-size: 4rem;
+            }
+            .header-left, .header-right {
                 flex-direction: column;
-                align-items: flex-start;
+                gap: 30px;
             }
-            .notice-title {
-                font-size: 2.4rem;
-                margin-bottom: 5px;
-            }
-            .notice-source {
+            .page-header .school-name {
                 font-size: 2rem;
             }
-            .notice-item-title {
-                font-size: 2.4rem;
+        }
+
+        .main-content {
+            display: flex; 
+            justify-content: center; 
+            align-items: stretch;
+            margin: 40px auto;
+            background: #FFFFFF;
+            border-radius: 20px;
+            box-shadow: 0 8px 40px rgba(74, 27, 140, 0.18);
+            gap: 0;
+            width: 95%;
+            max-width: 2000px;
+            flex: 1;
+        }
+
+        .content-box {
+            background: #fff;
+            padding: 30px 60px 30px 80px;
+            box-shadow: 0 10px 40px rgba(74,27,140,0.18);
+            border-radius: 20px 0 0 20px;
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            align-items: stretch;
+        }
+
+        .content-list {
+            width: 100%;
+            border-collapse: collapse;
+            height: 100%;
+            table-layout: fixed;
+        }
+
+        .content-list tr {
+            border-bottom: 1px solid #E5E5E5;
+            height: calc(100% / 7);  /* 7개의 항목이 동일한 높이를 가지도록 설정 */
+        }
+
+        .content-list td {
+            font-size: 2.2rem;
+            padding: 0 20px;
+            border-bottom: 1px solid #ccc;
+            vertical-align: middle;
+        }
+
+        .content-list td:first-child {
+            width: 80%;  /* 첫 번째 열(내용)의 너비를 80%로 설정 */
+        }
+
+        .content-list td:last-child {
+            width: 20%;  /* 두 번째 열(날짜)의 너비를 20%로 설정 */
+            text-align: right;
+            color: #666666;
+            font-size: 1.8rem;
+            white-space: nowrap;  /* 날짜가 한 줄로 표시되도록 설정 */
+        }
+
+        .school-img {
+            width: 800px;
+            height: calc(100% - 60px);  /* 상하 패딩 30px을 고려하여 계산 */
+            border-radius: 0 20px 20px 0;
+            object-fit: cover; 
+            box-shadow: 0 10px 40px rgba(74,27,140,0.18);
+            flex-shrink: 0;
+            align-self: center;
+        }
+
+        @media (max-width: 1380px) { 
+            .main-content {
+                flex-wrap: wrap; 
+                justify-content: center;
+                gap: 20px;
+                margin: 60px auto;
             }
-            .notice-item-info {
-                flex-direction: column;
-                font-size: 1.8rem;
+            .school-img {
+                width: 100%;
+                height: 400px;
+                margin: 0;
+            }
+        }
+
+        @media (max-width: 768px) { 
+            .main-content { 
+                flex-direction: column; 
+                align-items: stretch; 
+                margin: 40px auto;
+                width: 95%;
+                gap: 20px;
+            }
+            .school-img { 
+                height: 300px;
+            }
+            .content-box { 
+                min-width: auto; 
             }
         }
     """
 
-    # JavaScript 코드를 일반 문자열로 정의
     js_code = """
-        // 시계 업데이트 함수
-        function updateClock() {
+        function updateDateTime() {
             const now = new Date();
-            
-            // 시간 표시
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
-            
-            // 날짜 표시
             const year = now.getFullYear();
             const month = String(now.getMonth() + 1).padStart(2, '0');
             const day = String(now.getDate()).padStart(2, '0');
-            
             const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
             const weekDay = weekDays[now.getDay()];
-            
-            document.getElementById('date').textContent = 
-                `${year}년 ${month}월 ${day}일 (${weekDay})`;
+
+            let hours = now.getHours();
+            const ampm = hours >= 12 ? '오후' : '오전';
+            hours = hours % 12;
+            hours = hours ? hours : 12; 
+            const displayHours = String(hours).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+
+            const dateString = `${year}.${month}.${day} ${weekDay}요일`;
+            const timeString = `${ampm} ${displayHours}:${minutes}`;
+
+            document.getElementById('date-time').innerHTML = `${dateString}<br>${timeString}`;
         }
-        
-        // 1초마다 시계 업데이트
-        setInterval(updateClock, 1000);
-        updateClock(); // 초기 업데이트
-        
-        // 공지사항 순환 설정
-        function setupNoticeRotation() {
-            const noticeItems = document.querySelectorAll('.notice-item');
-            if (noticeItems.length <= 1) return;
-            
-            let currentIndex = 0;
-            const visibleCount = 6;
-            
-            function updateVisibleNotices() {
-                noticeItems.forEach((item, index) => {
-                    const shouldShow = Array.from({length: visibleCount}, (_, i) => 
-                        (currentIndex + i) % noticeItems.length
-                    ).includes(index);
-                    
-                    item.style.display = shouldShow ? 'flex' : 'none';
+        setInterval(updateDateTime, 1000); updateDateTime();
+
+        function weatherDescKor(desc) {
+            const map = {
+                'Clear': { text: '맑음', icon: 'sunny.svg' },
+                'Clouds': { text: '흐림', icon: 'cloudy.svg' },
+                'Rain': { text: '비', icon: 'rainy.svg' },
+                'Drizzle': { text: '이슬비', icon: 'drizzle.svg' },
+                'Thunderstorm': { text: '뇌우', icon: 'thunder.svg' },
+                'Snow': { text: '눈', icon: 'snowy.svg' },
+                'Mist': { text: '안개', icon: 'foggy.svg' },
+                'Fog': { text: '안개', icon: 'foggy.svg' },
+                'Smoke': { text: '연기', icon: 'smoke.svg' },
+                'Haze': { text: '실안개', icon: 'haze.svg' },
+                'Dust': { text: '먼지', icon: 'dust.svg' },
+                'Sand': { text: '모래', icon: 'sand.svg' },
+                'Ash': { text: '재', icon: 'ash.svg' },
+                'Squall': { text: '돌풍', icon: 'windy.svg' },
+                'Tornado': { text: '토네이도', icon: 'tornado.svg' }
+            };
+            return map[desc] || { text: desc, icon: 'default.svg' };
+        }
+
+        function fetchWeather() {
+            const apiKey = '91fff999310c2bdea1978b3f0925fb38';
+            const lat = 37.401;
+            const lon = 126.922;
+            const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.weather || !data.weather[0]) throw new Error('Invalid weather data');
+                    const weatherInfo = weatherDescKor(data.weather[0].main);
+                    const temp = Math.round(data.main.temp);
+                    document.querySelector('.weather').innerHTML =
+                        `<img class='weather-icon' src='images/${weatherInfo.icon}' alt='날씨아이콘'>
+                         <div class='weather-content'>
+                            <div>${weatherInfo.text}</div>
+                            <div class='weather-temp'>${temp}℃</div>
+                         </div>`;
+                })
+                .catch(e => {
+                    console.error("Weather fetch error: ", e);
+                    document.querySelector('.weather').textContent = '날씨 정보를 불러올 수 없습니다';
                 });
-            }
-            
-            updateVisibleNotices();
-            
-            setInterval(() => {
-                currentIndex = (currentIndex + 1) % noticeItems.length;
-                updateVisibleNotices();
-            }, 8000);
         }
-        
-        // 페이지 로드 시 공지사항 순환 시작
-        document.addEventListener('DOMContentLoaded', setupNoticeRotation);
+        fetchWeather();
     """
 
-    # HTML 템플릿 생성
-    html_content = f"""<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{school_name} 공지사항</title>
-    <style>
-    {css_style}
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div class="container">
-        <header class="header">
-            <img class="school-logo" id="school-logo" src="images/인천반도체고.jpg" alt="{school_name} 로고">
-            <h1 class="title">{school_name} 공지사항</h1>
-            <div>
-                <div class="clock" id="clock">00:00:00</div>
-                <div class="date" id="date">0000년 00월 00일</div>
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <title>{school_name} {title}</title>
+        <style>{css_style}</style>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <header class="page-header">
+            <div class="header-left">
+                <div class="header-main-title">{title}</div>
+            </div>
+            <div class="header-right">
+                <div class="weather">날씨 정보를 불러오는 중...</div>
+                <div class="date-time" id="date-time"></div>
+                <div class="school-name">{school_name}</div>
             </div>
         </header>
-        
-        <main class="content">
-            <div class="notice-container">
-                <div class="notice-header">
-                    <div class="notice-title">최신 공지사항</div>
-                    <div class="notice-source">총 {len(notices)}개의 공지사항</div>
-                </div>
-                <ul class="notice-list" id="notice-list">
-"""
-    
-    # 공지사항 추가
-    for notice in notices:
-        html_content += f"""
-                    <li class="notice-item">
-                        <div class="notice-item-title">{notice['title']}</div>
-                        <div class="notice-item-info">
-                            <div class="notice-item-date">{notice['date']}</div>
-                        </div>
-                    </li>"""
-    
-    # HTML 닫기
-    html_content += f"""
-                </ul>
+        <div class="main-content">
+            <div class="content-box">
+                <table class="content-list">
+                    { "".join(f"<tr><td>{item['title']}</td><td>{item['date']}</td></tr>" for item in items) }
+                </table>
             </div>
-        </main>
-    </div>
-
-    <script>
-    {js_code}
-    </script>
-</body>
-</html>"""
-    
+            <img class="school-img" src="images/안양초등학교.png" alt="학교 전경">
+        </div>
+        <script>{js_code}</script>
+    </body>
+    </html>
+    """
     return html_content
+
+def generate_notice_html(notices, school_name):
+    return generate_html_base("공지사항", notices, school_name, "notice")
 
 def generate_letter_html(letters, school_name):
-    html_content = f"""<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{school_name} 가정통신문</title>
-    <style>
-        @font-face {{
-            font-family: 'NanumSquare';
-            src: url('https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css');
-        }}
-        
-        * {{
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }}
-        
-        body {{
-            font-family: 'NanumSquare', 'Noto Sans KR', sans-serif;
-            background-color: #0a192f;
-            color: white;
-            overflow: hidden;
-            margin: 0;
-            padding: 0;
-            line-height: 1.4;
-        }}
-        
-        .container {{
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            width: 100vw;
-            padding: 30px;
-        }}
-        
-        .header {{
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-bottom: 20px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-            margin-bottom: 20px;
-        }}
-        
-        .school-logo {{
-            height: 80px;
-            width: auto;
-        }}
-        
-        .title {{
-            font-size: 3.5rem;
-            font-weight: 800;
-            text-align: center;
-            flex-grow: 1;
-            color: #ffffff;
-            margin: 0 20px;
-        }}
-        
-        .clock {{
-            font-size: 2.5rem;
-            font-weight: 500;
-            color: #f1c40f;
-            text-align: right;
-        }}
-        
-        .date {{
-            font-size: 1.8rem;
-            font-weight: 400;
-            color: #f1c40f;
-            margin-top: 5px;
-        }}
-        
-        .content {{
-            display: flex;
-            flex-grow: 1;
-            overflow: hidden;
-        }}
-        
-        .letter-container {{
-            flex: 1;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }}
-        
-        .letter-header {{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background-color: #1a365d;
-            border-radius: 10px 10px 0 0;
-            margin-bottom: 10px;
-        }}
-        
-        .letter-title {{
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: #ffffff;
-        }}
-        
-        .letter-source {{
-            font-size: 1.6rem;
-            color: #f1c40f;
-        }}
-        
-        .letter-list {{
-            list-style: none;
-            overflow: hidden;
-            flex-grow: 1;
-        }}
-        
-        .letter-item {{
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 20px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 20px;
-            transition: transform 0.5s ease;
-            animation: fadeIn 1s;
-        }}
-        
-        .letter-item-title {{
-            font-size: 3.2rem;
-            font-weight: 700;
-            margin-bottom: 15px;
-            color: #ffffff;
-            word-break: keep-all;
-            line-height: 1.3;
-        }}
-        
-        .letter-item-info {{
-            display: flex;
-            justify-content: flex-end;
-            font-size: 2.4rem;
-            margin-bottom: 10px;
-            color: #8bc6fc;
-        }}
-        
-        .letter-item-date {{
-            color: #f39c12;
-        }}
-        
-        @keyframes fadeIn {{
-            from {{ opacity: 0; transform: translateY(30px); }}
-            to {{ opacity: 1; transform: translateY(0); }}
-        }}
-        
-        @keyframes slideUp {{
-            from {{ transform: translateY(0); }}
-            to {{ transform: translateY(-100%); }}
-        }}
-        
-        /* 반응형 디자인 */
-        @media (max-width: 1200px) {{
-            .title {{
-                font-size: 3.2rem;
-            }}
-            .clock {{
-                font-size: 2.4rem;
-            }}
-            .letter-item-title {{
-                font-size: 2.8rem;
-            }}
-            .letter-item-info {{
-                font-size: 2rem;
-            }}
-        }}
-        
-        @media (max-width: 768px) {{
-            .container {{
-                padding: 15px;
-            }}
-            .title {{
-                font-size: 2.6rem;
-            }}
-            .clock {{
-                font-size: 2.2rem;
-            }}
-            .letter-header {{
-                flex-direction: column;
-                align-items: flex-start;
-            }}
-            .letter-title {{
-                font-size: 2.4rem;
-                margin-bottom: 5px;
-            }}
-            .letter-source {{
-                font-size: 2rem;
-            }}
-            .letter-item-title {{
-                font-size: 2.4rem;
-            }}
-            .letter-item-info {{
-                flex-direction: column;
-                font-size: 1.8rem;
-            }}
-        }}
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div class="container">
-        <header class="header">
-            <img class="school-logo" id="school-logo" src="images/인천반도체고.jpg" alt="{school_name} 로고">
-            <h1 class="title">{school_name} 가정통신문</h1>
-            <div>
-                <div class="clock" id="clock">00:00:00</div>
-                <div class="date" id="date">0000년 00월 00일</div>
-            </div>
-        </header>
-        
-        <main class="content">
-            <div class="letter-container">
-                <div class="letter-header">
-                    <div class="letter-title">최신 가정통신문</div>
-                    <div class="letter-source">총 {len(letters)}개의 가정통신문</div>
-                </div>
-                <ul class="letter-list" id="letter-list">
-"""
-    
-    # 가정통신문 추가
-    for letter in letters:
-        html_content += f"""
-                    <li class="letter-item">
-                        <div class="letter-item-title">{letter['title']}</div>
-                        <div class="letter-item-info">
-                            <div class="letter-item-date">{letter['date']}</div>
-                        </div>
-                    </li>"""
-    
-    html_content += """
-                </ul>
-            </div>
-        </main>
-    </div>
-
-    <script>
-        // 시계 업데이트 함수
-        function updateClock() {
-            const now = new Date();
-            
-            // 시간 표시
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
-            
-            // 날짜 표시
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            
-            const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
-            const weekDay = weekDays[now.getDay()];
-            
-            document.getElementById('date').textContent = 
-                `${year}년 ${month}월 ${day}일 (${weekDay})`;
-        }
-        
-        // 1초마다 시계 업데이트
-        setInterval(updateClock, 1000);
-        updateClock(); // 초기 업데이트
-        
-        // 가정통신문 순환 설정
-        function setupLetterRotation() {
-            const letterItems = document.querySelectorAll('.letter-item');
-            if (letterItems.length <= 1) return;
-            
-            let currentIndex = 0;
-            const visibleCount = 6;
-            
-            function updateVisibleLetters() {
-                letterItems.forEach((item, index) => {
-                    const shouldShow = Array.from({length: visibleCount}, (_, i) => 
-                        (currentIndex + i) % letterItems.length
-                    ).includes(index);
-                    
-                    item.style.display = shouldShow ? 'flex' : 'none';
-                });
-            }
-            
-            updateVisibleLetters();
-            
-            setInterval(() => {
-                currentIndex = (currentIndex + 1) % letterItems.length;
-                updateVisibleLetters();
-            }, 8000);
-        }
-        
-        // 페이지 로드 시 가정통신문 순환 시작
-        document.addEventListener('DOMContentLoaded', setupLetterRotation);
-    </script>
-</body>
-</html>"""
-    
-    return html_content
+    return generate_html_base("가정통신문", letters, school_name, "letter")
 
 def main():
     # 학교 정보
     school_info = {
-        "name": "인천반도체고등학교",
-        "notice_url": "https://isc.icehs.kr/boardCnts/list.do?boardID=11101&m=0202&s=inchon_ii",
-        "letter_url": "https://isc.icehs.kr/boardCnts/list.do?boardID=11107&m=0203&s=inchon_ii"
+        "name": "안양초등학교",
+        "notice_url": "https://anyang-e.goeay.kr/anyang-e/na/ntt/selectRssFeed.do?mi=4492&bbsId=1821",
+        "letter_url": "https://anyang-e.goeay.kr/anyang-e/na/ntt/selectRssFeed.do?mi=4493&bbsId=1822"
     }
     
     # 공지사항 크롤링
@@ -644,7 +369,9 @@ def main():
         school_info["notice_url"],
         school_info["name"]
     )
-    print(f"공지사항 크롤링 완료: {len(notices_result['notices'])}개")
+    if 'notices' in notices_result and notices_result['notices']:
+        notices_result['notices'] = notices_result['notices'][:7]
+    print(f"공지사항 크롤링 완료: {len(notices_result.get('notices', []))}개")
     
     # 가정통신문 크롤링
     print(f"{school_info['name']} 가정통신문 크롤링 시작...")
@@ -652,13 +379,15 @@ def main():
         school_info["letter_url"],
         school_info["name"]
     )
-    print(f"가정통신문 크롤링 완료: {len(letters_result['letters'])}개")
+    if 'letters' in letters_result and letters_result['letters']:
+        letters_result['letters'] = letters_result['letters'][:7]
+    print(f"가정통신문 크롤링 완료: {len(letters_result.get('letters', []))}개")
     
     # HTML 파일 생성
-    notice_html = generate_notice_html(notices_result['notices'], school_info['name'])
-    letter_html = generate_letter_html(letters_result['letters'], school_info['name'])
+    notice_html = generate_notice_html(notices_result.get('notices', []), school_info['name'])
+    letter_html = generate_letter_html(letters_result.get('letters', []), school_info['name'])
     
-    # HTML 파일 저장 (상위 디렉토리에 저장)
+    # HTML 파일 저장
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     with open(os.path.join(parent_dir, "digital_signage.html"), "w", encoding="utf-8") as f:
         f.write(notice_html)

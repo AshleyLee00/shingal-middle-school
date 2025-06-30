@@ -43,4 +43,7 @@ Thumbs.db
 # Project specific
 data/
 feeds/
-*_feed.xml 
+*_feed.xml
+
+# API Keys (보안)
+config.js 
