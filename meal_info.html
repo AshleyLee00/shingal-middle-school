@@ -135,33 +135,151 @@
             }
         }
 
+        @media (max-width: 480px) {
+            .page-header {
+                padding: 15px 10px;
+                gap: 15px;
+            }
+            .header-left, .header-right {
+                gap: 20px;
+            }
+            .header-main-title { 
+                font-size: 2.5rem; 
+                text-align: center;
+            }
+            .page-header .weather, 
+            .page-header .date-time,
+            .page-header .school-name {
+                font-size: 1.6rem;
+            }
+            .page-header .weather-icon {
+                width: 35px;
+                height: 35px;
+            }
+            .page-header .weather-temp {
+                font-size: 1.6rem;
+            }
+            .meal-container {
+                margin: 20px auto;
+                padding: 15px;
+                width: 98%;
+                flex-direction: column;
+                flex-wrap: nowrap;
+                max-height: none;
+                overflow-x: visible;
+                gap: 15px;
+            }
+            .meal-day-container {
+                min-width: auto;
+                flex: none;
+                width: 100%;
+            }
+            .meal-date {
+                font-size: 1.8rem;
+                padding: 12px;
+            }
+            .meal-menu {
+                font-size: 1.6rem;
+                line-height: 1.3;
+            }
+            .meal-menu span {
+                margin-bottom: 6px;
+            }
+            .allergen {
+                font-size: 1.4rem;
+                margin-top: 10px;
+                padding-top: 10px;
+            }
+            .notice-text {
+                font-size: 1.5rem;
+                margin: 15px auto;
+                padding: 15px;
+                width: 98%;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .page-header {
+                padding: 10px 15px;
+                min-height: 50px;
+            }
+            .header-main-title {
+                font-size: 3rem;
+            }
+            .page-header .weather, 
+            .page-header .date-time,
+            .page-header .school-name {
+                font-size: 1.6rem;
+            }
+            .page-header .weather-icon {
+                width: 35px;
+                height: 35px;
+            }
+            .meal-container {
+                margin: 10px auto;
+                padding: 10px;
+                flex-direction: column;
+                flex-wrap: nowrap;
+                max-height: none;
+                overflow-x: visible;
+                gap: 10px;
+            }
+            .meal-day-container {
+                min-width: auto;
+                flex: none;
+                width: 100%;
+            }
+            .meal-date {
+                font-size: 1.6rem;
+                padding: 6px;
+            }
+            .meal-menu {
+                font-size: 1.5rem;
+                line-height: 1.2;
+            }
+            .meal-menu span {
+                margin-bottom: 4px;
+            }
+            .allergen {
+                font-size: 1.3rem;
+                margin-top: 6px;
+                padding-top: 6px;
+            }
+            .notice-text {
+                font-size: 1.4rem;
+                margin: 8px auto;
+                padding: 8px;
+            }
+        }
+
         .meal-container {
             display: flex; 
-            flex-wrap: nowrap;
+            flex-wrap: wrap;
             gap: 12px;
-            margin: 40px auto;
-            padding: 20px;
+            margin: 20px auto;
+            padding: 15px;
             width: 95%;
             max-width: 2000px;
             background: #FFFFFF;
             border-radius: 20px;
             box-shadow: 0 8px 40px rgba(74, 27, 140, 0.18);
-            overflow-x: auto;
+            overflow-x: visible;
+            max-height: none;
         }
 
         .meal-day-container {
             display: flex;
             flex-direction: column;
             gap: 0;
-            flex: 1;
+            flex: 1 1 300px;
             min-width: 200px;
         }
 
         .meal-date {
             background: #E7E5F5;
             border-radius: 15px 15px 0 0;
-            padding: 15px;
-            font-size: 2.2rem;
+            padding: 12px;
+            font-size: 2rem;
             font-weight: 900;
             color: #222;
             text-align: center;
@@ -171,16 +289,17 @@
         .meal-card {
             background: white;
             border-radius: 0 0 15px 15px;
-            padding: 20px;
+            padding: 15px;
             flex: 1;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             border: 1px solid #E5E5E5;
             border-top: none;
+            overflow: visible;
         }
 
         .meal-menu {
-            font-size: 2.2rem;
-            line-height: 1.5;
+            font-size: 2rem;
+            line-height: 1.4;
             color: #333;
             white-space: pre-line;
             font-weight: 500;
@@ -189,69 +308,86 @@
 
         .meal-menu span {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             text-shadow: 0 0 1px rgba(0, 0, 0, 0.08);
         }
 
         .allergen {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             color: #666;
-            margin-top: 15px;
+            margin-top: 12px;
             font-weight: 500;
             border-top: 1px solid #eee;
-            padding-top: 15px;
+            padding-top: 12px;
         }
 
         /* 반응형 디자인 수정 */
         @media (max-width: 1400px) {
             .meal-container {
-                flex-wrap: nowrap;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                scrollbar-width: thin;
+                flex-wrap: wrap;
+                overflow-x: visible;
+                max-height: none;
             }
             .meal-day-container {
-                min-width: 300px;
+                flex: 1 1 280px;
+                min-width: 280px;
             }
             .meal-date {
-                font-size: 2.5rem;
+                font-size: 2.2rem;
+                padding: 10px;
             }
             .meal-menu {
-                font-size: 2.5rem;
+                font-size: 2.2rem;
+                line-height: 1.3;
+            }
+            .meal-menu span {
+                margin-bottom: 8px;
             }
             .allergen {
-                font-size: 2rem;
+                font-size: 1.8rem;
+                margin-top: 10px;
+                padding-top: 10px;
             }
         }
 
-        /* 스크롤바 스타일링 */
-        .meal-container::-webkit-scrollbar {
-            height: 12px;
+        @media (max-height: 800px) {
+            .meal-container {
+                flex-direction: column;
+                flex-wrap: nowrap;
+                max-height: none;
+                overflow-x: visible;
+                gap: 15px;
+            }
+            .meal-day-container {
+                min-width: auto;
+                flex: none;
+                width: 100%;
+            }
+            .meal-menu {
+                font-size: 1.8rem;
+                line-height: 1.3;
+            }
+            .meal-menu span {
+                margin-bottom: 6px;
+            }
+            .allergen {
+                font-size: 1.5rem;
+                margin-top: 10px;
+                padding-top: 10px;
+            }
         }
 
-        .meal-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 6px;
-        }
 
-        .meal-container::-webkit-scrollbar-thumb {
-            background: #B8B2E5;
-            border-radius: 6px;
-        }
-
-        .meal-container::-webkit-scrollbar-thumb:hover {
-            background: #9B7EDC;
-        }
 
         .notice-text {
             text-align: center;
             color: #666;
-            font-size: 1.8rem;
-            margin: 20px auto;
-            line-height: 1.5;
+            font-size: 1.6rem;
+            margin: 15px auto;
+            line-height: 1.4;
             max-width: 2000px;
             width: 95%;
-            padding: 20px;
+            padding: 15px;
             background: #FFFFFF;
             border-radius: 15px;
             box-shadow: 0 4px 20px rgba(74, 27, 140, 0.1);
@@ -327,9 +463,8 @@
 
         <div class="notice-text">
             위 식단은 학교 사정 및 기타 등에 따라 변경될 수 있습니다.<br>
-            우리학교는 화학 조미료를 사용하지 않습니다.<br>
-            국내산을 주재료로 사용하며 육류인 경우 식재료 검수시스템 등을 이용한 원산지 확인을 철저히 하고 있습니다.<br>
-            김치도 국내산 재료만을 사용한 김치입니다.
+            알레르기 유발 식품에 대한 정보는 각 메뉴 옆의 숫자로 표시됩니다.<br>
+            (1)난류, (2)우유, (3)메밀, (4)땅콩, (5)대두, (6)밀, (7)고등어, (8)게, (9)새우, (10)돼지고기, (11)복숭아, (12)토마토, (13)아황산류, (14)호두, (15)닭고기, (16)쇠고기, (17)오징어, (18)조개류(굴, 전복, 홍합 포함), (19)잣
         </div>
 
         <script>
@@ -363,7 +498,17 @@
                 .then(res => res.json())
                 .then(data => {
                     if (!data.weather || !data.weather[0]) throw new Error('Invalid weather data');
-                    const weatherInfo = weatherDescKor(data.weather[0].main);
+                    
+                    // 현재 시간을 기준으로 낮/밤 판단
+                    const now = new Date();
+                    const currentHour = now.getHours();
+                    const isDay = currentHour >= 6 && currentHour < 18; // 6시~18시는 낮
+                    
+                    const weatherInfo = getWeatherInfo(
+                        data.weather[0].main, 
+                        data.weather[0].description, 
+                        isDay
+                    );
                     const temp = Math.round(data.main.temp);
                     document.querySelector('.weather').innerHTML =
                         `<img class='weather-icon' src='images/${weatherInfo.icon}' alt='날씨아이콘'>
@@ -378,25 +523,119 @@
                 });
         }
 
-        function weatherDescKor(desc) {
-            const map = {
-                'Clear': { text: '맑음', icon: 'sunny.svg' },
-                'Clouds': { text: '흐림', icon: 'cloudy.svg' },
-                'Rain': { text: '비', icon: 'rainy.svg' },
-                'Drizzle': { text: '이슬비', icon: 'drizzle.svg' },
-                'Thunderstorm': { text: '뇌우', icon: 'thunder.svg' },
-                'Snow': { text: '눈', icon: 'snowy.svg' },
-                'Mist': { text: '안개', icon: 'foggy.svg' },
-                'Fog': { text: '안개', icon: 'foggy.svg' },
-                'Smoke': { text: '연기', icon: 'smoke.svg' },
-                'Haze': { text: '실안개', icon: 'haze.svg' },
-                'Dust': { text: '먼지', icon: 'dust.svg' },
-                'Sand': { text: '모래', icon: 'sand.svg' },
-                'Ash': { text: '재', icon: 'ash.svg' },
-                'Squall': { text: '돌풍', icon: 'windy.svg' },
-                'Tornado': { text: '토네이도', icon: 'tornado.svg' }
+        // OpenWeatherMap API 2.5와 커스텀 날씨 아이콘 매핑
+        function getWeatherInfo(weatherMain, weatherDescription, isDay = true) {
+            // 메인 날씨 조건별 매핑
+            const mainWeatherMap = {
+                'Clear': { 
+                    text: '맑음', 
+                    icon: 'weather/1.png' // 태양 아이콘
+                },
+                'Clouds': {
+                    text: '구름',
+                    icon: getCloudIcon(weatherDescription) // 구름 정도에 따라 다른 아이콘
+                },
+                'Rain': {
+                    text: '비',
+                    icon: getRainIcon(weatherDescription) // 비의 강도에 따라 다른 아이콘
+                },
+                'Drizzle': {
+                    text: '이슬비',
+                    icon: 'weather/14.png' // 물방울 아이콘
+                },
+                'Thunderstorm': {
+                    text: '뇌우',
+                    icon: 'weather/7.png' // 번개 아이콘
+                },
+                'Snow': {
+                    text: '눈',
+                    icon: 'weather/5.png' // 눈송이 아이콘
+                },
+                'Mist': {
+                    text: '안개',
+                    icon: 'weather/16.png' // 안개 아이콘
+                },
+                'Fog': {
+                    text: '짙은 안개',
+                    icon: 'weather/16.png' // 안개 아이콘
+                },
+                'Smoke': {
+                    text: '연기',
+                    icon: 'weather/16.png' // 안개 아이콘 (비슷한 시야 제한)
+                },
+                'Haze': {
+                    text: '실안개',
+                    icon: 'weather/16.png' // 안개 아이콘
+                },
+                'Dust': {
+                    text: '먼지',
+                    icon: 'weather/11.png' // 바람 아이콘
+                },
+                'Sand': {
+                    text: '모래바람',
+                    icon: 'weather/11.png' // 바람 아이콘
+                },
+                'Ash': {
+                    text: '화산재',
+                    icon: 'weather/16.png' // 안개 아이콘
+                },
+                'Squall': {
+                    text: '돌풍',
+                    icon: 'weather/11.png' // 바람 아이콘
+                },
+                'Tornado': {
+                    text: '토네이도',
+                    icon: 'weather/11.png' // 바람 아이콘
+                }
             };
-            return map[desc] || { text: desc, icon: 'default.svg' };
+
+            // 구름 상태에 따른 아이콘 선택
+            function getCloudIcon(description) {
+                const desc = description.toLowerCase();
+                if (desc.includes('few clouds')) {
+                    return 'weather/3.png'; // 부분적으로 구름 낀 맑은 날씨
+                } else if (desc.includes('scattered clouds') || desc.includes('broken clouds')) {
+                    return 'weather/2.png'; // 구름 많음
+                } else if (desc.includes('overcast')) {
+                    return 'weather/8.png'; // 완전히 흐림
+                }
+                return 'weather/2.png'; // 기본 구름 아이콘
+            }
+
+            // 비의 강도에 따른 아이콘 선택
+            function getRainIcon(description) {
+                const desc = description.toLowerCase();
+                if (desc.includes('light rain') || desc.includes('drizzle')) {
+                    return 'weather/14.png'; // 가벼운 비 (물방울)
+                } else if (desc.includes('heavy rain') || desc.includes('extreme rain')) {
+                    return 'weather/6.png'; // 폭우
+                } else if (desc.includes('thunderstorm')) {
+                    return 'weather/10.png'; // 천둥번개를 동반한 비
+                }
+                return 'weather/4.png'; // 기본 비 아이콘
+            }
+
+            // 야간 모드 처리 (달 아이콘 사용)
+            function getNightIcon(mainWeather) {
+                if (mainWeather === 'Clear') {
+                    return 'weather/15.png'; // 달과 별 아이콘
+                }
+                // 다른 날씨는 동일한 아이콘 사용
+                return mainWeatherMap[mainWeather]?.icon || 'weather/1.png';
+            }
+
+            // 메인 날씨 정보 가져오기
+            let weatherInfo = mainWeatherMap[weatherMain] || { 
+                text: weatherMain, 
+                icon: 'weather/1.png' 
+            };
+
+            // 야간인 경우 아이콘 변경
+            if (!isDay && weatherMain === 'Clear') {
+                weatherInfo.icon = getNightIcon(weatherMain);
+            }
+
+            return weatherInfo;
         }
 
         setInterval(updateDateTime, 1000);

@@ -268,25 +268,119 @@ def generate_html_base(title, items, school_name, item_type):
         }
         setInterval(updateDateTime, 1000); updateDateTime();
 
-        function weatherDescKor(desc) {
-            const map = {
-                'Clear': { text: '맑음', icon: 'sunny.svg' },
-                'Clouds': { text: '흐림', icon: 'cloudy.svg' },
-                'Rain': { text: '비', icon: 'rainy.svg' },
-                'Drizzle': { text: '이슬비', icon: 'drizzle.svg' },
-                'Thunderstorm': { text: '뇌우', icon: 'thunder.svg' },
-                'Snow': { text: '눈', icon: 'snowy.svg' },
-                'Mist': { text: '안개', icon: 'foggy.svg' },
-                'Fog': { text: '안개', icon: 'foggy.svg' },
-                'Smoke': { text: '연기', icon: 'smoke.svg' },
-                'Haze': { text: '실안개', icon: 'haze.svg' },
-                'Dust': { text: '먼지', icon: 'dust.svg' },
-                'Sand': { text: '모래', icon: 'sand.svg' },
-                'Ash': { text: '재', icon: 'ash.svg' },
-                'Squall': { text: '돌풍', icon: 'windy.svg' },
-                'Tornado': { text: '토네이도', icon: 'tornado.svg' }
+        // OpenWeatherMap API 2.5와 커스텀 날씨 아이콘 매핑
+        function getWeatherInfo(weatherMain, weatherDescription, isDay = true) {
+            // 메인 날씨 조건별 매핑
+            const mainWeatherMap = {
+                'Clear': { 
+                    text: '맑음', 
+                    icon: 'weather/1.png' // 태양 아이콘
+                },
+                'Clouds': {
+                    text: '구름',
+                    icon: getCloudIcon(weatherDescription) // 구름 정도에 따라 다른 아이콘
+                },
+                'Rain': {
+                    text: '비',
+                    icon: getRainIcon(weatherDescription) // 비의 강도에 따라 다른 아이콘
+                },
+                'Drizzle': {
+                    text: '이슬비',
+                    icon: 'weather/14.png' // 물방울 아이콘
+                },
+                'Thunderstorm': {
+                    text: '뇌우',
+                    icon: 'weather/7.png' // 번개 아이콘
+                },
+                'Snow': {
+                    text: '눈',
+                    icon: 'weather/5.png' // 눈송이 아이콘
+                },
+                'Mist': {
+                    text: '안개',
+                    icon: 'weather/16.png' // 안개 아이콘
+                },
+                'Fog': {
+                    text: '짙은 안개',
+                    icon: 'weather/16.png' // 안개 아이콘
+                },
+                'Smoke': {
+                    text: '연기',
+                    icon: 'weather/16.png' // 안개 아이콘 (비슷한 시야 제한)
+                },
+                'Haze': {
+                    text: '실안개',
+                    icon: 'weather/16.png' // 안개 아이콘
+                },
+                'Dust': {
+                    text: '먼지',
+                    icon: 'weather/11.png' // 바람 아이콘
+                },
+                'Sand': {
+                    text: '모래바람',
+                    icon: 'weather/11.png' // 바람 아이콘
+                },
+                'Ash': {
+                    text: '화산재',
+                    icon: 'weather/16.png' // 안개 아이콘
+                },
+                'Squall': {
+                    text: '돌풍',
+                    icon: 'weather/11.png' // 바람 아이콘
+                },
+                'Tornado': {
+                    text: '토네이도',
+                    icon: 'weather/11.png' // 바람 아이콘
+                }
             };
-            return map[desc] || { text: desc, icon: 'default.svg' };
+
+            // 구름 상태에 따른 아이콘 선택
+            function getCloudIcon(description) {
+                const desc = description.toLowerCase();
+                if (desc.includes('few clouds')) {
+                    return 'weather/3.png'; // 부분적으로 구름 낀 맑은 날씨
+                } else if (desc.includes('scattered clouds') || desc.includes('broken clouds')) {
+                    return 'weather/2.png'; // 구름 많음
+                } else if (desc.includes('overcast')) {
+                    return 'weather/8.png'; // 완전히 흐림
+                }
+                return 'weather/2.png'; // 기본 구름 아이콘
+            }
+
+            // 비의 강도에 따른 아이콘 선택
+            function getRainIcon(description) {
+                const desc = description.toLowerCase();
+                if (desc.includes('light rain') || desc.includes('drizzle')) {
+                    return 'weather/14.png'; // 가벼운 비 (물방울)
+                } else if (desc.includes('heavy rain') || desc.includes('extreme rain')) {
+                    return 'weather/6.png'; // 폭우
+                } else if (desc.includes('thunderstorm')) {
+                    return 'weather/10.png'; // 천둥번개를 동반한 비
+                }
+                return 'weather/4.png'; // 기본 비 아이콘
+            }
+
+            // 야간 모드 처리 (달 아이콘 사용)
+            function getNightIcon(mainWeather) {
+                if (mainWeather === 'Clear') {
+                    return 'weather/15.png'; // 달과 별 아이콘
+                }
+                // 다른 날씨는 동일한 아이콘 사용
+                return mainWeatherMap[mainWeather]?.icon || 'weather/1.png';
+            }
+
+            // 메인 날씨 정보 가져오기
+            let weatherInfo = mainWeatherMap[weatherMain] || { 
+                text: weatherMain, 
+                icon: 'weather/1.png' 
+            };
+
+            // 야간인 경우 아이콘 변경
+            if (!isDay && weatherMain === 'Clear') {
+                weatherInfo.icon = getNightIcon(weatherMain);
+            }
+
+            return weatherInfo;
         }
 
         function fetchWeather() {
@@ -298,7 +392,17 @@ def generate_html_base(title, items, school_name, item_type):
                 .then(res => res.json())
                 .then(data => {
                     if (!data.weather || !data.weather[0]) throw new Error('Invalid weather data');
-                    const weatherInfo = weatherDescKor(data.weather[0].main);
+                    
+                    // 현재 시간을 기준으로 낮/밤 판단
+                    const now = new Date();
+                    const currentHour = now.getHours();
+                    const isDay = currentHour >= 6 && currentHour < 18; // 6시~18시는 낮
+                    
+                    const weatherInfo = getWeatherInfo(
+                        data.weather[0].main, 
+                        data.weather[0].description, 
+                        isDay
+                    );
                     const temp = Math.round(data.main.temp);
                     document.querySelector('.weather').innerHTML =
                         `<img class='weather-icon' src='images/${weatherInfo.icon}' alt='날씨아이콘'>

@@ -223,8 +223,38 @@
 
         .air-quality-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .air-quality-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 1.4rem;
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            color: #666;
+            font-weight: 600;
+        }
+
+        .info-value {
+            color: #333;
+            font-weight: 700;
         }
 
         .air-quality-card {
@@ -339,6 +369,10 @@
                 grid-template-columns: repeat(3, 1fr);
                 gap: 15px;
             }
+            .air-quality-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
         }
 
         @media (max-width: 768px) {
@@ -364,6 +398,22 @@
             .forecast-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 10px;
+            }
+            .air-quality-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .air-quality-card {
+                padding: 15px;
+            }
+            .air-quality-value {
+                font-size: 2rem;
+            }
+            .air-quality-grade {
+                font-size: 1.6rem;
+            }
+            .air-quality-desc {
+                font-size: 1.2rem;
             }
         }
     </style>
@@ -430,6 +480,44 @@
                             <div class="air-quality-grade" id="pm25-grade">-</div>
                             <div class="air-quality-desc" id="pm25-desc">-</div>
                         </div>
+                        <div class="air-quality-card" id="o3-card">
+                            <div class="air-quality-label">오존 (O₃)</div>
+                            <div class="air-quality-value" id="o3">-- ppm</div>
+                            <div class="air-quality-grade" id="o3-grade">-</div>
+                            <div class="air-quality-desc" id="o3-desc">-</div>
+                        </div>
+                        <div class="air-quality-card" id="no2-card">
+                            <div class="air-quality-label">이산화질소 (NO₂)</div>
+                            <div class="air-quality-value" id="no2">-- ppm</div>
+                            <div class="air-quality-grade" id="no2-grade">-</div>
+                            <div class="air-quality-desc" id="no2-desc">-</div>
+                        </div>
+                        <div class="air-quality-card" id="co-card">
+                            <div class="air-quality-label">일산화탄소 (CO)</div>
+                            <div class="air-quality-value" id="co">-- ppm</div>
+                            <div class="air-quality-grade" id="co-grade">-</div>
+                            <div class="air-quality-desc" id="co-desc">-</div>
+                        </div>
+                        <div class="air-quality-card" id="so2-card">
+                            <div class="air-quality-label">아황산가스 (SO₂)</div>
+                            <div class="air-quality-value" id="so2">-- ppm</div>
+                            <div class="air-quality-grade" id="so2-grade">-</div>
+                            <div class="air-quality-desc" id="so2-desc">-</div>
+                        </div>
+                    </div>
+                    <div class="air-quality-info" id="air-quality-info">
+                        <div class="info-item">
+                            <span class="info-label">측정소:</span>
+                            <span class="info-value" id="station-name">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">측정시간:</span>
+                            <span class="info-value" id="measure-time">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">통합대기지수:</span>
+                            <span class="info-value" id="khai-value">-</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -479,7 +567,7 @@
         ANYANG_LAT: 37.401,
         ANYANG_LON: 126.922,
         OPENWEATHER_API_KEY: '91fff999310c2bdea1978b3f0925fb38',
-        AIRKOREA_API_KEY: 'dafe93db7c0d4c6eb8ba9a8f5aaee96b'
+        AIRKOREA_API_KEY: 'kQmTZcm7bg25bgTZQKwjvdAFJsn0YMD6UTSzM93O/QSKHeNNr0eBWjfqJmJOO2Z+L8EK4TTsSk5jKMKenr4BHw==' // 공공데이터포털 API 키
     };
 
     // 시간 표시
@@ -504,22 +592,184 @@
         document.getElementById('date-time').innerHTML = `${dateString}<br>${timeString}`;
     }
 
-    // 날씨 아이콘 URL
+    // OpenWeatherMap API 2.5와 커스텀 날씨 아이콘 매핑
+    function getWeatherInfo(weatherMain, weatherDescription, iconCode, isDay = true) {
+        // 메인 날씨 조건별 매핑
+        const mainWeatherMap = {
+            'Clear': { 
+                text: '맑음', 
+                icon: isDay ? 'images/weather/1.png' : 'images/weather/15.png' // 태양/달 아이콘
+            },
+            'Clouds': {
+                text: '구름',
+                icon: getCloudIcon(weatherDescription, isDay) // 구름 정도에 따라 다른 아이콘
+            },
+            'Rain': {
+                text: '비',
+                icon: getRainIcon(weatherDescription) // 비의 강도에 따라 다른 아이콘
+            },
+            'Drizzle': {
+                text: '이슬비',
+                icon: 'images/weather/14.png' // 물방울 아이콘
+            },
+            'Thunderstorm': {
+                text: '뇌우',
+                icon: 'images/weather/7.png' // 번개 아이콘
+            },
+            'Snow': {
+                text: '눈',
+                icon: 'images/weather/5.png' // 눈송이 아이콘
+            },
+            'Mist': {
+                text: '안개',
+                icon: 'images/weather/16.png' // 안개 아이콘
+            },
+            'Fog': {
+                text: '짙은 안개',
+                icon: 'images/weather/16.png' // 안개 아이콘
+            },
+            'Smoke': {
+                text: '연기',
+                icon: 'images/weather/16.png' // 안개 아이콘 (비슷한 시야 제한)
+            },
+            'Haze': {
+                text: '실안개',
+                icon: 'images/weather/16.png' // 안개 아이콘
+            },
+            'Dust': {
+                text: '먼지',
+                icon: 'images/weather/11.png' // 바람 아이콘
+            },
+            'Sand': {
+                text: '모래바람',
+                icon: 'images/weather/11.png' // 바람 아이콘
+            },
+            'Ash': {
+                text: '화산재',
+                icon: 'images/weather/16.png' // 안개 아이콘
+            },
+            'Squall': {
+                text: '돌풍',
+                icon: 'images/weather/11.png' // 바람 아이콘
+            },
+            'Tornado': {
+                text: '토네이도',
+                icon: 'images/weather/11.png' // 바람 아이콘
+            }
+        };
+
+        // 구름 상태에 따른 아이콘 선택
+        function getCloudIcon(description, isDay) {
+            const desc = description.toLowerCase();
+            if (desc.includes('few clouds')) {
+                return isDay ? 'images/weather/3.png' : 'images/weather/15.png'; // 부분적으로 구름 낀 맑은 날씨
+            } else if (desc.includes('scattered clouds') || desc.includes('broken clouds')) {
+                return 'images/weather/2.png'; // 구름 많음
+            } else if (desc.includes('overcast')) {
+                return 'images/weather/8.png'; // 완전히 흐림
+            }
+            return 'images/weather/2.png'; // 기본 구름 아이콘
+        }
+
+        // 비의 강도에 따른 아이콘 선택
+        function getRainIcon(description) {
+            const desc = description.toLowerCase();
+            if (desc.includes('light rain') || desc.includes('drizzle')) {
+                return 'images/weather/14.png'; // 가벼운 비 (물방울)
+            } else if (desc.includes('heavy rain') || desc.includes('extreme rain')) {
+                return 'images/weather/6.png'; // 폭우
+            } else if (desc.includes('thunderstorm')) {
+                return 'images/weather/10.png'; // 천둥번개를 동반한 비
+            }
+            return 'images/weather/4.png'; // 기본 비 아이콘
+        }
+
+        // 메인 날씨 정보 가져오기
+        let weatherInfo = mainWeatherMap[weatherMain] || { 
+            text: weatherMain, 
+            icon: 'images/weather/1.png' 
+        };
+
+        return weatherInfo;
+    }
+
+    // 날씨 아이콘 URL (기존 함수를 새로운 함수로 대체)
     function getWeatherIconUrl(iconCode) {
-        return `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+        // OpenWeatherMap 아이콘 코드를 기반으로 낮/밤 판단
+        const isDay = iconCode.endsWith('d');
+        
+        // 아이콘 코드를 기반으로 날씨 타입 추정
+        let weatherMain = 'Clear';
+        let weatherDescription = '맑음';
+        
+        if (iconCode.startsWith('01')) {
+            weatherMain = 'Clear';
+            weatherDescription = '맑음';
+        } else if (iconCode.startsWith('02')) {
+            weatherMain = 'Clouds';
+            weatherDescription = '구름 조금';
+        } else if (iconCode.startsWith('03')) {
+            weatherMain = 'Clouds';
+            weatherDescription = '구름 많음';
+        } else if (iconCode.startsWith('04')) {
+            weatherMain = 'Clouds';
+            weatherDescription = '흐림';
+        } else if (iconCode.startsWith('09')) {
+            weatherMain = 'Rain';
+            weatherDescription = '가벼운 비';
+        } else if (iconCode.startsWith('10')) {
+            weatherMain = 'Rain';
+            weatherDescription = '비';
+        } else if (iconCode.startsWith('11')) {
+            weatherMain = 'Thunderstorm';
+            weatherDescription = '뇌우';
+        } else if (iconCode.startsWith('13')) {
+            weatherMain = 'Snow';
+            weatherDescription = '눈';
+        } else if (iconCode.startsWith('50')) {
+            weatherMain = 'Mist';
+            weatherDescription = '안개';
+        }
+        
+        const weatherInfo = getWeatherInfo(weatherMain, weatherDescription, iconCode, isDay);
+        return weatherInfo.icon;
     }
 
     // 대기질 등급 및 색상
     function getAirQualityGrade(value, type) {
         let grade = '좋음', className = 'grade-good', desc = '야외활동에 적합합니다';
-        if(type === 'pm10') {
-            if(value > 150) { grade = '매우나쁨'; className = 'grade-very-bad'; desc = '실외활동을 자제하세요'; }
-            else if(value > 80) { grade = '나쁨'; className = 'grade-bad'; desc = '실외활동을 줄이세요'; }
-            else if(value > 30) { grade = '보통'; className = 'grade-moderate'; desc = '민감군은 실외활동을 줄이세요'; }
-        } else {
-            if(value > 75) { grade = '매우나쁨'; className = 'grade-very-bad'; desc = '실외활동을 자제하세요'; }
-            else if(value > 35) { grade = '나쁨'; className = 'grade-bad'; desc = '실외활동을 줄이세요'; }
-            else if(value > 15) { grade = '보통'; className = 'grade-moderate'; desc = '민감군은 실외활동을 줄이세요'; }
+        
+        switch(type) {
+            case 'pm10':
+                if(value > 150) { grade = '매우나쁨'; className = 'grade-very-bad'; desc = '실외활동을 자제하세요'; }
+                else if(value > 80) { grade = '나쁨'; className = 'grade-bad'; desc = '실외활동을 줄이세요'; }
+                else if(value > 30) { grade = '보통'; className = 'grade-moderate'; desc = '민감군은 실외활동을 줄이세요'; }
+                break;
+            case 'pm25':
+                if(value > 75) { grade = '매우나쁨'; className = 'grade-very-bad'; desc = '실외활동을 자제하세요'; }
+                else if(value > 35) { grade = '나쁨'; className = 'grade-bad'; desc = '실외활동을 줄이세요'; }
+                else if(value > 15) { grade = '보통'; className = 'grade-moderate'; desc = '민감군은 실외활동을 줄이세요'; }
+                break;
+            case 'o3':
+                if(value > 0.15) { grade = '매우나쁨'; className = 'grade-very-bad'; desc = '실외활동을 자제하세요'; }
+                else if(value > 0.09) { grade = '나쁨'; className = 'grade-bad'; desc = '실외활동을 줄이세요'; }
+                else if(value > 0.06) { grade = '보통'; className = 'grade-moderate'; desc = '민감군은 실외활동을 줄이세요'; }
+                break;
+            case 'no2':
+                if(value > 0.2) { grade = '매우나쁨'; className = 'grade-very-bad'; desc = '실외활동을 자제하세요'; }
+                else if(value > 0.11) { grade = '나쁨'; className = 'grade-bad'; desc = '실외활동을 줄이세요'; }
+                else if(value > 0.06) { grade = '보통'; className = 'grade-moderate'; desc = '민감군은 실외활동을 줄이세요'; }
+                break;
+            case 'co':
+                if(value > 15) { grade = '매우나쁨'; className = 'grade-very-bad'; desc = '실외활동을 자제하세요'; }
+                else if(value > 9) { grade = '나쁨'; className = 'grade-bad'; desc = '실외활동을 줄이세요'; }
+                else if(value > 2) { grade = '보통'; className = 'grade-moderate'; desc = '민감군은 실외활동을 줄이세요'; }
+                break;
+            case 'so2':
+                if(value > 0.15) { grade = '매우나쁨'; className = 'grade-very-bad'; desc = '실외활동을 자제하세요'; }
+                else if(value > 0.05) { grade = '나쁨'; className = 'grade-bad'; desc = '실외활동을 줄이세요'; }
+                else if(value > 0.02) { grade = '보통'; className = 'grade-moderate'; desc = '민감군은 실외활동을 줄이세요'; }
+                break;
         }
         return {grade, className, desc};
     }
@@ -572,53 +822,142 @@
     // 대기질 정보
     async function getAirQuality() {
         try {
-            const res = await fetch(`https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty?serviceKey=${CONFIG.AIRKOREA_API_KEY}&returnType=json&numOfRows=1&pageNo=1&sidoName=경기&ver=1.0`);
-            const data = await res.json();
+            // API 키가 유효한지 확인하기 위해 먼저 테스트
+            const url = 'http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty';
+            const queryParams = new URLSearchParams({
+                serviceKey: CONFIG.AIRKOREA_API_KEY,
+                returnType: 'json',
+                numOfRows: '100',
+                pageNo: '1',
+                stationName: '안양8동',
+                dataTerm: 'DAILY',
+                ver: '1.0'
+            });
+            
+            console.log('경기 안양8동 측정소 데이터 요청 중...');
+            
+            const res = await fetch(`${url}?${queryParams}`);
+            
+            // 응답 상태 확인
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            
+            // 응답 텍스트 먼저 확인
+            const responseText = await res.text();
+            console.log('API 응답:', responseText);
+            
+            // XML 오류 응답인지 확인
+            if (responseText.includes('SERVICE_KEY_IS_NOT_REGISTERED_ERROR')) {
+                console.warn('API 키가 등록되지 않았습니다. 모의 데이터를 사용합니다.');
+                throw new Error('API 키 인증 실패');
+            }
+            
+            // JSON 파싱 시도
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('JSON 파싱 실패:', parseError);
+                console.log('받은 응답:', responseText);
+                throw new Error('서버가 유효한 JSON을 반환하지 않았습니다');
+            }
             
             if(data.response && data.response.body && data.response.body.items && data.response.body.items.length > 0) {
-                const item = data.response.body.items[0];
+                // 실제 측정 데이터가 있는 가장 최근 데이터 찾기
+                let latestItem = null;
+                for (const item of data.response.body.items) {
+                    // 통신장애가 아니고 실제 측정값이 있는 데이터 찾기
+                    if (item.pm10Value !== "-" && item.pm10Value !== null && 
+                        item.pm10Flag !== "통신장애" && item.pm10Flag !== "점검 및 교정") {
+                        latestItem = item;
+                        break;
+                    }
+                }
+                
+                // 만약 유효한 데이터를 찾지 못했다면 첫 번째 데이터 사용
+                if (!latestItem) {
+                    latestItem = data.response.body.items[0];
+                }
+                
+                console.log('사용할 데이터:', latestItem);
+                
+                // 측정소 정보 표시
+                document.getElementById('station-name').textContent = latestItem.stationName || '안양8동';
+                document.getElementById('measure-time').textContent = latestItem.dataTime || '-';
+                document.getElementById('khai-value').textContent = latestItem.khaiValue || '-';
                 
                 // PM10
-                const pm10Value = parseInt(item.pm10Value) || 0;
+                const pm10Value = latestItem.pm10Value === "-" || latestItem.pm10Value === null ? 0 : parseFloat(latestItem.pm10Value);
                 const pm10Info = getAirQualityGrade(pm10Value, 'pm10');
-                document.getElementById('pm10').textContent = `${pm10Value} ㎍/㎥`;
-                document.getElementById('pm10-grade').textContent = pm10Info.grade;
-                document.getElementById('pm10-desc').textContent = pm10Info.desc;
-                document.getElementById('pm10-card').className = `air-quality-card ${pm10Info.className}`;
+                document.getElementById('pm10').textContent = pm10Value > 0 ? `${pm10Value} ㎍/㎥` : '측정 중';
+                document.getElementById('pm10-grade').textContent = pm10Value > 0 ? pm10Info.grade : '-';
+                document.getElementById('pm10-desc').textContent = pm10Value > 0 ? pm10Info.desc : '측정 중입니다';
+                document.getElementById('pm10-card').className = `air-quality-card ${pm10Value > 0 ? pm10Info.className : ''}`;
                 
                 // PM2.5
-                const pm25Value = parseInt(item.pm25Value) || 0;
+                const pm25Value = latestItem.pm25Value === "-" || latestItem.pm25Value === null ? 0 : parseFloat(latestItem.pm25Value);
                 const pm25Info = getAirQualityGrade(pm25Value, 'pm25');
-                document.getElementById('pm25').textContent = `${pm25Value} ㎍/㎥`;
-                document.getElementById('pm25-grade').textContent = pm25Info.grade;
-                document.getElementById('pm25-desc').textContent = pm25Info.desc;
-                document.getElementById('pm25-card').className = `air-quality-card ${pm25Info.className}`;
-            } else {
-                console.log('대기질 데이터가 없습니다:', data);
-                // 기본값 설정
-                document.getElementById('pm10').textContent = '0 ㎍/㎥';
-                document.getElementById('pm10-grade').textContent = '좋음';
-                document.getElementById('pm10-desc').textContent = '야외활동에 적합합니다';
-                document.getElementById('pm10-card').className = 'air-quality-card grade-good';
+                document.getElementById('pm25').textContent = pm25Value > 0 ? `${pm25Value} ㎍/㎥` : '측정 중';
+                document.getElementById('pm25-grade').textContent = pm25Value > 0 ? pm25Info.grade : '-';
+                document.getElementById('pm25-desc').textContent = pm25Value > 0 ? pm25Info.desc : '측정 중입니다';
+                document.getElementById('pm25-card').className = `air-quality-card ${pm25Value > 0 ? pm25Info.className : ''}`;
                 
-                document.getElementById('pm25').textContent = '0 ㎍/㎥';
-                document.getElementById('pm25-grade').textContent = '좋음';
-                document.getElementById('pm25-desc').textContent = '야외활동에 적합합니다';
-                document.getElementById('pm25-card').className = 'air-quality-card grade-good';
+                // 오존 (O₃)
+                const o3Value = latestItem.o3Value === "-" || latestItem.o3Value === null ? 0 : parseFloat(latestItem.o3Value);
+                const o3Info = getAirQualityGrade(o3Value, 'o3');
+                document.getElementById('o3').textContent = o3Value > 0 ? `${o3Value} ppm` : '측정 중';
+                document.getElementById('o3-grade').textContent = o3Value > 0 ? o3Info.grade : '-';
+                document.getElementById('o3-desc').textContent = o3Value > 0 ? o3Info.desc : '측정 중입니다';
+                document.getElementById('o3-card').className = `air-quality-card ${o3Value > 0 ? o3Info.className : ''}`;
+                
+                // 이산화질소 (NO₂)
+                const no2Value = latestItem.no2Value === "-" || latestItem.no2Value === null ? 0 : parseFloat(latestItem.no2Value);
+                const no2Info = getAirQualityGrade(no2Value, 'no2');
+                document.getElementById('no2').textContent = no2Value > 0 ? `${no2Value} ppm` : '측정 중';
+                document.getElementById('no2-grade').textContent = no2Value > 0 ? no2Info.grade : '-';
+                document.getElementById('no2-desc').textContent = no2Value > 0 ? no2Info.desc : '측정 중입니다';
+                document.getElementById('no2-card').className = `air-quality-card ${no2Value > 0 ? no2Info.className : ''}`;
+                
+                // 일산화탄소 (CO)
+                const coValue = latestItem.coValue === "-" || latestItem.coValue === null ? 0 : parseFloat(latestItem.coValue);
+                const coInfo = getAirQualityGrade(coValue, 'co');
+                document.getElementById('co').textContent = coValue > 0 ? `${coValue} ppm` : '측정 중';
+                document.getElementById('co-grade').textContent = coValue > 0 ? coInfo.grade : '-';
+                document.getElementById('co-desc').textContent = coValue > 0 ? coInfo.desc : '측정 중입니다';
+                document.getElementById('co-card').className = `air-quality-card ${coValue > 0 ? coInfo.className : ''}`;
+                
+                // 아황산가스 (SO₂)
+                const so2Value = latestItem.so2Value === "-" || latestItem.so2Value === null ? 0 : parseFloat(latestItem.so2Value);
+                const so2Info = getAirQualityGrade(so2Value, 'so2');
+                document.getElementById('so2').textContent = so2Value > 0 ? `${so2Value} ppm` : '측정 중';
+                document.getElementById('so2-grade').textContent = so2Value > 0 ? so2Info.grade : '-';
+                document.getElementById('so2-desc').textContent = so2Value > 0 ? so2Info.desc : '측정 중입니다';
+                document.getElementById('so2-card').className = `air-quality-card ${so2Value > 0 ? so2Info.className : ''}`;
+                
+            } else {
+                console.log('대기질 데이터를 찾을 수 없습니다.');
+                setNoDataDisplay();
             }
         } catch (error) {
             console.error('대기질 정보 가져오기 실패:', error);
-            // 에러 시 기본값 설정
-            document.getElementById('pm10').textContent = '0 ㎍/㎥';
-            document.getElementById('pm10-grade').textContent = '좋음';
-            document.getElementById('pm10-desc').textContent = '야외활동에 적합합니다';
-            document.getElementById('pm10-card').className = 'air-quality-card grade-good';
-            
-            document.getElementById('pm25').textContent = '0 ㎍/㎥';
-            document.getElementById('pm25-grade').textContent = '좋음';
-            document.getElementById('pm25-desc').textContent = '야외활동에 적합합니다';
-            document.getElementById('pm25-card').className = 'air-quality-card grade-good';
+            setNoDataDisplay();
         }
+    }
+
+    // 데이터가 없을 때 표시
+    function setNoDataDisplay() {
+        const pollutants = ['pm10', 'pm25', 'o3', 'no2', 'co', 'so2'];
+        pollutants.forEach(pollutant => {
+            document.getElementById(pollutant).textContent = '데이터 없음';
+            document.getElementById(`${pollutant}-grade`).textContent = '-';
+            document.getElementById(`${pollutant}-desc`).textContent = '측정 데이터가 없습니다';
+            document.getElementById(`${pollutant}-card`).className = 'air-quality-card';
+        });
+        
+        document.getElementById('station-name').textContent = '안양8동';
+        document.getElementById('measure-time').textContent = '데이터 없음';
+        document.getElementById('khai-value').textContent = '-';
     }
 
     document.addEventListener('DOMContentLoaded', function() {
