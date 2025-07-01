@@ -223,7 +223,7 @@
 
         .air-quality-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 15px;
             margin-bottom: 20px;
         }
@@ -480,30 +480,6 @@
                             <div class="air-quality-grade" id="pm25-grade">-</div>
                             <div class="air-quality-desc" id="pm25-desc">-</div>
                         </div>
-                        <div class="air-quality-card" id="o3-card">
-                            <div class="air-quality-label">오존 (O₃)</div>
-                            <div class="air-quality-value" id="o3">-- ppm</div>
-                            <div class="air-quality-grade" id="o3-grade">-</div>
-                            <div class="air-quality-desc" id="o3-desc">-</div>
-                        </div>
-                        <div class="air-quality-card" id="no2-card">
-                            <div class="air-quality-label">이산화질소 (NO₂)</div>
-                            <div class="air-quality-value" id="no2">-- ppm</div>
-                            <div class="air-quality-grade" id="no2-grade">-</div>
-                            <div class="air-quality-desc" id="no2-desc">-</div>
-                        </div>
-                        <div class="air-quality-card" id="co-card">
-                            <div class="air-quality-label">일산화탄소 (CO)</div>
-                            <div class="air-quality-value" id="co">-- ppm</div>
-                            <div class="air-quality-grade" id="co-grade">-</div>
-                            <div class="air-quality-desc" id="co-desc">-</div>
-                        </div>
-                        <div class="air-quality-card" id="so2-card">
-                            <div class="air-quality-label">아황산가스 (SO₂)</div>
-                            <div class="air-quality-value" id="so2">-- ppm</div>
-                            <div class="air-quality-grade" id="so2-grade">-</div>
-                            <div class="air-quality-desc" id="so2-desc">-</div>
-                        </div>
                     </div>
                     <div class="air-quality-info" id="air-quality-info">
                         <div class="info-item">
@@ -513,10 +489,6 @@
                         <div class="info-item">
                             <span class="info-label">측정시간:</span>
                             <span class="info-value" id="measure-time">-</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">통합대기지수:</span>
-                            <span class="info-value" id="khai-value">-</span>
                         </div>
                     </div>
                 </div>
@@ -750,26 +722,6 @@
                 else if(value > 35) { grade = '나쁨'; className = 'grade-bad'; desc = '실외활동을 줄이세요'; }
                 else if(value > 15) { grade = '보통'; className = 'grade-moderate'; desc = '민감군은 실외활동을 줄이세요'; }
                 break;
-            case 'o3':
-                if(value > 0.15) { grade = '매우나쁨'; className = 'grade-very-bad'; desc = '실외활동을 자제하세요'; }
-                else if(value > 0.09) { grade = '나쁨'; className = 'grade-bad'; desc = '실외활동을 줄이세요'; }
-                else if(value > 0.06) { grade = '보통'; className = 'grade-moderate'; desc = '민감군은 실외활동을 줄이세요'; }
-                break;
-            case 'no2':
-                if(value > 0.2) { grade = '매우나쁨'; className = 'grade-very-bad'; desc = '실외활동을 자제하세요'; }
-                else if(value > 0.11) { grade = '나쁨'; className = 'grade-bad'; desc = '실외활동을 줄이세요'; }
-                else if(value > 0.06) { grade = '보통'; className = 'grade-moderate'; desc = '민감군은 실외활동을 줄이세요'; }
-                break;
-            case 'co':
-                if(value > 15) { grade = '매우나쁨'; className = 'grade-very-bad'; desc = '실외활동을 자제하세요'; }
-                else if(value > 9) { grade = '나쁨'; className = 'grade-bad'; desc = '실외활동을 줄이세요'; }
-                else if(value > 2) { grade = '보통'; className = 'grade-moderate'; desc = '민감군은 실외활동을 줄이세요'; }
-                break;
-            case 'so2':
-                if(value > 0.15) { grade = '매우나쁨'; className = 'grade-very-bad'; desc = '실외활동을 자제하세요'; }
-                else if(value > 0.05) { grade = '나쁨'; className = 'grade-bad'; desc = '실외활동을 줄이세요'; }
-                else if(value > 0.02) { grade = '보통'; className = 'grade-moderate'; desc = '민감군은 실외활동을 줄이세요'; }
-                break;
         }
         return {grade, className, desc};
     }
@@ -801,11 +753,25 @@
             for(let i=1; i<=5; i++) {
                 const targetDate = new Date(today);
                 targetDate.setDate(today.getDate() + i);
-                targetDate.setHours(12,0,0,0);
-                const forecast = data.list.find(item => {
+                
+                // 해당 날짜의 모든 예보 데이터 찾기
+                const dayForecasts = data.list.filter(item => {
                     const itemDate = new Date(item.dt * 1000);
                     return itemDate.getDate() === targetDate.getDate();
                 });
+                
+                // 낮 시간대(9시~18시)의 데이터를 우선적으로 찾기
+                let forecast = dayForecasts.find(item => {
+                    const itemDate = new Date(item.dt * 1000);
+                    const hour = itemDate.getHours();
+                    return hour >= 9 && hour <= 18;
+                });
+                
+                // 낮 시간대 데이터가 없으면 첫 번째 데이터 사용
+                if (!forecast && dayForecasts.length > 0) {
+                    forecast = dayForecasts[0];
+                }
+                
                 if(forecast) {
                     document.getElementById(`forecast${idx}-date`).textContent = targetDate.toLocaleDateString('ko-KR', {month:'long', day:'numeric', weekday:'short'});
                     document.getElementById(`forecast${idx}-icon`).src = getWeatherIconUrl(forecast.weather[0].icon);
@@ -885,7 +851,6 @@
                 // 측정소 정보 표시
                 document.getElementById('station-name').textContent = latestItem.stationName || '안양8동';
                 document.getElementById('measure-time').textContent = latestItem.dataTime || '-';
-                document.getElementById('khai-value').textContent = latestItem.khaiValue || '-';
                 
                 // PM10
                 const pm10Value = latestItem.pm10Value === "-" || latestItem.pm10Value === null ? 0 : parseFloat(latestItem.pm10Value);
@@ -903,38 +868,6 @@
                 document.getElementById('pm25-desc').textContent = pm25Value > 0 ? pm25Info.desc : '측정 중입니다';
                 document.getElementById('pm25-card').className = `air-quality-card ${pm25Value > 0 ? pm25Info.className : ''}`;
                 
-                // 오존 (O₃)
-                const o3Value = latestItem.o3Value === "-" || latestItem.o3Value === null ? 0 : parseFloat(latestItem.o3Value);
-                const o3Info = getAirQualityGrade(o3Value, 'o3');
-                document.getElementById('o3').textContent = o3Value > 0 ? `${o3Value} ppm` : '측정 중';
-                document.getElementById('o3-grade').textContent = o3Value > 0 ? o3Info.grade : '-';
-                document.getElementById('o3-desc').textContent = o3Value > 0 ? o3Info.desc : '측정 중입니다';
-                document.getElementById('o3-card').className = `air-quality-card ${o3Value > 0 ? o3Info.className : ''}`;
-                
-                // 이산화질소 (NO₂)
-                const no2Value = latestItem.no2Value === "-" || latestItem.no2Value === null ? 0 : parseFloat(latestItem.no2Value);
-                const no2Info = getAirQualityGrade(no2Value, 'no2');
-                document.getElementById('no2').textContent = no2Value > 0 ? `${no2Value} ppm` : '측정 중';
-                document.getElementById('no2-grade').textContent = no2Value > 0 ? no2Info.grade : '-';
-                document.getElementById('no2-desc').textContent = no2Value > 0 ? no2Info.desc : '측정 중입니다';
-                document.getElementById('no2-card').className = `air-quality-card ${no2Value > 0 ? no2Info.className : ''}`;
-                
-                // 일산화탄소 (CO)
-                const coValue = latestItem.coValue === "-" || latestItem.coValue === null ? 0 : parseFloat(latestItem.coValue);
-                const coInfo = getAirQualityGrade(coValue, 'co');
-                document.getElementById('co').textContent = coValue > 0 ? `${coValue} ppm` : '측정 중';
-                document.getElementById('co-grade').textContent = coValue > 0 ? coInfo.grade : '-';
-                document.getElementById('co-desc').textContent = coValue > 0 ? coInfo.desc : '측정 중입니다';
-                document.getElementById('co-card').className = `air-quality-card ${coValue > 0 ? coInfo.className : ''}`;
-                
-                // 아황산가스 (SO₂)
-                const so2Value = latestItem.so2Value === "-" || latestItem.so2Value === null ? 0 : parseFloat(latestItem.so2Value);
-                const so2Info = getAirQualityGrade(so2Value, 'so2');
-                document.getElementById('so2').textContent = so2Value > 0 ? `${so2Value} ppm` : '측정 중';
-                document.getElementById('so2-grade').textContent = so2Value > 0 ? so2Info.grade : '-';
-                document.getElementById('so2-desc').textContent = so2Value > 0 ? so2Info.desc : '측정 중입니다';
-                document.getElementById('so2-card').className = `air-quality-card ${so2Value > 0 ? so2Info.className : ''}`;
-                
             } else {
                 console.log('대기질 데이터를 찾을 수 없습니다.');
                 setNoDataDisplay();
@@ -947,7 +880,7 @@
 
     // 데이터가 없을 때 표시
     function setNoDataDisplay() {
-        const pollutants = ['pm10', 'pm25', 'o3', 'no2', 'co', 'so2'];
+        const pollutants = ['pm10', 'pm25'];
         pollutants.forEach(pollutant => {
             document.getElementById(pollutant).textContent = '데이터 없음';
             document.getElementById(`${pollutant}-grade`).textContent = '-';
@@ -957,7 +890,6 @@
         
         document.getElementById('station-name').textContent = '안양8동';
         document.getElementById('measure-time').textContent = '데이터 없음';
-        document.getElementById('khai-value').textContent = '-';
     }
 
     document.addEventListener('DOMContentLoaded', function() {
