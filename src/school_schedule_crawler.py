@@ -79,6 +79,13 @@ def generate_schedule_html(schedules, school_name, year, month):
     current_day = 1
     
     table_calendar_html += '<table class="table-calendar">'
+    # 요일 헤더 추가
+    table_calendar_html += '<tr>'
+    for day_name in week_names:
+        is_sun = (day_name == '일')
+        sun_class = 'sunday' if is_sun else ''
+        table_calendar_html += f'<th class="{sun_class}">{day_name}</th>'
+    table_calendar_html += '</tr>'
     table_calendar_html += '<tr>'
     for i in range(7):
         if i < first_weekday:
@@ -121,11 +128,27 @@ def generate_schedule_html(schedules, school_name, year, month):
 
     # 일정 리스트 (날짜순, 표 형태)
     sorted_events = sorted([(d, e) for d, evs in schedule_map.items() for e in evs], key=lambda x: x[0])
-    event_list_html = ''
-    for date, event in sorted_events:
-        event_list_html += f'<tr><td>{date[:4]}.{date[4:6]}.{date[6:]}</td><td>{event}</td></tr>'
-    if not event_list_html:
+    
+    # 일정을 두 부분으로 나누기
+    total_events = len(sorted_events)
+    if total_events == 0:
         event_list_html = '<tr><td colspan="2">이번 달 학사일정이 없습니다.</td></tr>'
+    else:
+        # 첫 번째 부분 (처음 6개)
+        first_part_html = ''
+        for i, (date, event) in enumerate(sorted_events[:6]):
+            first_part_html += f'<tr><td>{date[:4]}.{date[4:6]}.{date[6:]}</td><td>{event}</td></tr>'
+        
+        # 두 번째 부분 (나머지)
+        second_part_html = ''
+        for date, event in sorted_events[6:]:
+            second_part_html += f'<tr><td>{date[:4]}.{date[4:6]}.{date[6:]}</td><td>{event}</td></tr>'
+        
+        event_list_html = {
+            'first_part': first_part_html,
+            'second_part': second_part_html,
+            'has_second_part': len(sorted_events) > 6
+        }
 
     # CSS: 달력 한 줄, 일정 표 스타일 추가
     css_style = '''
@@ -135,7 +158,14 @@ def generate_schedule_html(schedules, school_name, year, month):
             font-weight: normal;
             font-style: normal;
         }
-        body { background: #9B7EDC; font-family: 'SeoulAlrim', sans-serif; margin: 0; padding: 0; min-height: 100vh; }
+        body { 
+            background: #9B7EDC; 
+            font-family: 'SeoulAlrim', sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            height: 100vh; 
+            overflow: hidden;
+        }
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -145,6 +175,7 @@ def generate_schedule_html(schedules, school_name, year, month):
             box-shadow: 0 8px 32px rgba(74, 27, 140, 0.18);
             flex-shrink: 0;
             min-height: 80px;
+            box-sizing: border-box;
         }
         .header-left {
             display: flex;
@@ -208,16 +239,22 @@ def generate_schedule_html(schedules, school_name, year, month):
             background: #fff;
             border-radius: 20px;
             box-shadow: 0 8px 40px rgba(74, 27, 140, 0.18);
-            margin: 40px auto;
-            padding: 40px 60px;
+            margin: 20px auto;
+            padding: 20px 60px;
             max-width: 2000px;
             width: 95%;
+            max-height: calc(100vh - 140px);
+            box-sizing: border-box;
+            overflow-y: auto;
         }
-        .calendar-section { margin-bottom: 30px; }
+        .calendar-section { 
+            margin-bottom: 20px; 
+        }
         .calendar-section h2 {
-            font-size: 2.5rem;
+            font-size: 3.5rem;
             color: #6C4EB6;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            font-weight: 700;
         }
         .calendar-wrapper {
             position: relative;
@@ -226,7 +263,7 @@ def generate_schedule_html(schedules, school_name, year, month):
             width: 100%;
             border-collapse: collapse;
             font-size: 2.2rem;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             table-layout: fixed;
         }
         .schedule-calendar th, .schedule-calendar td {
@@ -281,7 +318,23 @@ def generate_schedule_html(schedules, school_name, year, month):
         .schedule-calendar td.sunday {
             color: #e23a3a !important;
         }
-        .event-list-section { margin-top: 20px; }
+        .event-list-section { 
+            margin-top: 15px; 
+        }
+        .event-list-container {
+            display: flex;
+            gap: 40px;
+            margin-top: 15px;
+        }
+        .event-list-part {
+            flex: 1;
+        }
+        .event-list-part h3 {
+            font-size: 2rem;
+            color: #6C4EB6;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
         .event-list-table {
             width: 100%;
             border-collapse: collapse;
@@ -307,6 +360,8 @@ def generate_schedule_html(schedules, school_name, year, month):
                 flex-direction: column;
                 padding: 25px;
                 gap: 20px;
+                height: auto;
+                min-height: 80px;
             }
             .header-left, .header-right {
                 width: 100%;
@@ -319,13 +374,38 @@ def generate_schedule_html(schedules, school_name, year, month):
             .page-header .school-name {
                 font-size: 2.2rem;
             }
-            .main-content { padding: 30px 40px; }
+            .main-content { 
+                padding: 20px 40px; 
+                max-height: calc(100vh - 140px);
+            }
+            .calendar-section h2 {
+                font-size: 3rem;
+            }
+            .schedule-calendar {
+                display: none;
+            }
+            .table-calendar-wrapper {
+                display: block;
+            }
+            .event-list-container {
+                flex-direction: column;
+                gap: 20px;
+            }
         }
         @media (max-width: 900px) {
-            .main-content { padding: 20px; }
+            .main-content { 
+                padding: 20px; 
+                max-height: calc(100vh - 140px);
+            }
             .header-main-title { font-size: 4rem; }
-            .calendar-section h2 { font-size: 2rem; }
-            .schedule-calendar { font-size: 1.8rem; }
+            .calendar-section h2 { font-size: 2.5rem; }
+            .schedule-calendar { 
+                display: none;
+                font-size: 1.8rem; 
+            }
+            .table-calendar-wrapper {
+                display: block;
+            }
             .calendar-num {
                 width: 2rem;
                 height: 2rem;
@@ -337,11 +417,20 @@ def generate_schedule_html(schedules, school_name, year, month):
             .event-list-table td:last-child { font-size: 1.8rem; }
         }
         @media (max-width: 600px) {
-            .main-content { padding: 15px; }
+            .main-content { 
+                padding: 15px; 
+                max-height: calc(100vh - 140px);
+            }
             .header-main-title { font-size: 3rem; }
             .page-header { padding: 15px; }
-            .calendar-section h2 { font-size: 1.8rem; }
-            .schedule-calendar { font-size: 1.5rem; }
+            .calendar-section h2 { font-size: 2rem; }
+            .schedule-calendar { 
+                display: none;
+                font-size: 1.5rem; 
+            }
+            .table-calendar-wrapper {
+                display: block;
+            }
             .calendar-num {
                 width: 1.8rem;
                 height: 1.8rem;
@@ -372,6 +461,7 @@ def generate_schedule_html(schedules, school_name, year, month):
             .main-content {
                 margin: 20px auto;
                 padding: 25px 30px;
+                max-height: calc(100vh - 100px);
             }
             .calendar-section h2 {
                 font-size: 1.8rem;
@@ -438,6 +528,7 @@ def generate_schedule_html(schedules, school_name, year, month):
             .main-content {
                 margin: 15px auto;
                 padding: 20px 25px;
+                max-height: calc(100vh - 80px);
             }
             .calendar-section h2 {
                 font-size: 1.6rem;
@@ -488,6 +579,8 @@ def generate_schedule_html(schedules, school_name, year, month):
             .page-header {
                 padding: 15px 10px;
                 gap: 15px;
+                height: auto;
+                min-height: 80px;
             }
             .header-left, .header-right {
                 gap: 20px;
@@ -510,16 +603,21 @@ def generate_schedule_html(schedules, school_name, year, month):
             }
             .main-content { 
                 padding: 15px 10px; 
-                margin: 20px auto;
+                margin: 15px auto;
                 width: 98%;
+                max-height: calc(100vh - 140px);
             }
             .calendar-section h2 { 
-                font-size: 1.6rem; 
+                font-size: 1.8rem; 
                 margin-bottom: 15px;
             }
             .schedule-calendar { 
+                display: none;
                 font-size: 1.3rem; 
                 margin-bottom: 20px;
+            }
+            .table-calendar-wrapper {
+                display: block;
             }
             .schedule-calendar th, 
             .schedule-calendar td {
@@ -779,13 +877,30 @@ def generate_schedule_html(schedules, school_name, year, month):
         </header>
         <div class="main-content">
             <div class="calendar-section">
-                <h2 style="font-size:1.3rem; color:#6C4EB6; margin-bottom:10px;">{year}년 {month}월</h2>
+                <h2 style="font-size:3.3rem; color:#6C4EB6; margin-bottom:10px;">{year}년 {month}월</h2>
                 {calendar_html}
             </div>
             <div class="event-list-section">
+                {f'''
+                <div class="event-list-container">
+                    <div class="event-list-part">
+                           <table class="event-list-table">
+                            {event_list_html['first_part']}
+                        </table>
+                    </div>
+                    {f'''
+                    <div class="event-list-part">
+                          <table class="event-list-table">
+                            {event_list_html['second_part']}
+                        </table>
+                    </div>
+                    ''' if event_list_html['has_second_part'] else ''}
+                </div>
+                ''' if isinstance(event_list_html, dict) else f'''
                 <table class="event-list-table">
                     {event_list_html}
                 </table>
+                '''}
             </div>
         </div>
         <script>{js_code}</script>
