@@ -823,7 +823,7 @@
     async function getAirQuality() {
         try {
             // API 키가 유효한지 확인하기 위해 먼저 테스트
-            const url = 'http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty';
+            const url = 'https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty';
             const queryParams = new URLSearchParams({
                 serviceKey: CONFIG.AIRKOREA_API_KEY,
                 returnType: 'json',
