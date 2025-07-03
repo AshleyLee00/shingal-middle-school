@@ -1,10 +1,18 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-    <!DOCTYPE html>
-    <html lang="ko">
-    <head>
-        <meta charset="UTF-8">
-        <title>신갈중학교 가정통신문</title>
-        <style>
+"""
+앨범 HTML 생성기
+크롤링된 앨범 데이터를 HTML로 변환하는 모듈입니다.
+"""
+
+import os
+
+def generate_album_html(albums, school_name):
+    """
+    앨범 정보를 HTML로 변환합니다.
+    """
+    css_style = """
         @font-face {
             font-family: 'SeoulAlrim';
             src: url('font/SeoulAlrimTTF-Medium.ttf') format('truetype');
@@ -117,11 +125,6 @@
             .page-header .school-name {
                 font-size: 2.2rem;
             }
-            .content-list td {
-                padding: 25px 20px;
-                font-size: 2rem;
-                line-height: 1.5;
-            }
         }
 
         @media (max-width: 768px) {
@@ -138,14 +141,6 @@
             .page-header .school-name {
                 font-size: 2rem;
             }
-            .content-list td {
-                padding: 30px 20px;
-                font-size: 1.8rem;
-                line-height: 1.6;
-            }
-            .content-box {
-                padding: 20px 30px 20px 40px;
-            }
         }
 
         .main-content {
@@ -160,132 +155,227 @@
             width: 95%;
             max-width: 2000px;
             flex: 1;
+            padding: 40px;
+            overflow-y: auto;
         }
 
-        .content-box {
-            background: #FFFFFF;
-            padding: 30px 60px 30px 80px;
-            box-shadow: 0 10px 40px rgba(53, 122, 189, 0.18);
-            border-radius: 20px 0 0 20px;
-            flex: 1;
-            min-width: 0;
-            display: flex;
-            align-items: stretch;
-        }
-
-        .content-list {
+        .album-container {
             width: 100%;
-            border-collapse: collapse;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .album-item {
+            background: #FFFFFF;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(53, 122, 189, 0.15);
+            overflow: hidden;
+            border: 1px solid #E3F2FD;
+        }
+
+        .album-header {
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            color: white;
+            padding: 25px 30px;
+        }
+
+        .album-title {
+            font-size: 2.8rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .album-meta {
+            font-size: 1.6rem;
+            opacity: 0.9;
+        }
+
+        .album-content {
+            padding: 30px;
+        }
+
+        .image-slider {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            margin-bottom: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+
+        .image-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
             height: 100%;
-            table-layout: fixed;
-        }
-
-        .content-list tr {
-            border-bottom: 1px solid #E5E5E5;
-            height: calc(100% / 7);  /* 7개의 항목이 동일한 높이를 가지도록 설정 */
-        }
-
-        .content-list td {
-            font-size: 2.2rem;
-            padding: 20px;
-            border-bottom: 1px solid #ccc;
-            vertical-align: middle;
-            line-height: 1.4;
-        }
-
-        .content-list td:first-child {
-            width: 80%;  /* 첫 번째 열(내용)의 너비를 80%로 설정 */
-        }
-
-        .content-list td:last-child {
-            width: 20%;  /* 두 번째 열(날짜)의 너비를 20%로 설정 */
-            text-align: right;
-            color: #666666;
-            font-size: 1.8rem;
-            white-space: nowrap;  /* 날짜가 한 줄로 표시되도록 설정 */
-        }
-
-        .school-img {
-            width: 800px;
-            height: calc(100% - 60px);  /* 상하 패딩 30px을 고려하여 계산 */
-            border-radius: 0 20px 20px 0;
-            object-fit: cover; 
-            box-shadow: 0 10px 40px rgba(53, 122, 189, 0.18);
-            flex-shrink: 0;
-            align-self: center;
-            opacity: 1;
-            transition: opacity 1s ease-in-out;
-        }
-
-        .school-img.fade-out {
             opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        @media (max-width: 1380px) { 
+        .image-slide.active {
+            opacity: 1;
+        }
+
+        .image-slide img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 15px;
+        }
+
+        .slider-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .slider-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .slider-dot.active {
+            background: white;
+        }
+
+        .slider-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 15px 10px;
+            cursor: pointer;
+            font-size: 1.8rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .slider-nav:hover {
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .slider-prev {
+            left: 20px;
+        }
+
+        .slider-next {
+            right: 20px;
+        }
+
+        .album-text {
+            font-size: 1.8rem;
+            line-height: 1.6;
+            color: #333;
+            background: #F8F9FA;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #4A90E2;
+        }
+
+        .no-images {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            font-size: 2rem;
+            color: #666;
+            background: #f5f5f5;
+        }
+
+        @media (max-width: 1200px) {
             .main-content {
-                flex-wrap: wrap; 
-                justify-content: center;
-                gap: 20px;
-                margin: 60px auto;
+                padding: 30px;
             }
-            .school-img {
-                width: 100%;
+            .album-title {
+                font-size: 2.4rem;
+            }
+            .image-slider {
                 height: 400px;
-                margin: 0;
             }
-            .content-list td {
-                padding: 25px 20px;
-                font-size: 2rem;
-                line-height: 1.5;
+            .album-text {
+                font-size: 1.6rem;
             }
         }
 
-        @media (max-width: 768px) { 
-            .main-content { 
-                flex-direction: column; 
-                align-items: stretch; 
-                margin: 40px auto;
-                width: 95%;
-                gap: 20px;
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px;
+                margin: 20px auto;
             }
-            .school-img { 
+            .album-container {
+                gap: 30px;
+            }
+            .album-header {
+                padding: 20px;
+            }
+            .album-title {
+                font-size: 2rem;
+            }
+            .album-meta {
+                font-size: 1.4rem;
+            }
+            .album-content {
+                padding: 20px;
+            }
+            .image-slider {
                 height: 300px;
             }
-            .content-box { 
-                min-width: auto; 
+            .album-text {
+                font-size: 1.5rem;
+                padding: 20px;
             }
-            .content-list td {
-                padding: 30px 20px;
-                font-size: 1.8rem;
-                line-height: 1.6;
-            }
-            .content-box {
-                padding: 20px 30px 20px 40px;
+            .slider-nav {
+                padding: 10px 8px;
+                font-size: 1.4rem;
             }
         }
-    </style>
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
-    </head>
-    <body>
-        <header class="page-header">
-            <div class="header-left">
-                <div class="header-main-title">가정통신문</div>
-            </div>
-            <div class="header-right">
-                <div class="weather">날씨 정보를 불러오는 중...</div>
-                <div class="date-time" id="date-time"></div>
-                <div class="school-name">신갈중학교</div>
-            </div>
-        </header>
-        <div class="main-content">
-            <div class="content-box">
-                <table class="content-list">
-                    <tr><td>2025학년도 학생 정신건강 증진 뉴스레터 안내(4호)</td><td>2025-07-02</td></tr><tr><td>2025학년도 여름방학 석면해체제거 공사 학교 설명회 개최 안내</td><td>2025-06-25</td></tr><tr><td>교육활동 보호환경 조성을 위한 안내</td><td>2025-06-18</td></tr><tr><td>2025학년도 학생정신건강 증진 뉴스레터 안내(3호)</td><td>2025-06-09</td></tr><tr><td>2025학년도 상반기 진로연계현장체험학습 운영(1학년) 안내</td><td>2025-05-26</td></tr><tr><td>함께 실천해요! 1회용품 줄이기</td><td>2025-05-08</td></tr><tr><td>경기도 청소년 진로문화 축제 참가 안내</td><td>2025-05-01</td></tr>
-                </table>
-            </div>
-            <img class="school-img" src="images/신갈중학교0.jpg" alt="학교 전경">
-        </div>
-        <script>
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 15px;
+                margin: 15px auto;
+                width: 98%;
+            }
+            .album-header {
+                padding: 15px;
+            }
+            .album-title {
+                font-size: 1.8rem;
+            }
+            .album-meta {
+                font-size: 1.3rem;
+            }
+            .album-content {
+                padding: 15px;
+            }
+            .image-slider {
+                height: 250px;
+            }
+            .album-text {
+                font-size: 1.4rem;
+                padding: 15px;
+            }
+        }
+    """
+
+    js_code = """
         // 날씨 캐시 설정
         const WEATHER_CACHE_KEY = 'headerWeatherData_v2';
         const WEATHER_TIMESTAMP_KEY = 'headerWeatherTimestamp_v2';
@@ -306,7 +396,7 @@
             const displayHours = String(hours).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
 
-            const dateString = `${year}-${month}-${day} ${weekDay}요일`;
+            const dateString = `${year}.${month}.${day} ${weekDay}요일`;
             const timeString = `${ampm} ${displayHours}:${minutes}`;
 
             document.getElementById('date-time').innerHTML = `${dateString}<br>${timeString}`;
@@ -508,7 +598,7 @@
         }
 
         async function fetchWeather() {
-            const apiKey = '91fff999310c2bdea1978b3f0925fb38';
+            const apiKey = '""" + os.getenv("OPENWEATHER_API_KEY", "") + """';
             const lat = 37.2857;
             const lon = 127.1109;
             const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
@@ -539,38 +629,64 @@
             }
         }
 
-        // 신갈중학교 이미지 슬라이드 기능
-        function getSchoolImages() {
-            return [
-                'images/신갈중학교0.jpg',
-                'images/신갈중학교1.jpg',
-                'images/신갈중학교2.jpg'
-            ];
-        }
-
-        let currentImageIndex = 0;
-        let schoolImages = [];
-
-        function updateSchoolImage() {
-            const imgElement = document.querySelector('.school-img');
-            if (!imgElement) return;
-
-            // 신갈중학교 이미지 목록 가져오기
-            schoolImages = getSchoolImages();
+        // 이미지 슬라이더 기능
+        function initImageSliders() {
+            const sliders = document.querySelectorAll('.image-slider');
             
-            // 페이드 아웃 효과
-            imgElement.classList.add('fade-out');
-            
-            setTimeout(() => {
-                // 이미지 변경
-                imgElement.src = schoolImages[currentImageIndex];
+            sliders.forEach((slider, sliderIndex) => {
+                const slides = slider.querySelectorAll('.image-slide');
+                const dots = slider.querySelectorAll('.slider-dot');
+                const prevBtn = slider.querySelector('.slider-prev');
+                const nextBtn = slider.querySelector('.slider-next');
                 
-                // 다음 이미지 인덱스로 이동
-                currentImageIndex = (currentImageIndex + 1) % schoolImages.length;
+                let currentSlide = 0;
                 
-                // 페이드 인 효과
-                imgElement.classList.remove('fade-out');
-            }, 500);
+                function showSlide(index) {
+                    slides.forEach((slide, i) => {
+                        slide.classList.toggle('active', i === index);
+                    });
+                    
+                    dots.forEach((dot, i) => {
+                        dot.classList.toggle('active', i === index);
+                    });
+                }
+                
+                function nextSlide() {
+                    currentSlide = (currentSlide + 1) % slides.length;
+                    showSlide(currentSlide);
+                }
+                
+                function prevSlide() {
+                    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+                    showSlide(currentSlide);
+                }
+                
+                // 초기 슬라이드 표시
+                if (slides.length > 0) {
+                    showSlide(0);
+                }
+                
+                // 이벤트 리스너 추가
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', prevSlide);
+                }
+                
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', nextSlide);
+                }
+                
+                dots.forEach((dot, index) => {
+                    dot.addEventListener('click', () => {
+                        currentSlide = index;
+                        showSlide(currentSlide);
+                    });
+                });
+                
+                // 자동 슬라이드 (5초마다)
+                if (slides.length > 1) {
+                    setInterval(nextSlide, 5000);
+                }
+            });
         }
 
         // 초기 로드 및 주기적 업데이트 설정
@@ -578,20 +694,13 @@
         updateDateTime();
         loadInitialWeather();
         
-        // 페이지 로드 시 신갈중학교 초기 이미지 설정
+        // 페이지 로드 시 이미지 슬라이더 초기화
         window.addEventListener('load', function() {
-            const schoolImages = getSchoolImages();
-            const imgElement = document.querySelector('.school-img');
-            if (imgElement && schoolImages.length > 0) {
-                imgElement.src = schoolImages[0];
-            }
+            initImageSliders();
         });
         
         // 5분마다 날씨 업데이트 체크
         setInterval(updateWeatherIfNeeded, 5 * 60 * 1000);
-        
-        // 10초마다 학교 이미지 슬라이드
-        setInterval(updateSchoolImage, 10 * 1000);
         
         // 페이지가 포커스를 받았을 때 업데이트 체크
         window.addEventListener('focus', function() {
@@ -604,7 +713,89 @@
                 updateWeatherIfNeeded();
             }
         });
-    </script>
+    """
+
+    album_items = ""
+    for album in albums:
+        # 이미지 슬라이더 HTML 생성
+        image_slider_html = ""
+        if album['images']:
+            for i, image_url in enumerate(album['images']):
+                active_class = "active" if i == 0 else ""
+                image_slider_html += f'<div class="image-slide {active_class}"><img src="{image_url}" alt="앨범 이미지"></div>'
+            
+            # 슬라이더 컨트롤 생성
+            dots_html = ""
+            for i in range(len(album['images'])):
+                active_class = "active" if i == 0 else ""
+                dots_html += f'<div class="slider-dot {active_class}"></div>'
+            
+            nav_html = ""
+            if len(album['images']) > 1:
+                nav_html = f'''
+                    <button class="slider-nav slider-prev">‹</button>
+                    <button class="slider-nav slider-next">›</button>
+                '''
+            
+            image_slider_html = f'''
+                <div class="image-slider">
+                    {image_slider_html}
+                    <div class="slider-controls">
+                        {dots_html}
+                    </div>
+                    {nav_html}
+                </div>
+            '''
+        else:
+            image_slider_html = '<div class="image-slider"><div class="no-images">이미지가 없습니다</div></div>'
+        
+        # 내용 표시
+        content_html = ""
+        if album['content']:
+            content_html = f'<div class="album-text">{album["content"]}</div>'
+        
+        album_items += f"""
+            <div class="album-item">
+                <div class="album-header">
+                    <div class="album-title">{album['title']}</div>
+                    <div class="album-meta">{album['date']} • {album['author'] if album['author'] else '신갈중학교'}</div>
+                </div>
+                <div class="album-content">
+                    {image_slider_html}
+                    {content_html}
+                </div>
+            </div>
+        """
+
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <title>{school_name} 학교앨범</title>
+        <style>{css_style}</style>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <header class="page-header">
+            <div class="header-left">
+                <div class="header-main-title">학교앨범</div>
+            </div>
+            <div class="header-right">
+                <div class="weather">날씨 정보를 불러오는 중...</div>
+                <div class="date-time" id="date-time"></div>
+                <div class="school-name">{school_name}</div>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <div class="album-container">
+                {album_items}
+            </div>
+        </div>
+
+        <script>{js_code}</script>
     </body>
     </html>
-    
+    """
+    return html_content 

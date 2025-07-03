@@ -164,9 +164,9 @@ def crawl_school_notices(url, site_name=None):
     return result
 
 if __name__ == "__main__":
-    # 남성중학교 RSS URL
-    test_url = "https://school.jbedu.kr/rss/jb-namsung/M010602"
-    result = crawl_school_notices(test_url, "남성중학교")
+    # 신갈중학교 RSS URL
+    test_url = "http://shingal-m.goeyi.kr/shingal-m/na/ntt/selectRssFeed.do?mi=14328&bbsId=8186"
+    result = crawl_school_notices(test_url, "신갈중학교")
     
     # 모든 공지사항 출력
     print("\n공지사항 목록:")

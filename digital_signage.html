@@ -3,7 +3,7 @@
     <html lang="ko">
     <head>
         <meta charset="UTF-8">
-        <title>남성중학교 공지사항</title>
+        <title>신갈중학교 공지사항</title>
         <style>
         @font-face {
             font-family: 'SeoulAlrim';
@@ -117,6 +117,11 @@
             .page-header .school-name {
                 font-size: 2.2rem;
             }
+            .content-list td {
+                padding: 25px 20px;
+                font-size: 2rem;
+                line-height: 1.5;
+            }
         }
 
         @media (max-width: 768px) {
@@ -132,6 +137,14 @@
             }
             .page-header .school-name {
                 font-size: 2rem;
+            }
+            .content-list td {
+                padding: 30px 20px;
+                font-size: 1.8rem;
+                line-height: 1.6;
+            }
+            .content-box {
+                padding: 20px 30px 20px 40px;
             }
         }
 
@@ -150,9 +163,9 @@
         }
 
         .content-box {
-            background: #fff;
+            background: #FFFFFF;
             padding: 30px 60px 30px 80px;
-            box-shadow: 0 10px 40px rgba(53,122,189,0.18);
+            box-shadow: 0 10px 40px rgba(53, 122, 189, 0.18);
             border-radius: 20px 0 0 20px;
             flex: 1;
             min-width: 0;
@@ -174,9 +187,10 @@
 
         .content-list td {
             font-size: 2.2rem;
-            padding: 0 20px;
+            padding: 20px;
             border-bottom: 1px solid #ccc;
             vertical-align: middle;
+            line-height: 1.4;
         }
 
         .content-list td:first-child {
@@ -196,7 +210,7 @@
             height: calc(100% - 60px);  /* 상하 패딩 30px을 고려하여 계산 */
             border-radius: 0 20px 20px 0;
             object-fit: cover; 
-            box-shadow: 0 10px 40px rgba(53,122,189,0.18);
+            box-shadow: 0 10px 40px rgba(53, 122, 189, 0.18);
             flex-shrink: 0;
             align-self: center;
             opacity: 1;
@@ -219,6 +233,11 @@
                 height: 400px;
                 margin: 0;
             }
+            .content-list td {
+                padding: 25px 20px;
+                font-size: 2rem;
+                line-height: 1.5;
+            }
         }
 
         @media (max-width: 768px) { 
@@ -235,6 +254,14 @@
             .content-box { 
                 min-width: auto; 
             }
+            .content-list td {
+                padding: 30px 20px;
+                font-size: 1.8rem;
+                line-height: 1.6;
+            }
+            .content-box {
+                padding: 20px 30px 20px 40px;
+            }
         }
     </style>
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
@@ -247,16 +274,16 @@
             <div class="header-right">
                 <div class="weather">날씨 정보를 불러오는 중...</div>
                 <div class="date-time" id="date-time"></div>
-                <div class="school-name">남성중학교</div>
+                <div class="school-name">신갈중학교</div>
             </div>
         </header>
         <div class="main-content">
             <div class="content-box">
                 <table class="content-list">
-                    <tr><td>2025년 수학누리 창의캠프 신청 안내</td><td>2025-07-02</td></tr><tr><td>2025년 하계 수학창의캠프 신청 안내</td><td>2025-07-02</td></tr><tr><td>2025학년도 2학기 자유학기 활동 프로그램 개인 위탁 운영자 모집 공고</td><td>2025-07-01</td></tr><tr><td>더 봄 방과후 학습관 참여자 모집(~6/30)</td><td>2025-06-25</td></tr><tr><td>2025학년도 남성중학교 기간제교원[영어]채용 공고</td><td>2025-06-17</td></tr><tr><td>[수정] 2025 남성중학교 제2회 독서토론한마당 실시 안내</td><td>2025-06-15</td></tr><tr><td>2025 아침 10분 독서 활동 운영 안내</td><td>2025-06-05</td></tr>
+                    <tr><td>2025년 1차 구입예정 도서 목록</td><td>2025-07-02</td></tr><tr><td>2025학년도 신갈중학교 학업성적관리규정</td><td>2025-05-13</td></tr><tr><td>2025년 용인 주민참여예산 지역간담회 추진 계획 안내 </td><td>2025-05-13</td></tr><tr><td>2025학년도 학부모회 제1회 대의원회 결과 공고</td><td>2025-04-21</td></tr><tr><td>2025학년도 신갈중학교 학부모회 1차 대의원회 개최 안내</td><td>2025-04-07</td></tr><tr><td>2025학년도 신갈중학교 학부모회 임원 당선 공고</td><td>2025-03-25</td></tr><tr><td>2025학년도 신갈중학교 학부모회 총회 결과 공고</td><td>2025-03-25</td></tr>
                 </table>
             </div>
-            <img class="school-img" src="images/남성중학교-봄.jpeg" alt="학교 전경">
+            <img class="school-img" src="images/신갈중학교0.jpg" alt="학교 전경">
         </div>
         <script>
         // 날씨 캐시 설정
@@ -482,8 +509,8 @@
 
         async function fetchWeather() {
             const apiKey = '91fff999310c2bdea1978b3f0925fb38';
-            const lat = 35.9568;
-            const lon = 126.9689;
+            const lat = 37.2857;
+            const lon = 127.1109;
             const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
             
             try {
@@ -512,52 +539,34 @@
             }
         }
 
-        // 계절별 이미지 슬라이드 기능
-        function getSeasonalImages() {
-            const now = new Date();
-            const month = now.getMonth() + 1; // 1-12월
-            
-            if (month >= 3 && month <= 5) {
-                // 봄 (3월~5월)
-                return [
-                    'images/남성중학교-봄.jpeg',
-                    'images/남성중학교-봄2.jpeg',
-                    'images/남성중학교-봄3.jpeg'
-                ];
-            } else if (month >= 6 && month <= 9) {
-                // 여름 (6월~9월)
-                return [
-                    'images/남성중학교-여름.jpg',
-                    'images/남성중학교-여름2.jpg'
-                ];
-            } else {
-                // 가을/겨울 (10월~2월)
-                return [
-                    'images/남성중학교-가을.jpg',
-                    'images/남성중학교-가을2.jpg'
-                ];
-            }
+        // 신갈중학교 이미지 슬라이드 기능
+        function getSchoolImages() {
+            return [
+                'images/신갈중학교0.jpg',
+                'images/신갈중학교1.jpg',
+                'images/신갈중학교2.jpg'
+            ];
         }
 
         let currentImageIndex = 0;
-        let seasonalImages = [];
+        let schoolImages = [];
 
         function updateSchoolImage() {
             const imgElement = document.querySelector('.school-img');
             if (!imgElement) return;
 
-            // 현재 계절의 이미지 목록 가져오기
-            seasonalImages = getSeasonalImages();
+            // 신갈중학교 이미지 목록 가져오기
+            schoolImages = getSchoolImages();
             
             // 페이드 아웃 효과
             imgElement.classList.add('fade-out');
             
             setTimeout(() => {
                 // 이미지 변경
-                imgElement.src = seasonalImages[currentImageIndex];
+                imgElement.src = schoolImages[currentImageIndex];
                 
                 // 다음 이미지 인덱스로 이동
-                currentImageIndex = (currentImageIndex + 1) % seasonalImages.length;
+                currentImageIndex = (currentImageIndex + 1) % schoolImages.length;
                 
                 // 페이드 인 효과
                 imgElement.classList.remove('fade-out');
@@ -569,12 +578,12 @@
         updateDateTime();
         loadInitialWeather();
         
-        // 페이지 로드 시 현재 계절에 맞는 초기 이미지 설정
+        // 페이지 로드 시 신갈중학교 초기 이미지 설정
         window.addEventListener('load', function() {
-            const seasonalImages = getSeasonalImages();
+            const schoolImages = getSchoolImages();
             const imgElement = document.querySelector('.school-img');
-            if (imgElement && seasonalImages.length > 0) {
-                imgElement.src = seasonalImages[0];
+            if (imgElement && schoolImages.length > 0) {
+                imgElement.src = schoolImages[0];
             }
         });
         

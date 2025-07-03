@@ -130,6 +130,11 @@ def generate_html_base(title, items, school_name, item_type):
             .page-header .school-name {
                 font-size: 2.2rem;
             }
+            .content-list td {
+                padding: 25px 20px;
+                font-size: 2rem;
+                line-height: 1.5;
+            }
         }
 
         @media (max-width: 768px) {
@@ -145,6 +150,14 @@ def generate_html_base(title, items, school_name, item_type):
             }
             .page-header .school-name {
                 font-size: 2rem;
+            }
+            .content-list td {
+                padding: 30px 20px;
+                font-size: 1.8rem;
+                line-height: 1.6;
+            }
+            .content-box {
+                padding: 20px 30px 20px 40px;
             }
         }
 
@@ -163,9 +176,9 @@ def generate_html_base(title, items, school_name, item_type):
         }
 
         .content-box {
-            background: #fff;
+            background: #FFFFFF;
             padding: 30px 60px 30px 80px;
-            box-shadow: 0 10px 40px rgba(53,122,189,0.18);
+            box-shadow: 0 10px 40px rgba(53, 122, 189, 0.18);
             border-radius: 20px 0 0 20px;
             flex: 1;
             min-width: 0;
@@ -187,9 +200,10 @@ def generate_html_base(title, items, school_name, item_type):
 
         .content-list td {
             font-size: 2.2rem;
-            padding: 0 20px;
+            padding: 20px;
             border-bottom: 1px solid #ccc;
             vertical-align: middle;
+            line-height: 1.4;
         }
 
         .content-list td:first-child {
@@ -209,7 +223,7 @@ def generate_html_base(title, items, school_name, item_type):
             height: calc(100% - 60px);  /* 상하 패딩 30px을 고려하여 계산 */
             border-radius: 0 20px 20px 0;
             object-fit: cover; 
-            box-shadow: 0 10px 40px rgba(53,122,189,0.18);
+            box-shadow: 0 10px 40px rgba(53, 122, 189, 0.18);
             flex-shrink: 0;
             align-self: center;
             opacity: 1;
@@ -232,6 +246,11 @@ def generate_html_base(title, items, school_name, item_type):
                 height: 400px;
                 margin: 0;
             }
+            .content-list td {
+                padding: 25px 20px;
+                font-size: 2rem;
+                line-height: 1.5;
+            }
         }
 
         @media (max-width: 768px) { 
@@ -247,6 +266,14 @@ def generate_html_base(title, items, school_name, item_type):
             }
             .content-box { 
                 min-width: auto; 
+            }
+            .content-list td {
+                padding: 30px 20px;
+                font-size: 1.8rem;
+                line-height: 1.6;
+            }
+            .content-box {
+                padding: 20px 30px 20px 40px;
             }
         }
     """
@@ -475,8 +502,8 @@ def generate_html_base(title, items, school_name, item_type):
 
         async function fetchWeather() {
             const apiKey = '""" + os.getenv("OPENWEATHER_API_KEY", "") + """';
-            const lat = 35.9568;
-            const lon = 126.9689;
+            const lat = 37.2857;
+            const lon = 127.1109;
             const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
             
             try {
@@ -505,52 +532,34 @@ def generate_html_base(title, items, school_name, item_type):
             }
         }
 
-        // 계절별 이미지 슬라이드 기능
-        function getSeasonalImages() {
-            const now = new Date();
-            const month = now.getMonth() + 1; // 1-12월
-            
-            if (month >= 3 && month <= 5) {
-                // 봄 (3월~5월)
-                return [
-                    'images/남성중학교-봄.jpeg',
-                    'images/남성중학교-봄2.jpeg',
-                    'images/남성중학교-봄3.jpeg'
-                ];
-            } else if (month >= 6 && month <= 9) {
-                // 여름 (6월~9월)
-                return [
-                    'images/남성중학교-여름.jpg',
-                    'images/남성중학교-여름2.jpg'
-                ];
-            } else {
-                // 가을/겨울 (10월~2월)
-                return [
-                    'images/남성중학교-가을.jpg',
-                    'images/남성중학교-가을2.jpg'
-                ];
-            }
+        // 신갈중학교 이미지 슬라이드 기능
+        function getSchoolImages() {
+            return [
+                'images/신갈중학교0.jpg',
+                'images/신갈중학교1.jpg',
+                'images/신갈중학교2.jpg'
+            ];
         }
 
         let currentImageIndex = 0;
-        let seasonalImages = [];
+        let schoolImages = [];
 
         function updateSchoolImage() {
             const imgElement = document.querySelector('.school-img');
             if (!imgElement) return;
 
-            // 현재 계절의 이미지 목록 가져오기
-            seasonalImages = getSeasonalImages();
+            // 신갈중학교 이미지 목록 가져오기
+            schoolImages = getSchoolImages();
             
             // 페이드 아웃 효과
             imgElement.classList.add('fade-out');
             
             setTimeout(() => {
                 // 이미지 변경
-                imgElement.src = seasonalImages[currentImageIndex];
+                imgElement.src = schoolImages[currentImageIndex];
                 
                 // 다음 이미지 인덱스로 이동
-                currentImageIndex = (currentImageIndex + 1) % seasonalImages.length;
+                currentImageIndex = (currentImageIndex + 1) % schoolImages.length;
                 
                 // 페이드 인 효과
                 imgElement.classList.remove('fade-out');
@@ -562,12 +571,12 @@ def generate_html_base(title, items, school_name, item_type):
         updateDateTime();
         loadInitialWeather();
         
-        // 페이지 로드 시 현재 계절에 맞는 초기 이미지 설정
+        // 페이지 로드 시 신갈중학교 초기 이미지 설정
         window.addEventListener('load', function() {
-            const seasonalImages = getSeasonalImages();
+            const schoolImages = getSchoolImages();
             const imgElement = document.querySelector('.school-img');
-            if (imgElement && seasonalImages.length > 0) {
-                imgElement.src = seasonalImages[0];
+            if (imgElement && schoolImages.length > 0) {
+                imgElement.src = schoolImages[0];
             }
         });
         
@@ -616,7 +625,7 @@ def generate_html_base(title, items, school_name, item_type):
                     { "".join(f"<tr><td>{item['title']}</td><td>{item['date']}</td></tr>" for item in items) }
                 </table>
             </div>
-            <img class="school-img" src="images/남성중학교-봄.jpeg" alt="학교 전경">
+            <img class="school-img" src="images/신갈중학교0.jpg" alt="학교 전경">
         </div>
         <script>{js_code}</script>
     </body>
@@ -633,9 +642,9 @@ def generate_letter_html(letters, school_name):
 def main():
     # 학교 정보
     school_info = {
-        "name": "남성중학교",
-        "notice_url": "https://school.jbedu.kr/rss/jb-namsung/M010602",
-        "letter_url": "https://school.jbedu.kr/jb-namsung/M010601/"  # 가정통신문 HTML 페이지
+        "name": "신갈중학교",
+        "notice_url": "http://shingal-m.goeyi.kr/shingal-m/na/ntt/selectRssFeed.do?mi=14328&bbsId=8186",
+        "letter_url": "http://shingal-m.goeyi.kr/shingal-m/na/ntt/selectRssFeed.do?mi=14350&bbsId=8198"
     }
     
     # 공지사항 크롤링

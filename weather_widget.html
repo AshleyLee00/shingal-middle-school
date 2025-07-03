@@ -258,11 +258,11 @@
         }
 
         .air-quality-card {
-            background: white;
+            background: #FFFFFF;
             border-radius: 15px;
             padding: 20px;
             text-align: center;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 16px rgba(53, 122, 189, 0.15);
         }
 
         .air-quality-label {
@@ -310,7 +310,7 @@
             border-radius: 15px;
             padding: 25px;
             text-align: center;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 16px rgba(53, 122, 189, 0.15);
             border: 1px solid #BBDEFB;
         }
 
@@ -426,7 +426,7 @@
         </div>
         <div class="header-right">
             <div class="date-time" id="date-time"></div>
-            <div class="school-name">안양초등학교</div>
+            <div class="school-name">신갈중학교</div>
         </div>
     </header>
 
@@ -532,10 +532,10 @@
     <script>
     // 설정 정보
     const CONFIG = {
-        ANYANG_LAT: 35.9568,
-        ANYANG_LON: 126.9689,
-        OPENWEATHER_API_KEY: '91fff999310c2bdea1978b3f0925fb38',
-        AIRKOREA_API_KEY: 'kQmTZcm7bg25bgTZQKwjvdAFJsn0YMD6UTSzM93O/QSKHeNNr0eBWjfqJmJOO2Z+L8EK4TTsSk5jKMKenr4BHw=='
+        ANYANG_LAT: 37.2857,
+        ANYANG_LON: 127.1109,
+        OPENWEATHER_API_KEY: '{{ OPENWEATHER_API_KEY }}',
+        AIRKOREA_API_KEY: '{{ AIRKOREA_API_KEY }}'
     };
 
     // 시간 표시
@@ -788,7 +788,7 @@
     // 대기질 데이터를 화면에 표시하는 함수
     function displayAirQualityData(data) {
         // 측정소 정보 표시
-        document.getElementById('station-name').textContent = data.stationName || '모현동';
+        document.getElementById('station-name').textContent = data.stationName || '기흥';
         
         // PM10
         const pm10Value = data.pm10Value === "-" || data.pm10Value === null ? 0 : parseFloat(data.pm10Value);
@@ -817,12 +817,12 @@
                 returnType: 'json',
                 numOfRows: '10', // 요청 데이터 수를 줄여서 API 부하 감소
                 pageNo: '1',
-                stationName: '모현동',
+                stationName: '기흥',
                 dataTerm: 'DAILY',
                 ver: '1.0'
             });
             
-            console.log('전북 익산 모현동 측정소 데이터 요청 중...');
+            console.log('경기도 용인 기흥 측정소 데이터 요청 중...');
             
             const res = await fetch(`${url}?${queryParams}`);
             
@@ -914,7 +914,7 @@
     function generateMockAirQualityData() {
         const now = new Date();
         const mockData = {
-            stationName: '모현동',
+            stationName: '기흥',
             dataTime: now.toLocaleString('ko-KR') + ' (모의 데이터)',
             pm10Value: Math.floor(Math.random() * 20) + 5,  // 5-25 범위 (좋음)
             pm25Value: Math.floor(Math.random() * 10) + 2   // 2-12 범위 (좋음)
@@ -937,7 +937,7 @@
             document.getElementById(`${pollutant}-card`).className = 'air-quality-card';
         });
         
-        document.getElementById('station-name').textContent = '모현동';
+        document.getElementById('station-name').textContent = '기흥';
     }
 
     // 캐시 키 상수

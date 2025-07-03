@@ -18,7 +18,7 @@ def get_meal_info(api_key, school_code, start_date, end_date):
     params = {
         "KEY": api_key,
         "Type": "json",
-        "ATPT_OFCDC_SC_CODE": "P10",  # 전라북도교육청
+        "ATPT_OFCDC_SC_CODE": "J10",  # 경기도교육청
         "SD_SCHUL_CODE": school_code,  # 학교코드
         "MLSV_FROM_YMD": start_date,
         "MLSV_TO_YMD": end_date
@@ -328,7 +328,7 @@ def generate_meal_html(meals, school_name):
             border-radius: 0 0 15px 15px;
             padding: 15px;
             flex: 1;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(248, 183, 107, 0.08);
             border: 1px solid #E5E5E5;
             border-top: none;
             overflow: visible;
@@ -427,7 +427,7 @@ def generate_meal_html(meals, school_name):
             padding: 15px;
             background: #FFFFFF;
             border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(53, 122, 189, 0.1);
+            box-shadow: 0 4px 20px rgba(53, 122, 189, 0.08);
         }
     """
 
@@ -540,8 +540,8 @@ def generate_meal_html(meals, school_name):
 
         async function fetchWeather() {
             const apiKey = '""" + os.getenv("OPENWEATHER_API_KEY", "") + """';
-            const lat = 35.9568;
-            const lon = 126.9689;
+            const lat = 37.2857;
+            const lon = 127.1109;
             const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
             
             try {
@@ -780,8 +780,8 @@ def generate_meal_html(meals, school_name):
 def main():
     # API 설정
     API_KEY = os.getenv("NEIS_API_KEY", "dafe93db7c0d4c6eb8ba9a8f5aaee96b")  # 환경변수에서 가져오거나 기본값 사용
-    SCHOOL_CODE = "8352158"  # 남성중학교
-    SCHOOL_NAME = "남성중학교"
+    SCHOOL_CODE = "7751033"  # 신갈중학교
+    SCHOOL_NAME = "신갈중학교"
     
     # 날짜 설정 (이번 주 월~금)
     today = datetime.now()
