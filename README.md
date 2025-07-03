@@ -55,32 +55,55 @@ GitHub 저장소의 Actions 탭에서 각 워크플로우를 수동으로 실행
 2. 원하는 워크플로우 선택
 3. "Run workflow" 버튼 클릭
 
-## API 키 설정 (날씨 위젯)
+## API 키 설정
 
-날씨 위젯 페이지를 사용하려면 다음 API 키들을 설정해야 합니다:
+이 프로젝트는 여러 API 키를 사용합니다. 보안을 위해 환경변수나 GitHub Secrets를 통해 관리됩니다.
 
-### 1. OpenWeather API 키
-1. [OpenWeather API](https://openweathermap.org/api) 사이트에 가입
-2. API 키 발급
-3. `config.js` 파일에서 `OPENWEATHER_API_KEY` 값을 실제 API 키로 변경
+### 필요한 API 키
 
-### 2. 에어코리아 API 키
-1. [공공데이터포털](https://www.data.go.kr/data/15073861/openapi.do)에서 에어코리아 API 신청
-2. API 키 발급
-3. `config.js` 파일에서 `AIRKOREA_API_KEY` 값을 실제 API 키로 변경
+1. **OpenWeather API 키** - 날씨 정보 제공
+   - [OpenWeather API](https://openweathermap.org/api) 사이트에서 발급
+   
+2. **NEIS OpenAPI 키** - 급식 정보 및 학사일정 제공
+   - [NEIS OpenAPI](https://open.neis.go.kr/) 사이트에서 발급
+   
+3. **에어코리아 API 키** - 대기질 정보 제공
+   - [공공데이터포털](https://www.data.go.kr/data/15073861/openapi.do)에서 발급
 
-### 설정 방법
-```javascript
-// config.js 파일 수정
-const CONFIG = {
-    OPENWEATHER_API_KEY: '실제_OpenWeather_API_키',
-    AIRKOREA_API_KEY: '실제_에어코리아_API_키',
-    ANYANG_LAT: 37.3942,
-    ANYANG_LON: 126.9569
-};
+### 로컬 개발 환경 설정
+
+1. `env.example` 파일을 복사하여 `.env` 파일 생성:
+```bash
+cp env.example .env
 ```
 
-**⚠️ 보안 주의사항**: `config.js` 파일을 `.gitignore`에 추가하여 API 키가 공개되지 않도록 주의하세요.
+2. `.env` 파일에 실제 API 키 입력:
+```bash
+# API Keys
+OPENWEATHER_API_KEY=your_openweather_api_key_here
+NEIS_API_KEY=your_neis_api_key_here
+AIRKOREA_API_KEY=your_airkorea_api_key_here
+```
+
+### GitHub Secrets 설정 (자동 배포용)
+
+GitHub 저장소의 Settings > Secrets and variables > Actions에서 다음 시크릿을 추가:
+
+1. `OPENWEATHER_API_KEY`: OpenWeather API 키
+2. `NEIS_API_KEY`: NEIS OpenAPI 키  
+3. `AIRKOREA_API_KEY`: 에어코리아 API 키
+
+### 설정 방법
+```bash
+# 로컬에서 .env 파일 생성
+echo "OPENWEATHER_API_KEY=your_key_here" > .env
+echo "NEIS_API_KEY=your_key_here" >> .env
+echo "AIRKOREA_API_KEY=your_key_here" >> .env
+```
+
+**⚠️ 보안 주의사항**: 
+- `.env` 파일을 `.gitignore`에 추가하여 API 키가 공개되지 않도록 주의하세요
+- GitHub Secrets를 사용하여 자동 배포 시에도 API 키를 안전하게 관리하세요
 
 ## 로컬에서 실행하기
 

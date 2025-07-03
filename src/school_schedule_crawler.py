@@ -5,9 +5,13 @@ import requests
 from datetime import datetime, timedelta
 import calendar
 import os
+from dotenv import load_dotenv
+
+# .env 파일 로드
+load_dotenv()
 
 # 학교 및 API 정보
-API_KEY = "dafe93db7c0d4c6eb8ba9a8f5aaee96b"  # 실제 서비스 시 본인 키로 교체
+API_KEY = os.getenv("NEIS_API_KEY", "dafe93db7c0d4c6eb8ba9a8f5aaee96b")  # 환경변수에서 가져오거나 기본값 사용
 ATPT_OFCDC_SC_CODE = "J10"  # 경기도교육청
 SD_SCHUL_CODE = "7569032"   # 안양초등학교
 SCHOOL_NAME = "안양초등학교"
@@ -705,8 +709,8 @@ def generate_schedule_html(schedules, school_name, year, month):
             document.getElementById('date-time').innerHTML = `${dateString}<br>${timeString}`;
         }
         // 날씨 캐시 설정
-        const WEATHER_CACHE_KEY = 'headerWeatherData';
-        const WEATHER_TIMESTAMP_KEY = 'headerWeatherTimestamp';
+        const WEATHER_CACHE_KEY = 'headerWeatherData_v2';
+        const WEATHER_TIMESTAMP_KEY = 'headerWeatherTimestamp_v2';
         const WEATHER_UPDATE_INTERVAL = 60 * 60 * 1000; // 1시간 (밀리초)
 
         // 캐시에서 날씨 데이터 가져오기
@@ -790,7 +794,7 @@ def generate_schedule_html(schedules, school_name, year, month):
         }
 
         async function fetchWeather() {
-            const apiKey = '91fff999310c2bdea1978b3f0925fb38';
+            const apiKey = '""" + os.getenv("OPENWEATHER_API_KEY", "") + """';
             const lat = 37.401;
             const lon = 126.922;
             const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
@@ -913,12 +917,12 @@ def generate_schedule_html(schedules, school_name, year, month):
             }
 
             // 야간 모드 처리 (달 아이콘 사용)
-            function getNightIcon(mainWeather) {
-                if (mainWeather === 'Clear') {
+            function getNightIcon(weatherMain) {
+                if (weatherMain === 'Clear') {
                     return 'weather/15.png'; // 달과 별 아이콘
                 }
                 // 다른 날씨는 동일한 아이콘 사용
-                return mainWeatherMap[mainWeather]?.icon || 'weather/1.png';
+                return mainWeatherMap[weatherMain]?.icon || 'weather/1.png';
             }
 
             // 메인 날씨 정보 가져오기

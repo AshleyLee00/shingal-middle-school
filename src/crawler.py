@@ -247,8 +247,8 @@ def generate_html_base(title, items, school_name, item_type):
 
     js_code = """
         // 날씨 캐시 설정
-        const WEATHER_CACHE_KEY = 'headerWeatherData';
-        const WEATHER_TIMESTAMP_KEY = 'headerWeatherTimestamp';
+        const WEATHER_CACHE_KEY = 'headerWeatherData_v2';
+        const WEATHER_TIMESTAMP_KEY = 'headerWeatherTimestamp_v2';
         const WEATHER_UPDATE_INTERVAL = 60 * 60 * 1000; // 1시간 (밀리초)
 
         function updateDateTime() {
@@ -415,12 +415,12 @@ def generate_html_base(title, items, school_name, item_type):
             }
 
             // 야간 모드 처리 (달 아이콘 사용)
-            function getNightIcon(mainWeather) {
-                if (mainWeather === 'Clear') {
+            function getNightIcon(weatherMain) {
+                if (weatherMain === 'Clear') {
                     return 'weather/15.png'; // 달과 별 아이콘
                 }
                 // 다른 날씨는 동일한 아이콘 사용
-                return mainWeatherMap[mainWeather]?.icon || 'weather/1.png';
+                return mainWeatherMap[weatherMain]?.icon || 'weather/1.png';
             }
 
             // 메인 날씨 정보 가져오기
@@ -431,7 +431,7 @@ def generate_html_base(title, items, school_name, item_type):
 
             // 야간인 경우 아이콘 변경
             if (!isDay && weatherMain === 'Clear') {
-                weatherInfo.icon = getNightIcon(mainWeather);
+                weatherInfo.icon = getNightIcon(weatherMain);
             }
 
             return weatherInfo;
@@ -468,7 +468,7 @@ def generate_html_base(title, items, school_name, item_type):
         }
 
         async function fetchWeather() {
-            const apiKey = '91fff999310c2bdea1978b3f0925fb38';
+            const apiKey = '""" + os.getenv("OPENWEATHER_API_KEY", "") + """';
             const lat = 37.401;
             const lon = 126.922;
             const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
