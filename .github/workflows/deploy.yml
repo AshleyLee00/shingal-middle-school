@@ -40,6 +40,10 @@ jobs:
         python crawler.py
       continue-on-error: true
         
+    - name: Remove .env file
+      run: |
+        rm -f .env
+        
     - name: Configure Git
       run: |
         git config --local user.email "action@github.com"
@@ -54,7 +58,6 @@ jobs:
         
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
-      if: github.ref == 'refs/heads/main'
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: .
@@ -64,9 +67,5 @@ jobs:
         user_email: 'github-actions[bot]@users.noreply.github.com'
         commit_message: 'Deploy: Daily notice update $(date +%Y-%m-%d)'
         exclude_assets: |
-          .github/
-          src/
-          requirements.txt
-          env.example
           .gitignore
-          README.md 
+          .env

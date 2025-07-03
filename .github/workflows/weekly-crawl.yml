@@ -41,6 +41,10 @@ jobs:
         cd src
         python meal_crawler.py
         
+    - name: Remove .env file
+      run: |
+        rm -f .env
+        
     - name: Configure Git
       run: |
         git config --local user.email "action@github.com"
@@ -54,7 +58,6 @@ jobs:
         
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
-      if: github.ref == 'refs/heads/main'
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: .
@@ -62,4 +65,7 @@ jobs:
         force_orphan: true
         user_name: 'github-actions[bot]'
         user_email: 'github-actions[bot]@users.noreply.github.com'
-        commit_message: 'Deploy: Weekly meal update $(date +%Y-%m-%d)' 
+        commit_message: 'Deploy: Weekly meal update $(date +%Y-%m-%d)'
+        exclude_assets: |
+          .gitignore
+          .env
