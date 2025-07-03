@@ -35,6 +35,8 @@ env/
 *.log
 logs/
 crawler.log
+family_letter_crawler.log
+feed_generator.log
 
 # OS
 .DS_Store
@@ -46,4 +48,8 @@ feeds/
 *_feed.xml
 
 # API Keys (보안)
-config.js 
+config.js
+.env
+
+# GitHub Actions
+.github/workflows/*.log 

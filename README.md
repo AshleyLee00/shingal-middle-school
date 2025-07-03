@@ -8,7 +8,7 @@
 - 가정통신문 자동 수집
 - 깔끔한 웹 인터페이스 제공
 - GitHub Pages를 통한 자동 배포
-- 매일 자동 업데이트
+- **스마트한 크롤링 주기**: 데이터 특성에 맞는 최적화된 크롤링
 - 급식 정보 NEIS OpenAPI 자동 수집 및 제공
 - **실시간 날씨 및 대기질 정보 제공**
 
@@ -20,6 +20,40 @@
 - `school_schedule.html`: 학사일정(월간) 페이지
 - `meal_info.html`: 급식 정보 페이지 (NEIS OpenAPI 기반)
 - `weather_widget.html`: **날씨 및 대기질 정보 페이지**
+
+## GitHub Actions 자동화
+
+이 프로젝트는 GitHub Actions를 통해 완전 자동화되어 있습니다:
+
+### 크롤링 주기
+
+1. **공지사항 & 가정통신문**: 매일 오전 6시, 오후 6시
+   - 새로운 공지사항이 언제든 올라올 수 있으므로 하루 2회 크롤링
+   - 워크플로우: `deploy.yml`
+
+2. **급식정보**: 매주 토요일 밤 11시
+   - 주간 단위로 제공되는 급식정보이므로 주 1회 크롤링
+   - 워크플로우: `weekly-crawl.yml`
+
+3. **학사일정**: 매월 마지막날 밤 11시
+   - 월간 단위로 제공되는 학사일정이므로 월 1회 크롤링
+   - 워크플로우: `monthly-crawl.yml`
+
+### 워크플로우 구성
+
+```
+.github/workflows/
+├── deploy.yml           # 일일 공지사항 크롤링 (매일 6시, 18시)
+├── weekly-crawl.yml     # 주간 급식정보 크롤링 (토요일 23시)
+└── monthly-crawl.yml    # 월간 학사일정 크롤링 (월말 23시)
+```
+
+### 수동 실행
+
+GitHub 저장소의 Actions 탭에서 각 워크플로우를 수동으로 실행할 수 있습니다:
+1. GitHub 저장소 → Actions 탭
+2. 원하는 워크플로우 선택
+3. "Run workflow" 버튼 클릭
 
 ## API 키 설정 (날씨 위젯)
 
@@ -63,6 +97,10 @@ pip install -r requirements.txt
 
 3. 크롤러 실행
 ```bash
+# 모든 크롤러 한번에 실행
+python main_crawler.py
+
+# 개별 크롤러 실행
 python src/crawler.py  # 공지/가정통신문
 python src/meal_crawler.py  # 급식 정보 (NEIS OpenAPI 기반)
 python src/school_schedule_crawler.py  # 학사일정(월간)
@@ -76,32 +114,22 @@ python src/school_schedule_crawler.py  # 학사일정(월간)
 2. Source를 'GitHub Actions'로 설정
 3. 저장소의 Actions 탭에서 워크플로우가 정상적으로 실행되는지 확인
 
-## 자동 업데이트
-
-- 매일 자정에 공지/가정통신문이 자동으로 업데이트됩니다.
-- 급식 정보는 매주 일요일 NEIS OpenAPI에서 자동으로 최신화됩니다.
-- **학사일정(월간)은 매월 1일 자동으로 최신화됩니다.**
-- 수동 업데이트가 필요한 경우:
-  1. GitHub 저장소의 Actions 탭으로 이동
-  2. 원하는 워크플로우 선택 (일일 크롤링, 급식, 학사일정 등)
-  3. 'Run workflow' 버튼 클릭
-
 ## 프로젝트 구조
 
 ```
 school_notice_crawl/
+├── .github/
+│   └── workflows/
+│       ├── deploy.yml           # 일일 공지사항 크롤링
+│       ├── weekly-crawl.yml     # 주간 급식정보 크롤링
+│       └── monthly-crawl.yml    # 월간 학사일정 크롤링
 ├── src/
 │   ├── crawler.py                # 메인 크롤러 스크립트(공지/가정통신문)
 │   ├── meal_crawler.py           # 급식 정보 크롤러 (NEIS OpenAPI)
 │   ├── school_schedule_crawler.py # 학사일정(월간) 크롤러
 │   ├── notice_crawler.py         # 공지사항 크롤러
 │   └── family_letter_crawler.py  # 가정통신문 크롤러
-├── .github/
-│   └── workflows/
-│       ├── daily_crawl.yml       # 일일 크롤링 워크플로우
-│       ├── update-meal.yml       # 급식 정보 주간 업데이트 워크플로우
-│       ├── update-schedule.yml   # 학사일정 월간 업데이트 워크플로우
-│       └── gh-pages.yml          # GitHub Pages 배포 워크플로우
+├── main_crawler.py               # 모든 크롤러를 한번에 실행하는 메인 스크립트
 ├── images/                       # 이미지 파일들
 ├── font/                         # 폰트 파일들
 ├── index.html                    # 메인 페이지
@@ -121,3 +149,16 @@ school_notice_crawl/
 - **실시간 대기질 정보**: 미세먼지(PM10), 초미세먼지(PM2.5) 농도 및 등급
 - **디지털 사이니지 최적화**: 큰 글씨와 명확한 레이아웃
 - **반응형 디자인**: 다양한 화면 크기에 대응
+
+## 문제 해결
+
+### GitHub Actions 실행 실패 시
+1. Actions 탭에서 실패한 워크플로우 확인
+2. 로그를 통해 오류 원인 파악
+3. API 키가 올바르게 설정되었는지 확인
+4. 네트워크 연결 상태 확인
+
+### 크롤링 데이터가 업데이트되지 않는 경우
+1. 학교 홈페이지 서버 상태 확인
+2. RSS 피드 URL이 변경되었는지 확인
+3. 수동으로 워크플로우 실행해보기

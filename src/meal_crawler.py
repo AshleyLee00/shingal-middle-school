@@ -427,6 +427,11 @@ def generate_meal_html(meals, school_name):
     """
 
     js_code = """
+        // 날씨 캐시 설정
+        const WEATHER_CACHE_KEY = 'headerWeatherData';
+        const WEATHER_TIMESTAMP_KEY = 'headerWeatherTimestamp';
+        const WEATHER_UPDATE_INTERVAL = 60 * 60 * 1000; // 1시간 (밀리초)
+
         function updateDateTime() {
             const now = new Date();
             const year = now.getFullYear();
@@ -448,38 +453,116 @@ def generate_meal_html(meals, school_name):
             document.getElementById('date-time').innerHTML = `${dateString}<br>${timeString}`;
         }
 
-        function fetchWeather() {
+        // 캐시에서 날씨 데이터 가져오기
+        function getCachedWeatherData() {
+            try {
+                const cachedData = localStorage.getItem(WEATHER_CACHE_KEY);
+                const timestamp = localStorage.getItem(WEATHER_TIMESTAMP_KEY);
+                
+                if (cachedData && timestamp) {
+                    const data = JSON.parse(cachedData);
+                    const lastUpdate = parseInt(timestamp);
+                    const now = Date.now();
+                    
+                    // 1시간이 지나지 않았다면 캐시된 데이터 사용
+                    if (now - lastUpdate < WEATHER_UPDATE_INTERVAL) {
+                        console.log('캐시된 헤더 날씨 데이터 사용 중...');
+                        return data;
+                    }
+                }
+            } catch (error) {
+                console.error('날씨 캐시 데이터 읽기 실패:', error);
+            }
+            return null;
+        }
+
+        // 날씨 데이터를 캐시에 저장하기
+        function saveWeatherDataToCache(data) {
+            try {
+                localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify(data));
+                localStorage.setItem(WEATHER_TIMESTAMP_KEY, Date.now().toString());
+                console.log('헤더 날씨 데이터가 캐시에 저장되었습니다.');
+            } catch (error) {
+                console.error('날씨 캐시 저장 실패:', error);
+            }
+        }
+
+        // 날씨 데이터를 화면에 표시하는 함수
+        function displayWeatherData(weatherData) {
+            const temp = Math.round(weatherData.main.temp);
+            const weatherInfo = getWeatherInfo(
+                weatherData.weather[0].main, 
+                weatherData.weather[0].description, 
+                weatherData.isDay
+            );
+            document.querySelector('.weather').innerHTML =
+                `<img class='weather-icon' src='images/${weatherInfo.icon}' alt='날씨아이콘'>
+                 <div class='weather-content'>
+                    <div>${weatherInfo.text}</div>
+                    <div class='weather-temp'>${temp}℃</div>
+                 </div>`;
+        }
+
+        // 초기 날씨 데이터 로드 함수
+        async function loadInitialWeather() {
+            // 먼저 캐시에서 데이터 확인
+            const cachedData = getCachedWeatherData();
+            if (cachedData) {
+                console.log('캐시된 헤더 날씨 데이터로 초기 로드 중...');
+                displayWeatherData(cachedData);
+                return;
+            }
+            
+            // 캐시에 데이터가 없거나 만료된 경우에만 API 호출
+            console.log('헤더 날씨 데이터 초기 로드 중...');
+            await fetchWeather();
+        }
+
+        // 날씨 정보 업데이트 함수 (1시간마다)
+        async function updateWeatherIfNeeded() {
+            // 먼저 캐시에서 데이터 확인
+            const cachedData = getCachedWeatherData();
+            if (cachedData) {
+                // 캐시가 유효하면 표시 함수 호출하지 않음 (이미 표시되어 있음)
+                console.log('캐시된 헤더 날씨 데이터가 유효합니다.');
+                return;
+            }
+            
+            // 캐시에 데이터가 없거나 만료된 경우에만 API 호출
+            console.log('헤더 날씨 정보 업데이트 중...');
+            await fetchWeather();
+        }
+
+        async function fetchWeather() {
             const apiKey = '91fff999310c2bdea1978b3f0925fb38';
             const lat = 37.401;
             const lon = 126.922;
             const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
-            fetch(url)
-                .then(res => res.json())
-                .then(data => {
-                    if (!data.weather || !data.weather[0]) throw new Error('Invalid weather data');
-                    
-                    // 현재 시간을 기준으로 낮/밤 판단
-                    const now = new Date();
-                    const currentHour = now.getHours();
-                    const isDay = currentHour >= 6 && currentHour < 18; // 6시~18시는 낮
-                    
-                    const weatherInfo = getWeatherInfo(
-                        data.weather[0].main, 
-                        data.weather[0].description, 
-                        isDay
-                    );
-                    const temp = Math.round(data.main.temp);
-                    document.querySelector('.weather').innerHTML =
-                        `<img class='weather-icon' src='images/${weatherInfo.icon}' alt='날씨아이콘'>
-                         <div class='weather-content'>
-                            <div>${weatherInfo.text}</div>
-                            <div class='weather-temp'>${temp}℃</div>
-                         </div>`;
-                })
-                .catch(e => {
-                    console.error("Weather fetch error: ", e);
-                    document.querySelector('.weather').textContent = '날씨 정보를 불러올 수 없습니다';
-                });
+            
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                if (!data.weather || !data.weather[0]) throw new Error('Invalid weather data');
+                
+                // 현재 시간을 기준으로 낮/밤 판단
+                const now = new Date();
+                const currentHour = now.getHours();
+                const isDay = currentHour >= 6 && currentHour < 18; // 6시~18시는 낮
+                
+                // isDay 정보를 데이터에 추가
+                data.isDay = isDay;
+                
+                // 데이터를 화면에 표시
+                displayWeatherData(data);
+                
+                // 성공적으로 데이터를 가져왔다면 캐시에 저장
+                saveWeatherDataToCache(data);
+                
+            } catch (e) {
+                console.error("Weather fetch error: ", e);
+                document.querySelector('.weather').textContent = '날씨 정보를 불러올 수 없습니다';
+            }
         }
 
         // OpenWeatherMap API 2.5와 커스텀 날씨 아이콘 매핑
@@ -591,15 +674,31 @@ def generate_meal_html(meals, school_name):
 
             // 야간인 경우 아이콘 변경
             if (!isDay && weatherMain === 'Clear') {
-                weatherInfo.icon = getNightIcon(weatherMain);
+                weatherInfo.icon = getNightIcon(mainWeather);
             }
 
             return weatherInfo;
         }
 
+        // 초기 로드 및 주기적 업데이트 설정
         setInterval(updateDateTime, 1000);
         updateDateTime();
-        fetchWeather();
+        loadInitialWeather();
+        
+        // 5분마다 날씨 업데이트 체크
+        setInterval(updateWeatherIfNeeded, 5 * 60 * 1000);
+        
+        // 페이지가 포커스를 받았을 때 업데이트 체크
+        window.addEventListener('focus', function() {
+            updateWeatherIfNeeded();
+        });
+        
+        // 페이지가 보이게 될 때 업데이트 체크 (탭 전환 시)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                updateWeatherIfNeeded();
+            }
+        });
     """
 
     meal_cards = ""

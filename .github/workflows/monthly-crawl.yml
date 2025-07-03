@@ -1,0 +1,74 @@
+name: Monthly Schedule Crawl
+
+on:
+  schedule:
+    # 매월 마지막날 밤 11시에 학사일정 크롤링
+    - cron: '0 23 28-31 * *'
+  workflow_dispatch:  # 수동 실행 가능
+
+jobs:
+  monthly-schedule-crawl:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Create .env file
+      run: |
+        echo "OPENWEATHER_API_KEY=${{ secrets.OPENWEATHER_API_KEY }}" > .env
+        echo "AIRKOREA_API_KEY=${{ secrets.AIRKOREA_API_KEY }}" >> .env
+        
+    - name: Check if it's the last day of month
+      id: check_last_day
+      run: |
+        # 현재 날짜가 실제로 월말인지 확인
+        CURRENT_DAY=$(date +%d)
+        LAST_DAY=$(date -d "$(date +%Y-%m-01) +1 month -1 day" +%d)
+        
+        if [ "$CURRENT_DAY" = "$LAST_DAY" ]; then
+          echo "is_last_day=true" >> $GITHUB_OUTPUT
+        else
+          echo "is_last_day=false" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Run schedule crawler
+      if: steps.check_last_day.outputs.is_last_day == 'true'
+      run: |
+        cd src
+        python school_schedule_crawler.py
+        
+    - name: Configure Git
+      if: steps.check_last_day.outputs.is_last_day == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+    - name: Commit and push changes
+      if: steps.check_last_day.outputs.is_last_day == 'true'
+      run: |
+        git add .
+        git diff --quiet && git diff --staged --quiet || git commit -m "Monthly schedule update: $(date '+%Y-%m-%d %H:%M:%S')"
+        git push
+        
+    - name: Deploy to GitHub Pages
+      if: steps.check_last_day.outputs.is_last_day == 'true' && github.ref == 'refs/heads/main'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: .
+        publish_branch: gh-pages
+        force_orphan: true
+        user_name: 'github-actions[bot]'
+        user_email: 'github-actions[bot]@users.noreply.github.com'
+        commit_message: 'Deploy: Monthly schedule update $(date +%Y-%m-%d)' 
