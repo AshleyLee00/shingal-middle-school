@@ -12,9 +12,9 @@ load_dotenv()
 
 # 학교 및 API 정보
 API_KEY = os.getenv("NEIS_API_KEY", "dafe93db7c0d4c6eb8ba9a8f5aaee96b")  # 환경변수에서 가져오거나 기본값 사용
-ATPT_OFCDC_SC_CODE = "J10"  # 경기도교육청
-SD_SCHUL_CODE = "7569032"   # 안양초등학교
-SCHOOL_NAME = "안양초등학교"
+ATPT_OFCDC_SC_CODE = "P10"  # 전라북도교육청
+SD_SCHUL_CODE = "8352158"   # 남성중학교
+SCHOOL_NAME = "남성중학교"
 
 # 학사일정 가져오기 함수
 def get_schedule_info(api_key, atpt_code, school_code, year, month):
@@ -133,26 +133,50 @@ def generate_schedule_html(schedules, school_name, year, month):
     # 일정 리스트 (날짜순, 표 형태)
     sorted_events = sorted([(d, e) for d, evs in schedule_map.items() for e in evs], key=lambda x: x[0])
     
-    # 일정을 두 부분으로 나누기
+    # 일정을 세 부분으로 나누기 (12개 초과시)
     total_events = len(sorted_events)
     if total_events == 0:
         event_list_html = '<tr><td colspan="2">이번 달 학사일정이 없습니다.</td></tr>'
     else:
-        # 첫 번째 부분 (처음 6개)
-        first_part_html = ''
-        for i, (date, event) in enumerate(sorted_events[:6]):
-            first_part_html += f'<tr><td>{date[:4]}.{date[4:6]}.{date[6:]}</td><td>{event}</td></tr>'
-        
-        # 두 번째 부분 (나머지)
-        second_part_html = ''
-        for date, event in sorted_events[6:]:
-            second_part_html += f'<tr><td>{date[:4]}.{date[4:6]}.{date[6:]}</td><td>{event}</td></tr>'
-        
-        event_list_html = {
-            'first_part': first_part_html,
-            'second_part': second_part_html,
-            'has_second_part': len(sorted_events) > 6
-        }
+        if total_events <= 12:
+            # 12개 이하: 두 부분으로 나누기
+            first_part_html = ''
+            for i, (date, event) in enumerate(sorted_events[:6]):
+                first_part_html += f'<tr><td>{date[:4]}.{date[4:6]}.{date[6:]}</td><td>{event}</td></tr>'
+            
+            second_part_html = ''
+            for date, event in sorted_events[6:]:
+                second_part_html += f'<tr><td>{date[:4]}.{date[4:6]}.{date[6:]}</td><td>{event}</td></tr>'
+            
+            event_list_html = {
+                'first_part': first_part_html,
+                'second_part': second_part_html,
+                'has_second_part': len(sorted_events) > 6,
+                'has_third_part': False
+            }
+        else:
+            # 12개 초과: 세 부분으로 나누기
+            events_per_part = (total_events + 2) // 3  # 균등하게 분배
+            
+            first_part_html = ''
+            for i, (date, event) in enumerate(sorted_events[:events_per_part]):
+                first_part_html += f'<tr><td>{date[:4]}.{date[4:6]}.{date[6:]}</td><td>{event}</td></tr>'
+            
+            second_part_html = ''
+            for date, event in sorted_events[events_per_part:events_per_part*2]:
+                second_part_html += f'<tr><td>{date[:4]}.{date[4:6]}.{date[6:]}</td><td>{event}</td></tr>'
+            
+            third_part_html = ''
+            for date, event in sorted_events[events_per_part*2:]:
+                third_part_html += f'<tr><td>{date[:4]}.{date[4:6]}.{date[6:]}</td><td>{event}</td></tr>'
+            
+            event_list_html = {
+                'first_part': first_part_html,
+                'second_part': second_part_html,
+                'third_part': third_part_html,
+                'has_second_part': True,
+                'has_third_part': True
+            }
 
     # CSS: 달력 한 줄, 일정 표 스타일 추가
     css_style = '''
@@ -163,7 +187,7 @@ def generate_schedule_html(schedules, school_name, year, month):
             font-style: normal;
         }
         body { 
-            background: #9B7EDC; 
+            background: #4A90E2; 
             font-family: 'SeoulAlrim', sans-serif; 
             margin: 0; 
             padding: 0; 
@@ -174,9 +198,9 @@ def generate_schedule_html(schedules, school_name, year, month):
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: linear-gradient(90deg, #9B7EDC, #6C4EB6);
+            background: linear-gradient(90deg, #4A90E2, #357ABD);
             padding: 30px 90px;
-            box-shadow: 0 8px 32px rgba(74, 27, 140, 0.18);
+            box-shadow: 0 8px 32px rgba(53, 122, 189, 0.18);
             flex-shrink: 0;
             min-height: 80px;
             box-sizing: border-box;
@@ -242,7 +266,7 @@ def generate_schedule_html(schedules, school_name, year, month):
         .main-content {
             background: #fff;
             border-radius: 20px;
-            box-shadow: 0 8px 40px rgba(74, 27, 140, 0.18);
+            box-shadow: 0 8px 40px rgba(53, 122, 189, 0.18);
             margin: 20px auto;
             padding: 20px 60px;
             max-width: 2000px;
@@ -256,7 +280,7 @@ def generate_schedule_html(schedules, school_name, year, month):
         }
         .calendar-section h2 {
             font-size: 3.5rem;
-            color: #6C4EB6;
+            color: #357ABD;
             margin-bottom: 15px;
             font-weight: 700;
         }
@@ -295,8 +319,8 @@ def generate_schedule_html(schedules, school_name, year, month):
         .table-calendar th {
             text-align: center;
             padding: 10px 4px;
-            background: #E7E5F5;
-            color: #6C4EB6;
+            background: #E3F2FD;
+            color: #357ABD;
             font-weight: 700;
             border: 1px solid #eee;
         }
@@ -313,8 +337,8 @@ def generate_schedule_html(schedules, school_name, year, month):
             transition: background 0.2s;
         }
         .event-circle {
-            background: #E7E5F5;
-            color: #9B7EDC;
+            background: #E3F2FD;
+            color: #4A90E2;
         }
         .sunday {
             color: #e23a3a !important;
@@ -333,9 +357,25 @@ def generate_schedule_html(schedules, school_name, year, month):
         .event-list-part {
             flex: 1;
         }
+        .event-list-container.three-columns {
+            gap: 20px;
+        }
+        .event-list-container.three-columns .event-list-part {
+            flex: 1;
+        }
+        .event-list-container.three-columns .event-list-table {
+            font-size: 1.8rem;
+        }
+        .event-list-container.three-columns .event-list-table td:first-child {
+            font-size: 1.6rem;
+            width: 100px;
+        }
+        .event-list-container.three-columns .event-list-table td:last-child {
+            font-size: 1.8rem;
+        }
         .event-list-part h3 {
             font-size: 2rem;
-            color: #6C4EB6;
+            color: #357ABD;
             margin-bottom: 10px;
             font-weight: 700;
         }
@@ -350,7 +390,7 @@ def generate_schedule_html(schedules, school_name, year, month):
             text-align: left;
         }
         .event-list-table td:first-child {
-            color: #6C4EB6;
+            color: #357ABD;
             font-weight: 700;
             width: 120px;
             font-size: 2rem;
@@ -795,8 +835,8 @@ def generate_schedule_html(schedules, school_name, year, month):
 
         async function fetchWeather() {
             const apiKey = '""" + os.getenv("OPENWEATHER_API_KEY", "") + """';
-            const lat = 37.401;
-            const lon = 126.922;
+            const lat = 35.9568;
+            const lon = 126.9689;
             const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
             
             try {
@@ -961,16 +1001,39 @@ def generate_schedule_html(schedules, school_name, year, month):
     '''
     # event_list_html 렌더링 부분을 분리하여 f-string 오류 방지
     if isinstance(event_list_html, dict):
-        event_list_html_rendered = f'''
-            <div class="event-list-container">
-                <div class="event-list-part">
-                    <table class="event-list-table">
-                        {event_list_html['first_part']}
-                    </table>
+        if event_list_html.get('has_third_part', False):
+            # 세 부분으로 나누기 (12개 초과)
+            event_list_html_rendered = f'''
+                <div class="event-list-container three-columns">
+                    <div class="event-list-part">
+                        <table class="event-list-table">
+                            {event_list_html['first_part']}
+                        </table>
+                    </div>
+                    <div class="event-list-part">
+                        <table class="event-list-table">
+                            {event_list_html['second_part']}
+                        </table>
+                    </div>
+                    <div class="event-list-part">
+                        <table class="event-list-table">
+                            {event_list_html['third_part']}
+                        </table>
+                    </div>
                 </div>
-                {f'<div class="event-list-part">\n<table class="event-list-table">\n{event_list_html["second_part"]}\n</table>\n</div>' if event_list_html['has_second_part'] else ''}
-            </div>
-        '''
+            '''
+        else:
+            # 두 부분으로 나누기 (12개 이하)
+            event_list_html_rendered = f'''
+                <div class="event-list-container">
+                    <div class="event-list-part">
+                        <table class="event-list-table">
+                            {event_list_html['first_part']}
+                        </table>
+                    </div>
+                    {f'<div class="event-list-part">\n<table class="event-list-table">\n{event_list_html["second_part"]}\n</table>\n</div>' if event_list_html['has_second_part'] else ''}
+                </div>
+            '''
     else:
         event_list_html_rendered = f'''
             <table class="event-list-table">
@@ -1000,7 +1063,7 @@ def generate_schedule_html(schedules, school_name, year, month):
         </header>
         <div class="main-content">
             <div class="calendar-section">
-                <h2 style="font-size:3.3rem; color:#6C4EB6; margin-bottom:10px;">{year}년 {month}월</h2>
+                <h2 style="font-size:3.3rem; color:#357ABD; margin-bottom:10px;">{year}년 {month}월</h2>
                 {calendar_html}
             </div>
             <div class="event-list-section">

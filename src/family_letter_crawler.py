@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-학교 홈페이지 가정통신문 RSS 크롤러
-RSS 피드를 통해 가정통신문을 크롤링하는 모듈입니다.
+학교 홈페이지 가정통신문 크롤러
+HTML 페이지를 직접 크롤링하여 가정통신문을 수집하는 모듈입니다.
 """
 
 import json
@@ -11,9 +11,9 @@ import logging
 import os
 import re
 import requests
-import xml.etree.ElementTree as ET
 from datetime import datetime
 from urllib.parse import urljoin
+from bs4 import BeautifulSoup
 
 # 로그 파일 경로 설정
 log_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
@@ -31,10 +31,10 @@ logging.basicConfig(
 
 def crawl_school_letters(url, site_name=None):
     """
-    학교 홈페이지 가정통신문을 RSS 피드로 크롤링합니다.
+    학교 홈페이지 가정통신문을 HTML 페이지에서 직접 크롤링합니다.
     
     Args:
-        url (str): 가정통신문 RSS 피드 URL
+        url (str): 가정통신문 페이지 URL
         site_name (str, optional): 사이트 이름, 없으면 URL에서 추출
         
     Returns:
@@ -48,7 +48,7 @@ def crawl_school_letters(url, site_name=None):
         else:
             site_name = "unknown_site"
     
-    logging.info(f"{site_name} 가정통신문 RSS 크롤러 시작...")
+    logging.info(f"{site_name} 가정통신문 HTML 크롤러 시작...")
     
     # 웹 페이지 요청
     headers = {
@@ -58,6 +58,7 @@ def crawl_school_letters(url, site_name=None):
     try:
         response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
+        response.encoding = 'utf-8'  # 한글 인코딩 설정
     except requests.RequestException as e:
         logging.error(f"요청 중 오류 발생: {e}")
         return {
@@ -71,73 +72,109 @@ def crawl_school_letters(url, site_name=None):
             }
         }
     
-    # RSS XML 파싱
+    # HTML 파싱
     try:
-        root = ET.fromstring(response.text)
+        soup = BeautifulSoup(response.text, 'html.parser')
         
-        # RSS 네임스페이스 처리
-        namespaces = {'rss': 'http://purl.org/rss/1.0/'}
+        # 가정통신문 테이블 찾기
+        # 테이블 내의 tr 요소들을 찾습니다 (헤더 제외)
+        table = soup.find('table')
+        if not table:
+            logging.error("가정통신문 테이블을 찾을 수 없습니다.")
+            return {
+                "letters": [],
+                "meta": {
+                    "total_count": 0,
+                    "last_updated": datetime.now().strftime("%Y-%m-%d"),
+                    "source": site_name,
+                    "url": url,
+                    "error": "가정통신문 테이블을 찾을 수 없습니다."
+                }
+            }
         
-        # item 요소들 찾기
-        items = root.findall('.//item')
-        if not items:
-            # 네임스페이스 없이 시도
-            items = root.findall('.//item')
-        
+        # 테이블의 모든 행(tr)을 찾습니다
+        rows = table.find_all('tr')
         letters = []
         
-        for item in items:
-            try:
-                # 제목 추출
-                title_elem = item.find('title')
-                title = title_elem.text if title_elem is not None else ""
+        for row in rows:
+            # 헤더 행은 건너뜁니다
+            if row.find('th'):
+                continue
                 
-                # 링크 추출
-                link_elem = item.find('link')
-                link = link_elem.text if link_elem is not None else ""
-                
-                # 날짜 추출
-                date_elem = item.find('pubDate')
-                date_text = date_elem.text if date_elem is not None else ""
-                
-                # 날짜 형식 변환
+            # td 요소들을 찾습니다
+            cells = row.find_all('td')
+            if len(cells) >= 5:  # 번호, 제목, 첨부, 이름, 날짜, 조회 컬럼이 있어야 함
                 try:
-                    # RSS 날짜 형식 (예: Mon, 24 Jun 2025 10:30:00 +0900)
-                    date_obj = datetime.strptime(date_text, "%a, %d %b %Y %H:%M:%S %z")
-                    formatted_date = date_obj.strftime("%Y-%m-%d")
-                except ValueError:
+                    # 번호 추출
+                    number_cell = cells[0]
+                    number = number_cell.get_text(strip=True)
+                    
+                    # 공지사항은 건너뜁니다
+                    if number == "공지":
+                        continue
+                    
+                    # 제목과 링크 추출
+                    title_cell = cells[1]
+                    title_link = title_cell.find('a')
+                    if title_link:
+                        title = title_link.get_text(strip=True)
+                        link = title_link.get('href')
+                        if link and not link.startswith('http'):
+                            link = urljoin(url, link)
+                    else:
+                        title = title_cell.get_text(strip=True)
+                        link = ""
+                    
+                    # 첨부파일 여부 확인
+                    attachment_cell = cells[2]
+                    has_attachment = bool(attachment_cell.find('img'))
+                    
+                    # 작성자 추출
+                    author_cell = cells[3]
+                    author = author_cell.get_text(strip=True)
+                    
+                    # 날짜 추출
+                    date_cell = cells[4]
+                    date_text = date_cell.get_text(strip=True)
+                    
+                    # 조회수 추출 (있는 경우)
+                    views = "0"
+                    if len(cells) > 5:
+                        views_cell = cells[5]
+                        views = views_cell.get_text(strip=True)
+                    
+                    # 날짜 형식 정리 (YY.MM.DD 형식을 YYYY-MM-DD로 변환)
                     try:
-                        # 다른 형식 시도
-                        date_obj = datetime.strptime(date_text, "%Y-%m-%d %H:%M:%S")
-                        formatted_date = date_obj.strftime("%Y-%m-%d")
-                    except ValueError:
-                        # 시간 정보가 포함된 다른 형식들 처리
-                        if 'T' in date_text:
-                            # ISO 형식 (예: 2025-06-24T16:03:22)
-                            date_part = date_text.split('T')[0]
-                            formatted_date = date_part
+                        if re.match(r'\d{2}\.\d{2}\.\d{2}', date_text):
+                            # 25.07.03 형식을 2025-07-03으로 변환
+                            year, month, day = date_text.split('.')
+                            year = f"20{year}"  # 25 -> 2025
+                            formatted_date = f"{year}-{month}-{day}"
                         else:
                             formatted_date = date_text
-                
-                letter_data = {
-                    "number": str(len(letters) + 1),
-                    "title": title,
-                    "author": "",
-                    "date": formatted_date,
-                    "views": "0",
-                    "url": link
-                }
-                
-                letters.append(letter_data)
-                
-            except Exception as e:
-                logging.error(f"RSS 항목 파싱 중 오류 발생: {e}")
-                continue
+                    except:
+                        formatted_date = date_text
+                    
+                    letter_data = {
+                        "number": number,
+                        "title": title,
+                        "author": author,
+                        "date": formatted_date,
+                        "views": views,
+                        "url": link,
+                        "has_attachment": has_attachment
+                    }
+                    
+                    letters.append(letter_data)
+                    
+                except Exception as e:
+                    logging.error(f"행 파싱 중 오류 발생: {e}")
+                    continue
         
-        logging.info(f"가정통신문 RSS 크롤링 완료: {len(letters)}개")
+        logging.info(f"가정통신문 HTML 크롤링 완료: {len(letters)}개")
         
-    except ET.ParseError as e:
-        logging.error(f"RSS XML 파싱 오류: {e}")
+    except Exception as e:
+        logging.error(f"HTML 파싱 오류: {e}")
         return {
             "letters": [],
             "meta": {
@@ -145,7 +182,7 @@ def crawl_school_letters(url, site_name=None):
                 "last_updated": datetime.now().strftime("%Y-%m-%d"),
                 "source": site_name,
                 "url": url,
-                "error": f"RSS XML 파싱 오류: {str(e)}"
+                "error": f"HTML 파싱 오류: {str(e)}"
             }
         }
     
@@ -163,11 +200,13 @@ def crawl_school_letters(url, site_name=None):
     return result
 
 if __name__ == "__main__":
-    # 예제 URL
-    test_url = "https://anyang-e.goeay.kr/anyang-e/na/ntt/selectRssFeed.do?mi=4493&bbsId=1822"
-    result = crawl_school_letters(test_url, "안양초등학교")
+    # 남성중학교 가정통신문 페이지 URL
+    test_url = "https://school.jbedu.kr/jb-namsung/M010601/"
+    result = crawl_school_letters(test_url, "남성중학교")
     
     # 모든 가정통신문 출력
     print("\n가정통신문 목록:")
     for i, letter in enumerate(result["letters"], 1):
-        print(f"{i}. {letter.get('title')} ({letter.get('date')})") 
+        print(f"{i}. {letter.get('title')} ({letter.get('date')}) - {letter.get('author')}")
+        if letter.get('has_attachment'):
+            print("   [첨부파일 있음]") 

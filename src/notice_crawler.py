@@ -69,14 +69,15 @@ def crawl_school_notices(url, site_name=None):
     try:
         root = ET.fromstring(response.text)
         
-        # RSS 네임스페이스 처리
-        namespaces = {'rss': 'http://purl.org/rss/1.0/'}
-        
-        # item 요소들 찾기
+        # item 요소들 찾기 (여러 방법 시도)
         items = root.findall('.//item')
         if not items:
-            # 네임스페이스 없이 시도
-            items = root.findall('.//item')
+            # 다른 태그명으로 시도
+            items = root.findall('.//entry')  # Atom 형식
+        if not items:
+            # 네임스페이스와 함께 시도
+            namespaces = {'rss': 'http://purl.org/rss/1.0/'}
+            items = root.findall('.//rss:item', namespaces)
         
         notices = []
         
@@ -96,14 +97,19 @@ def crawl_school_notices(url, site_name=None):
                 
                 # 날짜 형식 변환
                 try:
-                    # RSS 날짜 형식 (예: Mon, 24 Jun 2025 10:30:00 +0900)
-                    date_obj = datetime.strptime(date_text, "%a, %d %b %Y %H:%M:%S %z")
-                    formatted_date = date_obj.strftime("%Y-%m-%d")
+                    # RSS 날짜 형식 (예: Wed, 02 Jul 2025 23:17:42 GMT)
+                    if 'GMT' in date_text:
+                        date_obj = datetime.strptime(date_text, "%a, %d %b %Y %H:%M:%S GMT")
+                    else:
+                        # RSS 날짜 형식 (예: Mon, 24 Jun 2025 10:30:00 +0900)
+                        date_obj = datetime.strptime(date_text, "%a, %d %b %Y %H:%M:%S %z")
+                    
+                    formatted_date = date_obj.strftime('%Y-%m-%d')
                 except ValueError:
                     try:
                         # 다른 형식 시도
                         date_obj = datetime.strptime(date_text, "%Y-%m-%d %H:%M:%S")
-                        formatted_date = date_obj.strftime("%Y-%m-%d")
+                        formatted_date = date_obj.strftime('%Y-%m-%d')
                     except ValueError:
                         # 시간 정보가 포함된 다른 형식들 처리
                         if 'T' in date_text:
@@ -158,9 +164,9 @@ def crawl_school_notices(url, site_name=None):
     return result
 
 if __name__ == "__main__":
-    # 예제 URL
-    test_url = "https://anyang-e.goeay.kr/anyang-e/na/ntt/selectRssFeed.do?mi=4492&bbsId=1821"
-    result = crawl_school_notices(test_url, "안양초등학교")
+    # 남성중학교 RSS URL
+    test_url = "https://school.jbedu.kr/rss/jb-namsung/M010602"
+    result = crawl_school_notices(test_url, "남성중학교")
     
     # 모든 공지사항 출력
     print("\n공지사항 목록:")
