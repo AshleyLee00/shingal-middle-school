@@ -50,8 +50,8 @@
 
 ### 수동 실행
 
-GitHub 저장소의 Actions 탭에서 각 워크플로우를 수동으로 실행할 수 있습니다:
-1. GitHub 저장소 → Actions 탭
+GitHub 저장소의 **Actions** 탭에서 각 워크플로우를 수동으로 실행할 수 있습니다:
+1. GitHub 저장소 → **Actions** 탭
 2. 원하는 워크플로우 선택
 3. "Run workflow" 버튼 클릭
 
@@ -87,7 +87,7 @@ AIRKOREA_API_KEY=your_airkorea_api_key_here
 
 ### GitHub Secrets 설정 (자동 배포용)
 
-GitHub 저장소의 Settings > Secrets and variables > Actions에서 다음 시크릿을 추가:
+GitHub 저장소의 **Settings > Secrets and variables > Actions**에서 다음 시크릿을 추가:
 
 1. `OPENWEATHER_API_KEY`: OpenWeather API 키
 2. `NEIS_API_KEY`: NEIS OpenAPI 키  
@@ -133,9 +133,9 @@ python src/school_schedule_crawler.py  # 학사일정(월간)
 
 ## GitHub Pages 설정
 
-1. 저장소의 Settings > Pages 메뉴로 이동
+1. 저장소의 **Settings > Pages** 메뉴로 이동
 2. Source를 'GitHub Actions'로 설정
-3. 저장소의 Actions 탭에서 워크플로우가 정상적으로 실행되는지 확인
+3. 저장소의 **Actions** 탭에서 워크플로우가 정상적으로 실행되는지 확인
 
 ## 프로젝트 구조
 
@@ -176,7 +176,7 @@ school_notice_crawl/
 ## 문제 해결
 
 ### GitHub Actions 실행 실패 시
-1. Actions 탭에서 실패한 워크플로우 확인
+1. **Actions** 탭에서 실패한 워크플로우 확인
 2. 로그를 통해 오류 원인 파악
 3. API 키가 올바르게 설정되었는지 확인
 4. 네트워크 연결 상태 확인
