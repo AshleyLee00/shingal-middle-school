@@ -44,15 +44,6 @@ jobs:
         python crawler.py
       continue-on-error: true
         
-    - name: Run all crawlers (manual trigger)
-      if: github.event_name == 'workflow_dispatch'
-      run: |
-        cd src
-        python crawler.py
-        python meal_crawler.py
-        python school_schedule_crawler.py
-      continue-on-error: true
-        
     - name: Configure Git
       run: |
         git config --local user.email "action@github.com"

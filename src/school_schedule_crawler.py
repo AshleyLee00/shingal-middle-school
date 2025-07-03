@@ -959,6 +959,25 @@ def generate_schedule_html(schedules, school_name, year, month):
             }
         });
     '''
+    # event_list_html 렌더링 부분을 분리하여 f-string 오류 방지
+    if isinstance(event_list_html, dict):
+        event_list_html_rendered = f'''
+            <div class="event-list-container">
+                <div class="event-list-part">
+                    <table class="event-list-table">
+                        {event_list_html['first_part']}
+                    </table>
+                </div>
+                {f'<div class="event-list-part">\n<table class="event-list-table">\n{event_list_html["second_part"]}\n</table>\n</div>' if event_list_html['has_second_part'] else ''}
+            </div>
+        '''
+    else:
+        event_list_html_rendered = f'''
+            <table class="event-list-table">
+                {event_list_html}
+            </table>
+        '''
+
     html_content = f'''
     <!DOCTYPE html>
     <html lang="ko">
@@ -985,26 +1004,7 @@ def generate_schedule_html(schedules, school_name, year, month):
                 {calendar_html}
             </div>
             <div class="event-list-section">
-                {f'''
-                <div class="event-list-container">
-                    <div class="event-list-part">
-                           <table class="event-list-table">
-                            {event_list_html['first_part']}
-                        </table>
-                    </div>
-                    {f'''
-                    <div class="event-list-part">
-                          <table class="event-list-table">
-                            {event_list_html['second_part']}
-                        </table>
-                    </div>
-                    ''' if event_list_html['has_second_part'] else ''}
-                </div>
-                ''' if isinstance(event_list_html, dict) else f'''
-                <table class="event-list-table">
-                    {event_list_html}
-                </table>
-                '''}
+                {event_list_html_rendered}
             </div>
         </div>
         <script>{js_code}</script>
