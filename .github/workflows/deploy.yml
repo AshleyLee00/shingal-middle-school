@@ -62,4 +62,11 @@ jobs:
         force_orphan: true
         user_name: 'github-actions[bot]'
         user_email: 'github-actions[bot]@users.noreply.github.com'
-        commit_message: 'Deploy: Daily notice update $(date +%Y-%m-%d)' 
+        commit_message: 'Deploy: Daily notice update $(date +%Y-%m-%d)'
+        exclude_assets: |
+          .github/
+          src/
+          requirements.txt
+          env.example
+          .gitignore
+          README.md 
