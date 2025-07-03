@@ -534,8 +534,8 @@
     const CONFIG = {
         ANYANG_LAT: 37.401,
         ANYANG_LON: 126.922,
-        OPENWEATHER_API_KEY: '{{ OPENWEATHER_API_KEY }}',
-        AIRKOREA_API_KEY: '{{ AIRKOREA_API_KEY }}'
+        OPENWEATHER_API_KEY: '91fff999310c2bdea1978b3f0925fb38',
+        AIRKOREA_API_KEY: 'kQmTZcm7bg25bgTZQKwjvdAFJsn0YMD6UTSzM93O/QSKHeNNr0eBWjfqJmJOO2Z+L8EK4TTsSk5jKMKenr4BHw=='
     };
 
     // 시간 표시
@@ -943,11 +943,11 @@
     // 캐시 키 상수
     const AIR_QUALITY_CACHE_KEY = 'airQualityData';
     const AIR_QUALITY_TIMESTAMP_KEY = 'airQualityTimestamp';
-    const AIR_QUALITY_UPDATE_INTERVAL = 2 * 60 * 60 * 1000; // 2시간 (밀리초)
+    const AIR_QUALITY_UPDATE_INTERVAL = 5 * 60 * 1000; // 5분 (밀리초) - 테스트용으로 짧게 설정
     
     const WEATHER_CACHE_KEY = 'weatherData';
     const WEATHER_TIMESTAMP_KEY = 'weatherTimestamp';
-    const WEATHER_UPDATE_INTERVAL = 60 * 60 * 1000; // 1시간 (밀리초)
+    const WEATHER_UPDATE_INTERVAL = 5 * 60 * 1000; // 5분 (밀리초) - 테스트용으로 짧게 설정
 
     // 캐시에서 데이터 가져오기
     function getCachedAirQualityData() {
@@ -1109,8 +1109,24 @@
         }
     }
 
+    // 캐시 초기화 함수
+    function clearAllCache() {
+        try {
+            localStorage.removeItem(AIR_QUALITY_CACHE_KEY);
+            localStorage.removeItem(AIR_QUALITY_TIMESTAMP_KEY);
+            localStorage.removeItem(WEATHER_CACHE_KEY);
+            localStorage.removeItem(WEATHER_TIMESTAMP_KEY);
+            console.log('모든 캐시가 초기화되었습니다.');
+        } catch (error) {
+            console.error('캐시 초기화 실패:', error);
+        }
+    }
+
     // 초기 데이터 로드 함수 (캐시 확인 후 표시 또는 API 호출)
     async function loadInitialData() {
+        // 테스트를 위해 캐시 강제 초기화 (필요시 주석 처리)
+        clearAllCache();
+        
         // 날씨 데이터 로드
         const cachedWeatherData = getCachedWeatherData();
         if (cachedWeatherData) {
