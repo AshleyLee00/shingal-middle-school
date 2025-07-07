@@ -200,29 +200,29 @@
 
         @media (max-height: 600px) {
             .page-header {
-                padding: 10px 15px;
-                min-height: 50px;
+                padding: 8px 15px;
+                min-height: 40px;
             }
             .header-main-title {
-                font-size: 3rem;
+                font-size: 2.5rem;
             }
             .page-header .weather, 
             .page-header .date-time,
             .page-header .school-name {
-                font-size: 1.6rem;
+                font-size: 1.4rem;
             }
             .page-header .weather-icon {
-                width: 35px;
-                height: 35px;
+                width: 30px;
+                height: 30px;
             }
             .meal-container {
-                margin: 10px auto;
-                padding: 10px;
+                margin: 6px auto;
+                padding: 8px;
                 flex-direction: column;
                 flex-wrap: nowrap;
                 max-height: none;
                 overflow-x: visible;
-                gap: 10px;
+                gap: 6px;
             }
             .meal-day-container {
                 min-width: auto;
@@ -230,25 +230,117 @@
                 width: 100%;
             }
             .meal-date {
-                font-size: 1.6rem;
-                padding: 6px;
+                font-size: 1.4rem;
+                padding: 4px;
             }
             .meal-menu {
-                font-size: 1.5rem;
+                font-size: 1.3rem;
                 line-height: 1.2;
             }
             .meal-menu span {
-                margin-bottom: 4px;
+                margin-bottom: 3px;
             }
             .allergen {
-                font-size: 1.3rem;
-                margin-top: 6px;
-                padding-top: 6px;
+                font-size: 1.1rem;
+                margin-top: 4px;
+                padding-top: 4px;
             }
             .notice-text {
-                font-size: 1.1rem;
-                margin: 6px auto;
+                font-size: 1rem;
+                margin: 4px auto;
+                padding: 6px;
+            }
+        }
+
+        /* 16:9 비율 최적화 (높은 해상도에서도 한 화면에 모든 정보 표시) */
+        @media (max-height: 800px) and (min-width: 1200px) {
+            .page-header {
+                padding: 12px 20px;
+                min-height: 60px;
+            }
+            .header-main-title {
+                font-size: 3.5rem;
+            }
+            .page-header .weather, 
+            .page-header .date-time,
+            .page-header .school-name {
+                font-size: 1.8rem;
+            }
+            .page-header .weather-icon {
+                width: 40px;
+                height: 40px;
+            }
+            .meal-container {
+                margin: 12px auto;
+                padding: 12px;
+                gap: 8px;
+            }
+            .meal-date {
+                font-size: 1.8rem;
                 padding: 8px;
+            }
+            .meal-menu {
+                font-size: 1.6rem;
+                line-height: 1.3;
+            }
+            .meal-menu span {
+                margin-bottom: 5px;
+            }
+            .allergen {
+                font-size: 1.4rem;
+                margin-top: 8px;
+                padding-top: 8px;
+            }
+            .notice-text {
+                font-size: 1.2rem;
+                margin: 8px auto;
+                padding: 10px;
+            }
+        }
+
+        /* 매우 낮은 높이에서의 최적화 */
+        @media (max-height: 500px) {
+            .page-header {
+                padding: 5px 10px;
+                min-height: 30px;
+            }
+            .header-main-title {
+                font-size: 2rem;
+            }
+            .page-header .weather, 
+            .page-header .date-time,
+            .page-header .school-name {
+                font-size: 1.2rem;
+            }
+            .page-header .weather-icon {
+                width: 25px;
+                height: 25px;
+            }
+            .meal-container {
+                margin: 4px auto;
+                padding: 6px;
+                gap: 4px;
+            }
+            .meal-date {
+                font-size: 1.2rem;
+                padding: 3px;
+            }
+            .meal-menu {
+                font-size: 1.1rem;
+                line-height: 1.1;
+            }
+            .meal-menu span {
+                margin-bottom: 2px;
+            }
+            .allergen {
+                font-size: 1rem;
+                margin-top: 3px;
+                padding-top: 3px;
+            }
+            .notice-text {
+                font-size: 0.9rem;
+                margin: 3px auto;
+                padding: 4px;
             }
         }
 
@@ -356,7 +448,7 @@
                 flex-wrap: nowrap;
                 max-height: none;
                 overflow-x: visible;
-                gap: 15px;
+                gap: 12px;
             }
             .meal-day-container {
                 min-width: auto;
@@ -364,16 +456,16 @@
                 width: 100%;
             }
             .meal-menu {
-                font-size: 1.8rem;
+                font-size: 1.7rem;
                 line-height: 1.3;
             }
             .meal-menu span {
-                margin-bottom: 6px;
+                margin-bottom: 5px;
             }
             .allergen {
-                font-size: 1.5rem;
-                margin-top: 10px;
-                padding-top: 10px;
+                font-size: 1.4rem;
+                margin-top: 8px;
+                padding-top: 8px;
             }
         }
 
