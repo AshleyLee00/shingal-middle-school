@@ -228,9 +228,9 @@ def generate_meal_html(meals, school_name, start_date, end_date):
                 padding-top: 10px;
             }
             .notice-text {
-                font-size: 1.5rem;
-                margin: 15px auto;
-                padding: 15px;
+                font-size: 1.2rem;
+                margin: 8px auto;
+                padding: 12px;
                 width: 98%;
             }
         }
@@ -283,8 +283,8 @@ def generate_meal_html(meals, school_name, start_date, end_date):
                 padding-top: 6px;
             }
             .notice-text {
-                font-size: 1.4rem;
-                margin: 8px auto;
+                font-size: 1.1rem;
+                margin: 6px auto;
                 padding: 8px;
             }
         }
@@ -419,12 +419,12 @@ def generate_meal_html(meals, school_name, start_date, end_date):
         .notice-text {
             text-align: center;
             color: #666;
-            font-size: 1.6rem;
-            margin: 15px auto;
-            line-height: 1.4;
+            font-size: 1.3rem;
+            margin: 8px auto;
+            line-height: 1.3;
             max-width: 2000px;
             width: 95%;
-            padding: 15px;
+            padding: 12px;
             background: #FFFFFF;
             border-radius: 15px;
             box-shadow: 0 4px 20px rgba(53, 122, 189, 0.08);
