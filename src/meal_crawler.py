@@ -37,7 +37,7 @@ def get_meal_info(api_key, school_code, start_date, end_date):
         print(f"급식 정보 가져오기 실패: {str(e)}")
         return []
 
-def generate_meal_html(meals, school_name):
+def generate_meal_html(meals, school_name, start_date, end_date):
     """
     급식 정보를 HTML로 변환합니다.
     """
@@ -343,28 +343,10 @@ def generate_meal_html(meals, school_name):
             letter-spacing: -0.02em;
         }
 
-        .meal-menu.many-items {
-            font-size: 1.6rem;
-            line-height: 1.3;
-        }
-
-        .meal-menu.very-many-items {
-            font-size: 1.4rem;
-            line-height: 1.2;
-        }
-
         .meal-menu span {
             display: block;
             margin-bottom: 8px;
             text-shadow: 0 0 1px rgba(0, 0, 0, 0.08);
-        }
-
-        .meal-menu.many-items span {
-            margin-bottom: 6px;
-        }
-
-        .meal-menu.very-many-items span {
-            margin-bottom: 4px;
         }
 
         .allergen {
@@ -395,22 +377,8 @@ def generate_meal_html(meals, school_name):
                 font-size: 2.2rem;
                 line-height: 1.3;
             }
-            .meal-menu.many-items {
-                font-size: 1.8rem;
-                line-height: 1.2;
-            }
-            .meal-menu.very-many-items {
-                font-size: 1.6rem;
-                line-height: 1.1;
-            }
             .meal-menu span {
                 margin-bottom: 8px;
-            }
-            .meal-menu.many-items span {
-                margin-bottom: 6px;
-            }
-            .meal-menu.very-many-items span {
-                margin-bottom: 4px;
             }
             .allergen {
                 font-size: 1.8rem;
@@ -717,34 +685,10 @@ def generate_meal_html(meals, school_name):
             return weatherInfo;
         }
 
-        // 메뉴 개수에 따른 글씨 크기 조정
-        function adjustMenuFontSize() {
-            const mealMenus = document.querySelectorAll('.meal-menu');
-            mealMenus.forEach(menu => {
-                const menuItems = menu.querySelectorAll('span');
-                const itemCount = menuItems.length;
-                
-                // 기존 클래스 제거
-                menu.classList.remove('many-items', 'very-many-items');
-                
-                // 메뉴 개수에 따라 클래스 추가
-                if (itemCount > 6 && itemCount <= 10) {
-                    menu.classList.add('many-items');
-                } else if (itemCount > 10) {
-                    menu.classList.add('very-many-items');
-                }
-            });
-        }
-
         // 초기 로드 및 주기적 업데이트 설정
         setInterval(updateDateTime, 1000);
         updateDateTime();
         loadInitialWeather();
-        
-        // 페이지 로드 완료 후 메뉴 글씨 크기 조정
-        window.addEventListener('load', function() {
-            setTimeout(adjustMenuFontSize, 100);
-        });
         
         // 5분마다 날씨 업데이트 체크
         setInterval(updateWeatherIfNeeded, 5 * 60 * 1000);
@@ -762,39 +706,67 @@ def generate_meal_html(meals, school_name):
         });
     """
 
-    meal_cards = ""
+    # 날짜별 급식 정보를 딕셔너리로 변환
+    meal_dict = {}
     for meal in meals:
         date = meal['MLSV_YMD']
-        formatted_date = f"{date[4:6]}월 {date[6:8]}일 ({['월', '화', '수', '목', '금', '토', '일'][datetime.strptime(date, '%Y%m%d').weekday()]})"
-        menu_items = meal['DDISH_NM'].split('<br/>')
-        menu_html = ""
+        meal_dict[date] = meal
+    
+    # 시작일부터 종료일까지 모든 날짜에 대해 급식 정보 생성
+    current_date = datetime.strptime(start_date, '%Y%m%d')
+    end_datetime = datetime.strptime(end_date, '%Y%m%d')
+    
+    meal_cards = ""
+    while current_date <= end_datetime:
+        date_str = current_date.strftime('%Y%m%d')
+        formatted_date = f"{current_date.strftime('%m')}월 {current_date.strftime('%d')}일 ({['월', '화', '수', '목', '금', '토', '일'][current_date.weekday()]})"
         
-        for item in menu_items:
-            # 알레르기 정보 추출
-            allergens = []
-            item_text = item
-            for i in range(1, 20):
-                if f"({i})" in item:
-                    allergens.append(str(i))
-                    item_text = item_text.replace(f"({i})", "")
+        if date_str in meal_dict:
+            # 급식 정보가 있는 경우
+            meal = meal_dict[date_str]
+            menu_items = meal['DDISH_NM'].split('<br/>')
+            menu_html = ""
             
-            menu_html += f'<span>{item_text}</span>'
-        
-        allergen_text = ""
-        if allergens:
-            allergen_text = f'<div class="allergen">알레르기 유발 식품: {", ".join(allergens)}</div>'
-        
-        meal_cards += f"""
-            <div class="meal-day-container">
-                <div class="meal-date">{formatted_date}</div>
-                <div class="meal-card">
-                    <div class="meal-menu">
-                        {menu_html}
+            for item in menu_items:
+                # 알레르기 정보 추출
+                allergens = []
+                item_text = item
+                for i in range(1, 20):
+                    if f"({i})" in item:
+                        allergens.append(str(i))
+                        item_text = item_text.replace(f"({i})", "")
+                
+                menu_html += f'<span>{item_text}</span>'
+            
+            allergen_text = ""
+            if allergens:
+                allergen_text = f'<div class="allergen">알레르기 유발 식품: {", ".join(allergens)}</div>'
+            
+            meal_cards += f"""
+                <div class="meal-day-container">
+                    <div class="meal-date">{formatted_date}</div>
+                    <div class="meal-card">
+                        <div class="meal-menu">
+                            {menu_html}
+                        </div>
+                        {allergen_text}
                     </div>
-                    {allergen_text}
                 </div>
-            </div>
-        """
+            """
+        else:
+            # 급식 정보가 없는 경우
+            meal_cards += f"""
+                <div class="meal-day-container">
+                    <div class="meal-date">{formatted_date}</div>
+                    <div class="meal-card">
+                        <div class="meal-menu">
+                            <span>급식 없음</span>
+                        </div>
+                    </div>
+                </div>
+            """
+        
+        current_date += timedelta(days=1)
 
     html_content = f"""
     <!DOCTYPE html>
@@ -839,19 +811,30 @@ def main():
     SCHOOL_CODE = "7751033"  # 신갈중학교
     SCHOOL_NAME = "신갈중학교"
     
-    # 날짜 설정 (다음 주 월~금)
+    # 날짜 설정 (실행 날짜에 따라 결정)
     today = datetime.now()
+    weekday = today.weekday()  # 월요일=0, 일요일=6
     
-    # 다음 주 월요일 찾기 (월요일=0, 일요일=6)
-    days_since_monday = today.weekday()
-    next_monday = today + timedelta(days=(7 - days_since_monday))  # 다음 주 월요일
-    next_friday = next_monday + timedelta(days=4)  # 다음 주 금요일
+    if weekday >= 5:  # 토요일(5) 또는 일요일(6)이면 다음 주 급식
+        # 다음 주 월요일 찾기
+        days_until_monday = (7 - weekday) % 7
+        if days_until_monday == 0:
+            days_until_monday = 7
+        target_monday = today + timedelta(days=days_until_monday)
+        target_friday = target_monday + timedelta(days=4)
+        period_text = "다음 주"
+    else:  # 월~금요일이면 이번 주 급식
+        # 이번 주 월요일 찾기
+        days_since_monday = weekday
+        target_monday = today - timedelta(days=days_since_monday)
+        target_friday = target_monday + timedelta(days=4)
+        period_text = "이번 주"
     
     # YYYYMMDD 형식으로 변환
-    start_date_str = next_monday.strftime("%Y%m%d")
-    end_date_str = next_friday.strftime("%Y%m%d")
+    start_date_str = target_monday.strftime("%Y%m%d")
+    end_date_str = target_friday.strftime("%Y%m%d")
     
-    print(f"다음 주 급식 정보 가져오기: {start_date_str} ~ {end_date_str}")
+    print(f"{period_text} 급식 정보 가져오기: {start_date_str} ~ {end_date_str}")
     
     # 급식 정보 가져오기
     meals = get_meal_info(API_KEY, SCHOOL_CODE, start_date_str, end_date_str)
@@ -861,7 +844,7 @@ def main():
         return
     
     # HTML 생성
-    html_content = generate_meal_html(meals, SCHOOL_NAME)
+    html_content = generate_meal_html(meals, SCHOOL_NAME, start_date_str, end_date_str)
     
     # HTML 파일 저장
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
