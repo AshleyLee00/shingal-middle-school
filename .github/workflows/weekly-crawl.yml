@@ -30,12 +30,6 @@ jobs:
         echo "AIRKOREA_API_KEY=${{ secrets.AIRKOREA_API_KEY }}" >> .env
         echo "NEIS_API_KEY=${{ secrets.NEIS_API_KEY }}" >> .env
         
-    - name: Replace API keys in HTML files
-      run: |
-        # weather_widget.html에서 API 키 템플릿 치환
-        sed -i 's/{{ OPENWEATHER_API_KEY }}/${{ secrets.OPENWEATHER_API_KEY }}/g' weather_widget.html
-        sed -i 's/{{ AIRKOREA_API_KEY }}/${{ secrets.AIRKOREA_API_KEY }}/g' weather_widget.html
-        
     - name: Run meal crawler
       run: |
         cd src
