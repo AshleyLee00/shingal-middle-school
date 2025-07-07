@@ -253,7 +253,7 @@
         }
 
         /* 16:9 비율 최적화 (높은 해상도에서도 한 화면에 모든 정보 표시) */
-        @media (max-height: 800px) and (min-width: 1200px) {
+        @media (max-height: 800px) and (min-width: 1200px) and (max-width: 1999px) {
             .page-header {
                 padding: 12px 20px;
                 min-height: 60px;
@@ -295,6 +295,144 @@
                 font-size: 1.2rem;
                 margin: 8px auto;
                 padding: 10px;
+            }
+        }
+
+        /* 32:9 비율 최적화 (16:9에서 너비만 2배로 늘어진 경우) */
+        @media (max-height: 800px) and (min-width: 2000px) {
+            .page-header {
+                padding: 12px 20px;
+                min-height: 60px;
+            }
+            .header-main-title {
+                font-size: 2.8rem;
+            }
+            .page-header .weather, 
+            .page-header .date-time,
+            .page-header .school-name {
+                font-size: 1.5rem;
+            }
+            .page-header .weather-icon {
+                width: 35px;
+                height: 35px;
+            }
+            .meal-container {
+                margin: 12px auto;
+                padding: 12px;
+                gap: 8px;
+            }
+            .meal-date {
+                font-size: 1.5rem;
+                padding: 8px;
+            }
+            .meal-menu {
+                font-size: 1.3rem;
+                line-height: 1.3;
+            }
+            .meal-menu span {
+                margin-bottom: 5px;
+            }
+            .allergen {
+                font-size: 1.2rem;
+                margin-top: 8px;
+                padding-top: 8px;
+            }
+            .notice-text {
+                font-size: 1.1rem;
+                margin: 8px auto;
+                padding: 10px;
+            }
+        }
+
+        /* 32:9 비율 최적화 (초광대 모니터에서의 표시) */
+        @media (max-height: 600px) and (min-width: 2000px) {
+            .page-header {
+                padding: 8px 15px;
+                min-height: 40px;
+            }
+            .header-main-title {
+                font-size: 2.8rem;
+            }
+            .page-header .weather, 
+            .page-header .date-time,
+            .page-header .school-name {
+                font-size: 1.4rem;
+            }
+            .page-header .weather-icon {
+                width: 32px;
+                height: 32px;
+            }
+            .meal-container {
+                margin: 8px auto;
+                padding: 8px;
+                gap: 6px;
+            }
+            .meal-date {
+                font-size: 1.4rem;
+                padding: 6px;
+            }
+            .meal-menu {
+                font-size: 1.2rem;
+                line-height: 1.2;
+            }
+            .meal-menu span {
+                margin-bottom: 3px;
+            }
+            .allergen {
+                font-size: 1.1rem;
+                margin-top: 6px;
+                padding-top: 6px;
+            }
+            .notice-text {
+                font-size: 1rem;
+                margin: 6px auto;
+                padding: 8px;
+            }
+        }
+
+        /* 32:9 비율에서 매우 낮은 높이일 때 */
+        @media (max-height: 400px) and (min-width: 2000px) {
+            .page-header {
+                padding: 5px 10px;
+                min-height: 30px;
+            }
+            .header-main-title {
+                font-size: 2.2rem;
+            }
+            .page-header .weather, 
+            .page-header .date-time,
+            .page-header .school-name {
+                font-size: 1.2rem;
+            }
+            .page-header .weather-icon {
+                width: 28px;
+                height: 28px;
+            }
+            .meal-container {
+                margin: 5px auto;
+                padding: 6px;
+                gap: 4px;
+            }
+            .meal-date {
+                font-size: 1.2rem;
+                padding: 4px;
+            }
+            .meal-menu {
+                font-size: 1rem;
+                line-height: 1.1;
+            }
+            .meal-menu span {
+                margin-bottom: 2px;
+            }
+            .allergen {
+                font-size: 0.9rem;
+                margin-top: 4px;
+                padding-top: 4px;
+            }
+            .notice-text {
+                font-size: 0.8rem;
+                margin: 4px auto;
+                padding: 6px;
             }
         }
 
