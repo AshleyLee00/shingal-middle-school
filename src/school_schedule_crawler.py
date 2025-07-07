@@ -556,7 +556,7 @@ def generate_schedule_html(schedules, school_name, year, month):
             .event-list-table td:first-child { font-size: 1.4rem; }
             .event-list-table td:last-child { font-size: 1.5rem; }
         }
-        @media (max-height: 800px) {
+        @media (max-height: 800px) and (max-width: 1999px) {
             .page-header {
                 padding: 15px 20px;
                 min-height: 60px;
@@ -623,7 +623,76 @@ def generate_schedule_html(schedules, school_name, year, month):
                 font-size: 1.6rem;
             }
         }
-        @media (max-height: 600px) {
+
+        /* 32:9 비율 최적화 (16:9에서 너비만 2배로 늘어진 경우) */
+        @media (max-height: 800px) and (min-width: 2000px) {
+            .page-header {
+                padding: 15px 20px;
+                min-height: 60px;
+            }
+            .header-main-title {
+                font-size: 2.8rem;
+            }
+            .page-header .weather, 
+            .page-header .date-time,
+            .page-header .school-name {
+                font-size: 1.5rem;
+            }
+            .page-header .weather-icon {
+                width: 35px;
+                height: 35px;
+            }
+            .main-content {
+                margin: 20px auto;
+                padding: 25px 30px;
+                max-height: calc(100vh - 100px);
+            }
+            .calendar-section h2 {
+                font-size: 1.5rem;
+                margin-bottom: 15px;
+            }
+            .schedule-calendar {
+                display: none;
+            }
+            .table-calendar-wrapper {
+                display: block;
+            }
+            .table-calendar {
+                font-size: 1.3rem;
+                margin-bottom: 15px;
+            }
+            .table-calendar td {
+                padding: 6px 3px;
+                height: 35px;
+            }
+            .table-calendar th {
+                padding: 8px 3px;
+                font-size: 1.2rem;
+            }
+            .calendar-num {
+                width: 1.6rem;
+                height: 1.6rem;
+                line-height: 1.6rem;
+                font-size: 1rem;
+            }
+            .event-list-section {
+                margin-top: 15px;
+            }
+            .event-list-table {
+                font-size: 1.3rem;
+            }
+            .event-list-table td {
+                padding: 8px 6px;
+            }
+            .event-list-table td:first-child {
+                font-size: 1.2rem;
+                width: 100px;
+            }
+            .event-list-table td:last-child {
+                font-size: 1.3rem;
+            }
+        }
+        @media (max-height: 600px) and (max-width: 1999px) {
             .page-header {
                 padding: 10px 15px;
                 min-height: 50px;
@@ -688,6 +757,75 @@ def generate_schedule_html(schedules, school_name, year, month):
             }
             .event-list-table td:last-child {
                 font-size: 1.4rem;
+            }
+        }
+
+        /* 32:9 비율에서 매우 낮은 높이일 때 */
+        @media (max-height: 600px) and (min-width: 2000px) {
+            .page-header {
+                padding: 10px 15px;
+                min-height: 50px;
+            }
+            .header-main-title {
+                font-size: 2.4rem;
+            }
+            .page-header .weather, 
+            .page-header .date-time,
+            .page-header .school-name {
+                font-size: 1.3rem;
+            }
+            .page-header .weather-icon {
+                width: 30px;
+                height: 30px;
+            }
+            .main-content {
+                margin: 15px auto;
+                padding: 20px 25px;
+                max-height: calc(100vh - 80px);
+            }
+            .calendar-section h2 {
+                font-size: 1.3rem;
+                margin-bottom: 10px;
+            }
+            .schedule-calendar {
+                display: none;
+            }
+            .table-calendar-wrapper {
+                display: block;
+            }
+            .table-calendar {
+                font-size: 1.1rem;
+                margin-bottom: 10px;
+            }
+            .table-calendar td {
+                padding: 4px 2px;
+                height: 30px;
+            }
+            .table-calendar th {
+                padding: 6px 2px;
+                font-size: 1rem;
+            }
+            .calendar-num {
+                width: 1.4rem;
+                height: 1.4rem;
+                line-height: 1.4rem;
+                font-size: 0.9rem;
+            }
+            .event-list-section {
+                margin-top: 10px;
+            }
+            .event-list-table {
+                font-size: 1.1rem;
+            }
+            .event-list-table td {
+                padding: 6px 4px;
+            }
+            .event-list-table td:first-child {
+                font-size: 1rem;
+                width: 90px;
+            }
+            .event-list-table td:last-child {
+                font-size: 1.1rem;
             }
         }
         @media (max-width: 480px) {
