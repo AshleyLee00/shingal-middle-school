@@ -343,10 +343,28 @@ def generate_meal_html(meals, school_name):
             letter-spacing: -0.02em;
         }
 
+        .meal-menu.many-items {
+            font-size: 1.6rem;
+            line-height: 1.3;
+        }
+
+        .meal-menu.very-many-items {
+            font-size: 1.4rem;
+            line-height: 1.2;
+        }
+
         .meal-menu span {
             display: block;
             margin-bottom: 8px;
             text-shadow: 0 0 1px rgba(0, 0, 0, 0.08);
+        }
+
+        .meal-menu.many-items span {
+            margin-bottom: 6px;
+        }
+
+        .meal-menu.very-many-items span {
+            margin-bottom: 4px;
         }
 
         .allergen {
@@ -377,8 +395,22 @@ def generate_meal_html(meals, school_name):
                 font-size: 2.2rem;
                 line-height: 1.3;
             }
+            .meal-menu.many-items {
+                font-size: 1.8rem;
+                line-height: 1.2;
+            }
+            .meal-menu.very-many-items {
+                font-size: 1.6rem;
+                line-height: 1.1;
+            }
             .meal-menu span {
                 margin-bottom: 8px;
+            }
+            .meal-menu.many-items span {
+                margin-bottom: 6px;
+            }
+            .meal-menu.very-many-items span {
+                margin-bottom: 4px;
             }
             .allergen {
                 font-size: 1.8rem;
@@ -685,10 +717,34 @@ def generate_meal_html(meals, school_name):
             return weatherInfo;
         }
 
+        // 메뉴 개수에 따른 글씨 크기 조정
+        function adjustMenuFontSize() {
+            const mealMenus = document.querySelectorAll('.meal-menu');
+            mealMenus.forEach(menu => {
+                const menuItems = menu.querySelectorAll('span');
+                const itemCount = menuItems.length;
+                
+                // 기존 클래스 제거
+                menu.classList.remove('many-items', 'very-many-items');
+                
+                // 메뉴 개수에 따라 클래스 추가
+                if (itemCount > 6 && itemCount <= 10) {
+                    menu.classList.add('many-items');
+                } else if (itemCount > 10) {
+                    menu.classList.add('very-many-items');
+                }
+            });
+        }
+
         // 초기 로드 및 주기적 업데이트 설정
         setInterval(updateDateTime, 1000);
         updateDateTime();
         loadInitialWeather();
+        
+        // 페이지 로드 완료 후 메뉴 글씨 크기 조정
+        window.addEventListener('load', function() {
+            setTimeout(adjustMenuFontSize, 100);
+        });
         
         // 5분마다 날씨 업데이트 체크
         setInterval(updateWeatherIfNeeded, 5 * 60 * 1000);
