@@ -783,19 +783,19 @@ def main():
     SCHOOL_CODE = "7751033"  # 신갈중학교
     SCHOOL_NAME = "신갈중학교"
     
-    # 날짜 설정 (이번 주 월~금)
+    # 날짜 설정 (다음 주 월~금)
     today = datetime.now()
     
-    # 이번 주 월요일 찾기 (월요일=0, 일요일=6)
+    # 다음 주 월요일 찾기 (월요일=0, 일요일=6)
     days_since_monday = today.weekday()
-    monday = today - timedelta(days=days_since_monday)
-    friday = monday + timedelta(days=4)  # 월요일 + 4일 = 금요일
+    next_monday = today + timedelta(days=(7 - days_since_monday))  # 다음 주 월요일
+    next_friday = next_monday + timedelta(days=4)  # 다음 주 금요일
     
     # YYYYMMDD 형식으로 변환
-    start_date_str = monday.strftime("%Y%m%d")
-    end_date_str = friday.strftime("%Y%m%d")
+    start_date_str = next_monday.strftime("%Y%m%d")
+    end_date_str = next_friday.strftime("%Y%m%d")
     
-    print(f"이번 주 급식 정보 가져오기: {start_date_str} ~ {end_date_str}")
+    print(f"다음 주 급식 정보 가져오기: {start_date_str} ~ {end_date_str}")
     
     # 급식 정보 가져오기
     meals = get_meal_info(API_KEY, SCHOOL_CODE, start_date_str, end_date_str)
