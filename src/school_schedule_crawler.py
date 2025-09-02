@@ -1240,7 +1240,7 @@ def generate_schedule_html(schedules, school_name, year, month):
                             {event_list_html['first_part']}
                         </table>
                     </div>
-                    {f'<div class="event-list-part">\n<table class="event-list-table">\n{event_list_html["second_part"]}\n</table>\n</div>' if event_list_html['has_second_part'] else ''}
+                    {f'<div class="event-list-part"><table class="event-list-table">{event_list_html["second_part"]}</table></div>' if event_list_html['has_second_part'] else ''}
                 </div>
             '''
     else:
