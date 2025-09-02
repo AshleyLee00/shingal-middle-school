@@ -20,9 +20,18 @@ SCHOOL_NAME = "신갈중학교"
 # JSON 파일에서 학사일정 가져오기 함수
 def get_schedule_from_json(year, month):
     try:
-        # JSON 파일 경로
+        # JSON 파일 경로 (data 폴더와 루트 폴더 모두 확인)
         parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        
+        # 먼저 data 폴더에서 확인
         json_path = os.path.join(parent_dir, "data", "school_schedule.json")
+        if not os.path.exists(json_path):
+            # data 폴더에 없으면 루트 폴더에서 확인
+            json_path = os.path.join(parent_dir, "school_schedule.json")
+        
+        if not os.path.exists(json_path):
+            print(f"JSON 파일을 찾을 수 없습니다: {json_path}")
+            return []
         
         with open(json_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -36,6 +45,11 @@ def get_schedule_from_json(year, month):
             schedule_date = schedule['AA_YMD']
             if schedule_date.startswith(year_str + month_str):
                 filtered_schedules.append(schedule)
+        
+        if filtered_schedules:
+            print(f"JSON 파일에서 {len(filtered_schedules)}개의 일정을 가져왔습니다.")
+        else:
+            print(f"JSON 파일에 {year}년 {month}월 일정이 없습니다.")
         
         return filtered_schedules
     except Exception as e:
@@ -71,13 +85,24 @@ def get_schedule_from_api(api_key, atpt_code, school_code, year, month):
 
 # 학사일정 가져오기 함수 (통합)
 def get_schedule_info(api_key, atpt_code, school_code, year, month):
-    # 7월부터 1월까지는 JSON 파일 사용
-    if month in [7, 8, 9, 10, 11, 12] or (year in [2025, 2026] and month == 1):
-        print(f"{year}년 {month}월: JSON 파일에서 학사일정 가져오기")
-        return get_schedule_from_json(year, month)
+    # 먼저 JSON 파일에서 해당 달의 일정 확인
+    print(f"{year}년 {month}월: JSON 파일에서 학사일정 확인 중...")
+    schedules = get_schedule_from_json(year, month)
+    
+    # JSON에 데이터가 있으면 JSON 사용, 없으면 API 사용
+    if schedules:
+        print(f"{year}년 {month}월: JSON 파일에서 학사일정 가져오기 완료")
+        return schedules
     else:
-        print(f"{year}년 {month}월: NEIS API에서 학사일정 가져오기")
-        return get_schedule_from_api(api_key, atpt_code, school_code, year, month)
+        print(f"{year}년 {month}월: JSON에 데이터가 없어 NEIS API에서 학사일정 가져오기")
+        schedules = get_schedule_from_api(api_key, atpt_code, school_code, year, month)
+        
+        if schedules:
+            print(f"API에서 {len(schedules)}개의 일정을 가져왔습니다.")
+        else:
+            print("API에서도 데이터를 가져오지 못했습니다.")
+        
+        return schedules
 
 def generate_schedule_html(schedules, school_name, year, month):
     # 날짜별 일정 매핑
