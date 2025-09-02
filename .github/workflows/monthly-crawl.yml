@@ -32,46 +32,28 @@ jobs:
         
 
         
-    - name: Check if it's the last day of month
-      id: check_last_day
-      run: |
-        # 현재 날짜가 실제로 월말인지 확인
-        CURRENT_DAY=$(date +%d)
-        LAST_DAY=$(date -d "$(date +%Y-%m-01) +1 month -1 day" +%d)
-        
-        if [ "$CURRENT_DAY" = "$LAST_DAY" ]; then
-          echo "is_last_day=true" >> $GITHUB_OUTPUT
-        else
-          echo "is_last_day=false" >> $GITHUB_OUTPUT
-        fi
-        
     - name: Run schedule crawler
-      if: steps.check_last_day.outputs.is_last_day == 'true'
       run: |
         cd src
         python school_schedule_crawler.py
         
     - name: Remove .env file
-      if: steps.check_last_day.outputs.is_last_day == 'true'
       run: |
         rm -f .env
         
     - name: Configure Git
-      if: steps.check_last_day.outputs.is_last_day == 'true'
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         
     - name: Commit and push changes
-      if: steps.check_last_day.outputs.is_last_day == 'true'
       run: |
         git add .
-        git diff --quiet && git diff --staged --quiet || git commit -m "Monthly schedule update: $(date '+%Y-%m-%d %H:%M:%S')"
+        git diff --quiet && git diff --staged --quiet || git commit -m "Schedule update: $(date '+%Y-%m-%d %H:%M:%S')"
         git push
         
     - name: Deploy to GitHub Pages
-      if: steps.check_last_day.outputs.is_last_day == 'true'
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: .
@@ -79,7 +61,7 @@ jobs:
         force_orphan: true
         user_name: 'github-actions[bot]'
         user_email: 'github-actions[bot]@users.noreply.github.com'
-        commit_message: 'Deploy: Monthly schedule update $(date +%Y-%m-%d)'
+        commit_message: 'Deploy: Schedule update $(date +%Y-%m-%d)'
         exclude_assets: |
           .gitignore
           .env
