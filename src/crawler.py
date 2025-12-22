@@ -643,8 +643,8 @@ def main():
     # 학교 정보
     school_info = {
         "name": "신갈중학교",
-        "notice_url": "http://shingal-m.goeyi.kr/shingal-m/na/ntt/selectRssFeed.do?mi=14328&bbsId=8186",
-        "letter_url": "http://shingal-m.goeyi.kr/shingal-m/na/ntt/selectRssFeed.do?mi=14350&bbsId=8198"
+        "notice_url": "https://shingal-m.goeyi.kr/shingal-m/na/ntt/selectNttList.do?mi=14328&bbsId=8186",
+        "letter_url": "https://shingal-m.goeyi.kr/shingal-m/na/ntt/selectNttList.do?mi=14350&bbsId=8198"
     }
     
     # 공지사항 크롤링

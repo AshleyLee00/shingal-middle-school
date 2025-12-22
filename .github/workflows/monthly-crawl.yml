@@ -2,8 +2,8 @@ name: Monthly Schedule Crawl
 
 on:
   schedule:
-    # 매월 마지막날 밤 11시에 학사일정 크롤링
-    - cron: '0 23 28-31 * *'
+    # 매월 마지막날 밤 11시(한국 시간 기준)에 학사일정 크롤링
+    - cron: '0 14 28-31 * *'  # UTC 14시 = KST 23시
   workflow_dispatch:  # 수동 실행 가능
 
 jobs:

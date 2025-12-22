@@ -2,8 +2,8 @@ name: Daily Notice Crawl
 
 on:
   schedule:
-    # 매일 오전 6시, 오후 6시에 공지사항 크롤링
-    - cron: '0 6,18 * * *'
+    # 매일 오전 6시, 오후 6시(한국 시간 기준)에 공지사항 크롤링
+    - cron: '0 21,9 * * *'  # UTC 21시 = KST 06시, UTC 9시 = KST 18시
   workflow_dispatch:  # 수동 실행 가능
   push:
     branches: [ main ]
