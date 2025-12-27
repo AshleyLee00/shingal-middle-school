@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>신갈중학교 디지털 사이니지</title>
+    <style>
+        @font-face {
+            font-family: 'SeoulAlrim';
+            src: url('font/SeoulAlrimTTF-Medium.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'SeoulAlrim', sans-serif;
+            background: #4A90E2;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .header {
+            margin-bottom: 50px;
+            background: linear-gradient(90deg, #4A90E2, #357ABD);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(53, 122, 189, 0.18);
+        }
+        
+        .school-logo {
+            height: 120px;
+            width: auto;
+            margin-bottom: 20px;
+        }
+        
+        .title {
+            font-size: 4.5rem;
+            font-weight: 900;
+            color: #FFFFFF;
+            margin-bottom: 10px;
+            letter-spacing: -2px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .subtitle {
+            font-size: 2.2rem;
+            color: #FFFFFF;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .motto {
+            font-size: 1.8rem;
+            color: #FFFFFF;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            font-style: italic;
+        }
+        
+        .menu-container {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+            max-width: 1600px;
+            width: 100%;
+        }
+        
+        .menu-item {
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-decoration: none;
+            color: #FFFFFF;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(53, 122, 189, 0.18);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+        }
+        
+        .menu-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(248, 183, 107, 0.15);
+        }
+        
+        .menu-icon {
+            font-size: 3.5rem;
+            margin-bottom: 25px;
+            color: #FFFFFF;
+        }
+        
+        .menu-title {
+            font-size: 2.4rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #FFFFFF;
+        }
+        
+        .menu-description {
+            font-size: 1.6rem;
+            color: #FFFFFF;
+            opacity: 0.9;
+        }
+        
+        .footer {
+            margin-top: 50px;
+            color: #FFFFFF;
+            font-size: 1.4rem;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .title {
+                font-size: 3.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.8rem;
+            }
+            
+            .motto {
+                font-size: 1.4rem;
+            }
+            
+            .menu-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            .menu-item {
+                padding: 25px 15px;
+                min-height: 180px;
+            }
+            
+            .menu-title {
+                font-size: 2rem;
+            }
+            
+            .menu-description {
+                font-size: 1.2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .menu-container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .menu-item {
+                padding: 20px 15px;
+                min-height: 160px;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <img class="school-logo" src="images/신갈중학교-로고.jpg" alt="신갈중학교 로고">
+            <h1 class="title">신갈중학교</h1>
+            <p class="subtitle">디지털 사이니지 시스템</p>
+            <p class="motto">"슬기롭게, 예의바르게, 건강하게"</p>
+        </header>
+        
+        <nav class="menu-container">
+            <a href="digital_signage.html" class="menu-item">
+                <div class="menu-icon">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                <h2 class="menu-title">공지사항</h2>
+                <p class="menu-description">학교의 최신 공지사항을 확인하세요</p>
+            </a>
+            
+            <a href="family_letters.html" class="menu-item">
+                <div class="menu-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <h2 class="menu-title">가정통신문</h2>
+                <p class="menu-description">가정통신문을 확인하세요</p>
+            </a>
+            
+            <a href="meal_info.html" class="menu-item">
+                <div class="menu-icon">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <h2 class="menu-title">급식 정보</h2>
+                <p class="menu-description">오늘의 급식 메뉴를 확인하세요</p>
+            </a>
+            
+            <a href="school_schedule.html" class="menu-item">
+                <div class="menu-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <h2 class="menu-title">학사일정</h2>
+                <p class="menu-description">월간 학사일정을 한눈에 확인하세요</p>
+            </a>
+            
+            <a href="weather_widget.html" class="menu-item">
+                <div class="menu-icon">
+                    <i class="fas fa-cloud-sun"></i>
+                </div>
+                <h2 class="menu-title">날씨 정보</h2>
+                <p class="menu-description">실시간 날씨와 대기질 정보를 확인하세요</p>
+            </a>
+            
+            <a href="class_schedule.html" class="menu-item">
+                <div class="menu-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h2 class="menu-title">학급 시간표</h2>
+                <p class="menu-description">2025년 2학기 학급 시간표를 확인하세요</p>
+            </a>
+        </nav>
+        
+        <footer class="footer">
+            <p>© 2024 신갈중학교. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>
