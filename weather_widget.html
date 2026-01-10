@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>날씨 정보</title>
+    <style>
+        @font-face {
+            font-family: 'SeoulAlrim';
+            src: url('font/SeoulAlrimTTF-Medium.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            background: #4A90E2;
+            font-family: 'SeoulAlrim', sans-serif;
+            margin: 0; 
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(90deg, #4A90E2, #357ABD);
+            padding: 30px 90px;
+            box-shadow: 0 8px 32px rgba(53, 122, 189, 0.18);
+            flex-shrink: 0;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .header-main-title {
+            font-size: 5.8rem;
+            font-weight: 900; 
+            color: #FFFFFF;
+            letter-spacing: -2px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 0;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 60px;
+        }
+
+        .page-header .weather, 
+        .page-header .date-time {
+            font-size: 2.2rem;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-header .date-time {
+            line-height: 1.3;
+            text-align: right;
+            font-size: 1.8rem;
+        }
+
+        .page-header .weather {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-header .weather-content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+        }
+
+        .page-header .weather-icon {
+            width: 45px;
+            height: 45px;
+            flex-shrink: 0;
+        }
+
+        .page-header .weather-temp {
+            font-size: 2.2rem;
+        }
+
+        .page-header .school-name {
+            font-size: 2.2rem;
+            color: #FFFFFF;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
+        }
+
+        @media (max-width: 1380px) {
+            .page-header {
+                flex-direction: column;
+                padding: 25px;
+                gap: 20px;
+            }
+            .header-left, .header-right {
+                width: 100%;
+                justify-content: center;
+                gap: 40px;
+            }
+            .header-main-title {
+                font-size: 5rem;
+            }
+            .page-header .school-name {
+                font-size: 2.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 20px;
+            }
+            .header-main-title {
+                font-size: 4rem;
+            }
+            .header-left, .header-right {
+                flex-direction: column;
+                gap: 30px;
+            }
+            .page-header .school-name {
+                font-size: 2rem;
+            }
+        }
+
+        .main-content {
+            display: flex; 
+            justify-content: center; 
+            align-items: stretch;
+            margin: 40px auto;
+            background: #FFFFFF;
+            border-radius: 20px;
+            box-shadow: 0 8px 40px rgba(53, 122, 189, 0.18);
+            gap: 0;
+            width: 95%;
+            max-width: 2000px;
+            flex: 1;
+            padding: 40px;
+        }
+
+        .weather-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            width: 100%;
+        }
+
+        .weather-card {
+            background: linear-gradient(135deg, #E3F2FD, #F5F9FF);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(53, 122, 189, 0.15);
+            border: 1px solid #BBDEFB;
+        }
+
+        .current-weather {
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            color: white;
+        }
+
+        .weather-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            color: #357ABD;
+        }
+
+        .current-weather .weather-title {
+            color: white;
+        }
+
+        .weather-main {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .weather-icon-large {
+            width: 80px;
+            height: 80px;
+        }
+
+        .weather-temp-large {
+            font-size: 4rem;
+            font-weight: 900;
+        }
+
+        .weather-desc {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .weather-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            font-size: 1.8rem;
+        }
+
+        .weather-detail {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .weather-detail i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .air-quality-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .air-quality-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 1.4rem;
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            color: #666;
+            font-weight: 600;
+        }
+
+        .info-value {
+            color: #333;
+            font-weight: 700;
+        }
+
+        .air-quality-card {
+            background: #FFFFFF;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(53, 122, 189, 0.15);
+        }
+
+        .air-quality-label {
+            font-size: 1.6rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .air-quality-value {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+
+        .air-quality-grade {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .air-quality-desc {
+            font-size: 1.4rem;
+            color: #666;
+        }
+
+        .forecast-section {
+            margin-top: 40px;
+        }
+
+        .forecast-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #357ABD;
+            margin-bottom: 20px;
+        }
+
+        .forecast-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+        }
+
+        .forecast-card {
+            background: linear-gradient(135deg, #E3F2FD, #F5F9FF);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(53, 122, 189, 0.15);
+            border: 1px solid #BBDEFB;
+        }
+
+        .forecast-date {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #357ABD;
+            margin-bottom: 15px;
+        }
+
+        .forecast-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+        }
+
+        .forecast-temp {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .forecast-desc {
+            font-size: 1.6rem;
+            color: #666;
+        }
+
+        /* 대기질 등급별 색상 */
+        .grade-good {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .grade-moderate {
+            background: #FFC107;
+            color: #333;
+        }
+
+        .grade-bad {
+            background: #FF9800;
+            color: white;
+        }
+
+        .grade-very-bad {
+            background: #F44336;
+            color: white;
+        }
+
+        @media (max-width: 1200px) {
+            .weather-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            .forecast-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+            }
+            .air-quality-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px;
+                margin: 20px auto;
+            }
+            .weather-title {
+                font-size: 2rem;
+            }
+            .weather-temp-large {
+                font-size: 3rem;
+            }
+            .weather-desc {
+                font-size: 1.6rem;
+            }
+            .weather-details {
+                font-size: 1.4rem;
+            }
+            .forecast-title {
+                font-size: 2rem;
+            }
+            .forecast-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .air-quality-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .air-quality-card {
+                padding: 15px;
+            }
+            .air-quality-value {
+                font-size: 2rem;
+            }
+            .air-quality-grade {
+                font-size: 1.6rem;
+            }
+            .air-quality-desc {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="page-header">
+        <div class="header-left">
+            <div class="header-main-title">날씨 정보</div>
+        </div>
+        <div class="header-right">
+            <div class="date-time" id="date-time"></div>
+            <div class="school-name">신갈중학교</div>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <div style="width: 100%;">
+            <!-- 현재 날씨 & 대기질 -->
+            <div class="weather-grid">
+                <!-- 현재 날씨 카드 -->
+                <div class="weather-card current-weather">
+                    <div class="weather-title">현재 날씨</div>
+                    <div class="weather-main">
+                        <img id="current-weather-icon" src="" alt="날씨" class="weather-icon-large">
+                        <div>
+                            <div class="weather-temp-large" id="current-temp">--°C</div>
+                            <div class="weather-desc" id="current-weather">-</div>
+                        </div>
+                    </div>
+                    <div class="weather-details">
+                        <div class="weather-detail">
+                            <i class="fas fa-thermometer-half"></i>
+                            <span id="current-feels-like">체감: --°C</span>
+                        </div>
+                        <div class="weather-detail">
+                            <i class="fas fa-wind"></i>
+                            <span id="current-wind">-- m/s</span>
+                        </div>
+                        <div class="weather-detail">
+                            <i class="fas fa-tint"></i>
+                            <span id="current-humidity">--%</span>
+                        </div>
+                        <div class="weather-detail">
+                            <i class="fas fa-gauge-high"></i>
+                            <span id="current-pressure">-- hPa</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 대기질 카드 -->
+                <div class="weather-card">
+                    <div class="weather-title">대기질 정보</div>
+                    <div class="air-quality-grid">
+                        <div class="air-quality-card" id="pm10-card">
+                            <div class="air-quality-label">미세먼지 (PM10)</div>
+                            <div class="air-quality-value" id="pm10">-- ㎍/㎥</div>
+                            <div class="air-quality-grade" id="pm10-grade">-</div>
+                            <div class="air-quality-desc" id="pm10-desc">-</div>
+                        </div>
+                        <div class="air-quality-card" id="pm25-card">
+                            <div class="air-quality-label">초미세먼지 (PM2.5)</div>
+                            <div class="air-quality-value" id="pm25">-- ㎍/㎥</div>
+                            <div class="air-quality-grade" id="pm25-grade">-</div>
+                            <div class="air-quality-desc" id="pm25-desc">-</div>
+                        </div>
+                    </div>
+                    <div class="air-quality-info" id="air-quality-info">
+                        <div class="info-item">
+                            <span class="info-label">측정소:</span>
+                            <span class="info-value" id="station-name">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5일 예보 -->
+            <div class="forecast-section">
+                <div class="forecast-title">5일간의 날씨 예보</div>
+                <div class="forecast-grid">
+                    <div class="forecast-card" id="forecast1">
+                        <div class="forecast-date" id="forecast1-date">-</div>
+                        <img id="forecast1-icon" src="" alt="날씨" class="forecast-icon">
+                        <div class="forecast-temp" id="forecast1-temp">--°C</div>
+                        <div class="forecast-desc" id="forecast1-desc">-</div>
+                    </div>
+                    <div class="forecast-card" id="forecast2">
+                        <div class="forecast-date" id="forecast2-date">-</div>
+                        <img id="forecast2-icon" src="" alt="날씨" class="forecast-icon">
+                        <div class="forecast-temp" id="forecast2-temp">--°C</div>
+                        <div class="forecast-desc" id="forecast2-desc">-</div>
+                    </div>
+                    <div class="forecast-card" id="forecast3">
+                        <div class="forecast-date" id="forecast3-date">-</div>
+                        <img id="forecast3-icon" src="" alt="날씨" class="forecast-icon">
+                        <div class="forecast-temp" id="forecast3-temp">--°C</div>
+                        <div class="forecast-desc" id="forecast3-desc">-</div>
+                    </div>
+                    <div class="forecast-card" id="forecast4">
+                        <div class="forecast-date" id="forecast4-date">-</div>
+                        <img id="forecast4-icon" src="" alt="날씨" class="forecast-icon">
+                        <div class="forecast-temp" id="forecast4-temp">--°C</div>
+                        <div class="forecast-desc" id="forecast4-desc">-</div>
+                    </div>
+                    <div class="forecast-card" id="forecast5">
+                        <div class="forecast-date" id="forecast5-date">-</div>
+                        <img id="forecast5-icon" src="" alt="날씨" class="forecast-icon">
+                        <div class="forecast-temp" id="forecast5-temp">--°C</div>
+                        <div class="forecast-desc" id="forecast5-desc">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // 설정 정보
+    const CONFIG = {
+        ANYANG_LAT: 37.2857,
+        ANYANG_LON: 127.1109,
+        OPENWEATHER_API_KEY: '91fff999310c2bdea1978b3f0925fb38',
+        AIRKOREA_API_KEY: 'kQmTZcm7bg25bgTZQKwjvdAFJsn0YMD6UTSzM93O/QSKHeNNr0eBWjfqJmJOO2Z+L8EK4TTsSk5jKMKenr4BHw=='
+    };
+
+    // 시간 표시
+    function updateDateTime() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
+        const weekDay = weekDays[now.getDay()];
+
+        let hours = now.getHours();
+        const ampm = hours >= 12 ? '오후' : '오전';
+        hours = hours % 12;
+        hours = hours ? hours : 12; 
+        const displayHours = String(hours).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+
+        const dateString = `${year}.${month}.${day} ${weekDay}요일`;
+        const timeString = `${ampm} ${displayHours}:${minutes}`;
+
+        document.getElementById('date-time').innerHTML = `${dateString}<br>${timeString}`;
+    }
+
+    // OpenWeatherMap API 2.5와 커스텀 날씨 아이콘 매핑
+    function getWeatherInfo(weatherMain, weatherDescription, iconCode, isDay = true) {
+        // 메인 날씨 조건별 매핑
+        const mainWeatherMap = {
+            'Clear': { 
+                text: '맑음', 
+                icon: isDay ? 'images/weather/1.png' : 'images/weather/15.png' // 태양/달 아이콘
+            },
+            'Clouds': {
+                text: '구름',
+                icon: getCloudIcon(weatherDescription, isDay) // 구름 정도에 따라 다른 아이콘
+            },
+            'Rain': {
+                text: '비',
+                icon: getRainIcon(weatherDescription) // 비의 강도에 따라 다른 아이콘
+            },
+            'Drizzle': {
+                text: '이슬비',
+                icon: 'images/weather/14.png' // 물방울 아이콘
+            },
+            'Thunderstorm': {
+                text: '뇌우',
+                icon: 'images/weather/7.png' // 번개 아이콘
+            },
+            'Snow': {
+                text: '눈',
+                icon: 'images/weather/5.png' // 눈송이 아이콘
+            },
+            'Mist': {
+                text: '안개',
+                icon: 'images/weather/16.png' // 안개 아이콘
+            },
+            'Fog': {
+                text: '짙은 안개',
+                icon: 'images/weather/16.png' // 안개 아이콘
+            },
+            'Smoke': {
+                text: '연기',
+                icon: 'images/weather/16.png' // 안개 아이콘 (비슷한 시야 제한)
+            },
+            'Haze': {
+                text: '실안개',
+                icon: 'images/weather/16.png' // 안개 아이콘
+            },
+            'Dust': {
+                text: '먼지',
+                icon: 'images/weather/11.png' // 바람 아이콘
+            },
+            'Sand': {
+                text: '모래바람',
+                icon: 'images/weather/11.png' // 바람 아이콘
+            },
+            'Ash': {
+                text: '화산재',
+                icon: 'images/weather/16.png' // 안개 아이콘
+            },
+            'Squall': {
+                text: '돌풍',
+                icon: 'images/weather/11.png' // 바람 아이콘
+            },
+            'Tornado': {
+                text: '토네이도',
+                icon: 'images/weather/11.png' // 바람 아이콘
+            }
+        };
+
+        // 구름 상태에 따른 아이콘 선택
+        function getCloudIcon(description, isDay) {
+            const desc = description.toLowerCase();
+            if (desc.includes('few clouds')) {
+                return isDay ? 'images/weather/3.png' : 'images/weather/15.png'; // 부분적으로 구름 낀 맑은 날씨
+            } else if (desc.includes('scattered clouds') || desc.includes('broken clouds')) {
+                return 'images/weather/2.png'; // 구름 많음
+            } else if (desc.includes('overcast')) {
+                return 'images/weather/8.png'; // 완전히 흐림
+            }
+            return 'images/weather/2.png'; // 기본 구름 아이콘
+        }
+
+        // 비의 강도에 따른 아이콘 선택
+        function getRainIcon(description) {
+            const desc = description.toLowerCase();
+            if (desc.includes('light rain') || desc.includes('drizzle')) {
+                return 'images/weather/14.png'; // 가벼운 비 (물방울)
+            } else if (desc.includes('heavy rain') || desc.includes('extreme rain')) {
+                return 'images/weather/6.png'; // 폭우
+            } else if (desc.includes('thunderstorm')) {
+                return 'images/weather/10.png'; // 천둥번개를 동반한 비
+            }
+            return 'images/weather/4.png'; // 기본 비 아이콘
+        }
+
+        // 메인 날씨 정보 가져오기
+        let weatherInfo = mainWeatherMap[weatherMain] || { 
+            text: weatherMain, 
+            icon: 'images/weather/1.png' 
+        };
+
+        return weatherInfo;
+    }
+
+    // 날씨 아이콘 URL (기존 함수를 새로운 함수로 대체)
+    function getWeatherIconUrl(iconCode) {
+        // OpenWeatherMap 아이콘 코드를 기반으로 낮/밤 판단
+        const isDay = iconCode.endsWith('d');
+        
+        // 아이콘 코드를 기반으로 날씨 타입 추정
+        let weatherMain = 'Clear';
+        let weatherDescription = '맑음';
+        
+        if (iconCode.startsWith('01')) {
+            weatherMain = 'Clear';
+            weatherDescription = '맑음';
+        } else if (iconCode.startsWith('02')) {
+            weatherMain = 'Clouds';
+            weatherDescription = '구름 조금';
+        } else if (iconCode.startsWith('03')) {
+            weatherMain = 'Clouds';
+            weatherDescription = '구름 많음';
+        } else if (iconCode.startsWith('04')) {
+            weatherMain = 'Clouds';
+            weatherDescription = '흐림';
+        } else if (iconCode.startsWith('09')) {
+            weatherMain = 'Rain';
+            weatherDescription = '가벼운 비';
+        } else if (iconCode.startsWith('10')) {
+            weatherMain = 'Rain';
+            weatherDescription = '비';
+        } else if (iconCode.startsWith('11')) {
+            weatherMain = 'Thunderstorm';
+            weatherDescription = '뇌우';
+        } else if (iconCode.startsWith('13')) {
+            weatherMain = 'Snow';
+            weatherDescription = '눈';
+        } else if (iconCode.startsWith('50')) {
+            weatherMain = 'Mist';
+            weatherDescription = '안개';
+        }
+        
+        const weatherInfo = getWeatherInfo(weatherMain, weatherDescription, iconCode, isDay);
+        return weatherInfo.icon;
+    }
+
+    // 대기질 등급 및 색상
+    function getAirQualityGrade(value, type) {
+        let grade = '좋음', className = 'grade-good', desc = '야외활동에 적합합니다';
+        
+        switch(type) {
+            case 'pm10':
+                if(value > 150) { grade = '매우나쁨'; className = 'grade-very-bad'; desc = '실외활동을 자제하세요'; }
+                else if(value > 80) { grade = '나쁨'; className = 'grade-bad'; desc = '실외활동을 줄이세요'; }
+                else if(value > 30) { grade = '보통'; className = 'grade-moderate'; desc = '민감군은 실외활동을 줄이세요'; }
+                break;
+            case 'pm25':
+                if(value > 75) { grade = '매우나쁨'; className = 'grade-very-bad'; desc = '실외활동을 자제하세요'; }
+                else if(value > 35) { grade = '나쁨'; className = 'grade-bad'; desc = '실외활동을 줄이세요'; }
+                else if(value > 15) { grade = '보통'; className = 'grade-moderate'; desc = '민감군은 실외활동을 줄이세요'; }
+                break;
+        }
+        return {grade, className, desc};
+    }
+
+    // 현재 날씨 정보
+    async function getCurrentWeather() {
+        try {
+            const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${CONFIG.ANYANG_LAT}&lon=${CONFIG.ANYANG_LON}&appid=${CONFIG.OPENWEATHER_API_KEY}&units=metric&lang=kr`);
+            const data = await res.json();
+            document.getElementById('current-temp').textContent = `${Math.round(data.main.temp)}°C`;
+            document.getElementById('current-weather').textContent = data.weather[0].description;
+            document.getElementById('current-feels-like').textContent = `체감: ${Math.round(data.main.feels_like)}°C`;
+            document.getElementById('current-wind').textContent = `${data.wind.speed} m/s`;
+            document.getElementById('current-humidity').textContent = `${data.main.humidity}%`;
+            document.getElementById('current-pressure').textContent = `${data.main.pressure} hPa`;
+            document.getElementById('current-weather-icon').src = getWeatherIconUrl(data.weather[0].icon);
+            return data;
+        } catch (error) {
+            console.error('날씨 정보 가져오기 실패:', error);
+            return null;
+        }
+    }
+
+    // 5일 예보
+    async function getForecastWeather() {
+        try {
+            const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${CONFIG.ANYANG_LAT}&lon=${CONFIG.ANYANG_LON}&appid=${CONFIG.OPENWEATHER_API_KEY}&units=metric&lang=kr`);
+            const data = await res.json();
+            const today = new Date();
+            let idx = 1;
+            for(let i=1; i<=5; i++) {
+                const targetDate = new Date(today);
+                targetDate.setDate(today.getDate() + i);
+                
+                // 해당 날짜의 모든 예보 데이터 찾기
+                const dayForecasts = data.list.filter(item => {
+                    const itemDate = new Date(item.dt * 1000);
+                    return itemDate.getDate() === targetDate.getDate();
+                });
+                
+                // 낮 시간대(9시~18시)의 데이터를 우선적으로 찾기
+                let forecast = dayForecasts.find(item => {
+                    const itemDate = new Date(item.dt * 1000);
+                    const hour = itemDate.getHours();
+                    return hour >= 9 && hour <= 18;
+                });
+                
+                // 낮 시간대 데이터가 없으면 첫 번째 데이터 사용
+                if (!forecast && dayForecasts.length > 0) {
+                    forecast = dayForecasts[0];
+                }
+                
+                if(forecast) {
+                    document.getElementById(`forecast${idx}-date`).textContent = targetDate.toLocaleDateString('ko-KR', {month:'long', day:'numeric', weekday:'short'});
+                    document.getElementById(`forecast${idx}-icon`).src = getWeatherIconUrl(forecast.weather[0].icon);
+                    document.getElementById(`forecast${idx}-temp`).textContent = `${Math.round(forecast.main.temp)}°C`;
+                    document.getElementById(`forecast${idx}-desc`).textContent = forecast.weather[0].description;
+                    idx++;
+                }
+            }
+            return data;
+        } catch (error) {
+            console.error('예보 정보 가져오기 실패:', error);
+            return null;
+        }
+    }
+
+    // 대기질 데이터를 화면에 표시하는 함수
+    function displayAirQualityData(data) {
+        // 측정소 정보 표시
+        document.getElementById('station-name').textContent = data.stationName || '기흥';
+        
+        // PM10
+        const pm10Value = data.pm10Value === "-" || data.pm10Value === null ? 0 : parseFloat(data.pm10Value);
+        const pm10Info = getAirQualityGrade(pm10Value, 'pm10');
+        document.getElementById('pm10').textContent = pm10Value > 0 ? `${pm10Value} ㎍/㎥` : '측정 중';
+        document.getElementById('pm10-grade').textContent = pm10Value > 0 ? pm10Info.grade : '-';
+        document.getElementById('pm10-desc').textContent = pm10Value > 0 ? pm10Info.desc : '측정 중입니다';
+        document.getElementById('pm10-card').className = `air-quality-card ${pm10Value > 0 ? pm10Info.className : ''}`;
+        
+        // PM2.5
+        const pm25Value = data.pm25Value === "-" || data.pm25Value === null ? 0 : parseFloat(data.pm25Value);
+        const pm25Info = getAirQualityGrade(pm25Value, 'pm25');
+        document.getElementById('pm25').textContent = pm25Value > 0 ? `${pm25Value} ㎍/㎥` : '측정 중';
+        document.getElementById('pm25-grade').textContent = pm25Value > 0 ? pm25Info.grade : '-';
+        document.getElementById('pm25-desc').textContent = pm25Value > 0 ? pm25Info.desc : '측정 중입니다';
+        document.getElementById('pm25-card').className = `air-quality-card ${pm25Value > 0 ? pm25Info.className : ''}`;
+    }
+
+    // 대기질 정보
+    async function getAirQuality() {
+        try {
+            // API 키가 유효한지 확인하기 위해 먼저 테스트
+            const url = 'https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty';
+            const queryParams = new URLSearchParams({
+                serviceKey: CONFIG.AIRKOREA_API_KEY,
+                returnType: 'json',
+                numOfRows: '10', // 요청 데이터 수를 줄여서 API 부하 감소
+                pageNo: '1',
+                stationName: '기흥',
+                dataTerm: 'DAILY',
+                ver: '1.0'
+            });
+            
+            console.log('경기도 용인 기흥 측정소 데이터 요청 중...');
+            
+            const res = await fetch(`${url}?${queryParams}`);
+            
+            // 응답 상태 확인
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            
+            // 응답 텍스트 먼저 확인
+            const responseText = await res.text();
+            console.log('API 응답:', responseText);
+            
+            // XML 오류 응답인지 확인
+            if (responseText.includes('SERVICE_KEY_IS_NOT_REGISTERED_ERROR')) {
+                console.warn('API 키가 등록되지 않았습니다. 모의 데이터를 사용합니다.');
+                throw new Error('API 키 인증 실패');
+            }
+            
+            // 서비스 요청 한도 초과 오류 확인
+            if (responseText.includes('LIMITED_NUMBER_OF_SERVICE_REQUESTS_EXCEEDS_ERROR')) {
+                console.warn('API 요청 한도가 초과되었습니다. 모의 데이터를 사용합니다.');
+                throw new Error('API 요청 한도 초과');
+            }
+            
+            // 기타 서비스 오류 확인
+            if (responseText.includes('SERVICE ERROR')) {
+                console.warn('서비스 오류가 발생했습니다. 모의 데이터를 사용합니다.');
+                throw new Error('서비스 오류');
+            }
+            
+            // JSON 파싱 시도
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('JSON 파싱 실패:', parseError);
+                console.log('받은 응답:', responseText);
+                throw new Error('서버가 유효한 JSON을 반환하지 않았습니다');
+            }
+            
+            if(data.response && data.response.body && data.response.body.items && data.response.body.items.length > 0) {
+                // 실제 측정 데이터가 있는 가장 최근 데이터 찾기
+                let latestItem = null;
+                for (const item of data.response.body.items) {
+                    // 통신장애가 아니고 실제 측정값이 있는 데이터 찾기
+                    if (item.pm10Value !== "-" && item.pm10Value !== null && 
+                        item.pm10Flag !== "통신장애" && item.pm10Flag !== "점검 및 교정") {
+                        latestItem = item;
+                        break;
+                    }
+                }
+                
+                // 만약 유효한 데이터를 찾지 못했다면 첫 번째 데이터 사용
+                if (!latestItem) {
+                    latestItem = data.response.body.items[0];
+                }
+                
+                console.log('사용할 데이터:', latestItem);
+                
+                // 데이터를 화면에 표시
+                displayAirQualityData(latestItem);
+                
+                // 성공적으로 데이터를 가져왔다면 캐시에 저장
+                saveAirQualityDataToCache(latestItem);
+                
+            } else {
+                console.log('대기질 데이터를 찾을 수 없습니다. 모의 데이터를 사용합니다.');
+                const mockData = generateMockAirQualityData();
+                saveAirQualityDataToCache(mockData);
+            }
+        } catch (error) {
+            console.error('대기질 정보 가져오기 실패:', error);
+            
+            // API 오류인 경우 모의 데이터 사용
+            if (error.message.includes('API 요청 한도 초과') || 
+                error.message.includes('서비스 오류') || 
+                error.message.includes('API 키 인증 실패')) {
+                console.log('API 오류로 인해 모의 데이터를 사용합니다.');
+                const mockData = generateMockAirQualityData();
+                saveAirQualityDataToCache(mockData);
+            } else {
+                // 기타 오류인 경우 데이터 없음 표시
+                setNoDataDisplay();
+            }
+        }
+    }
+
+    // 모의 대기질 데이터 생성 (API 오류 시 사용)
+    function generateMockAirQualityData() {
+        const now = new Date();
+        const mockData = {
+            stationName: '기흥',
+            dataTime: now.toLocaleString('ko-KR') + ' (모의 데이터)',
+            pm10Value: Math.floor(Math.random() * 20) + 5,  // 5-25 범위 (좋음)
+            pm25Value: Math.floor(Math.random() * 10) + 2   // 2-12 범위 (좋음)
+        };
+        
+        // 데이터를 화면에 표시
+        displayAirQualityData(mockData);
+        
+        console.log('모의 대기질 데이터 사용 중:', mockData);
+        return mockData;
+    }
+
+    // 데이터가 없을 때 표시
+    function setNoDataDisplay() {
+        const pollutants = ['pm10', 'pm25'];
+        pollutants.forEach(pollutant => {
+            document.getElementById(pollutant).textContent = '데이터 없음';
+            document.getElementById(`${pollutant}-grade`).textContent = '-';
+            document.getElementById(`${pollutant}-desc`).textContent = '측정 데이터가 없습니다';
+            document.getElementById(`${pollutant}-card`).className = 'air-quality-card';
+        });
+        
+        document.getElementById('station-name').textContent = '기흥';
+    }
+
+    // 캐시 키 상수
+    const AIR_QUALITY_CACHE_KEY = 'airQualityData';
+    const AIR_QUALITY_TIMESTAMP_KEY = 'airQualityTimestamp';
+    const AIR_QUALITY_UPDATE_INTERVAL = 5 * 60 * 1000; // 5분 (밀리초) - 테스트용으로 짧게 설정
+    
+    const WEATHER_CACHE_KEY = 'weatherData';
+    const WEATHER_TIMESTAMP_KEY = 'weatherTimestamp';
+    const WEATHER_UPDATE_INTERVAL = 5 * 60 * 1000; // 5분 (밀리초) - 테스트용으로 짧게 설정
+
+    // 캐시에서 데이터 가져오기
+    function getCachedAirQualityData() {
+        try {
+            const cachedData = localStorage.getItem(AIR_QUALITY_CACHE_KEY);
+            const timestamp = localStorage.getItem(AIR_QUALITY_TIMESTAMP_KEY);
+            
+            if (cachedData && timestamp) {
+                const data = JSON.parse(cachedData);
+                const lastUpdate = parseInt(timestamp);
+                const now = Date.now();
+                
+                // 1시간이 지나지 않았다면 캐시된 데이터 사용
+                if (now - lastUpdate < AIR_QUALITY_UPDATE_INTERVAL) {
+                    console.log('캐시된 대기질 데이터 사용 중...');
+                    return data;
+                }
+            }
+        } catch (error) {
+            console.error('캐시 데이터 읽기 실패:', error);
+        }
+        return null;
+    }
+
+    // 데이터를 캐시에 저장하기
+    function saveAirQualityDataToCache(data) {
+        try {
+            localStorage.setItem(AIR_QUALITY_CACHE_KEY, JSON.stringify(data));
+            localStorage.setItem(AIR_QUALITY_TIMESTAMP_KEY, Date.now().toString());
+            console.log('대기질 데이터가 캐시에 저장되었습니다.');
+        } catch (error) {
+            console.error('캐시 저장 실패:', error);
+        }
+    }
+
+    // 대기질 정보 업데이트 함수 (2시간마다)
+    async function updateAirQualityIfNeeded() {
+        // 먼저 캐시에서 데이터 확인
+        const cachedData = getCachedAirQualityData();
+        if (cachedData) {
+            // 캐시가 유효하면 표시 함수 호출하지 않음 (이미 표시되어 있음)
+            console.log('캐시된 대기질 데이터가 유효합니다.');
+            return;
+        }
+        
+        // 캐시에 데이터가 없거나 만료된 경우에만 API 호출
+        console.log('대기질 정보 업데이트 중...');
+        await getAirQuality();
+    }
+
+    // 날씨 캐시에서 데이터 가져오기
+    function getCachedWeatherData() {
+        try {
+            const cachedData = localStorage.getItem(WEATHER_CACHE_KEY);
+            const timestamp = localStorage.getItem(WEATHER_TIMESTAMP_KEY);
+            
+            if (cachedData && timestamp) {
+                const data = JSON.parse(cachedData);
+                const lastUpdate = parseInt(timestamp);
+                const now = Date.now();
+                
+                // 1시간이 지나지 않았다면 캐시된 데이터 사용
+                if (now - lastUpdate < WEATHER_UPDATE_INTERVAL) {
+                    console.log('캐시된 날씨 데이터 사용 중...');
+                    return data;
+                }
+            }
+        } catch (error) {
+            console.error('날씨 캐시 데이터 읽기 실패:', error);
+        }
+        return null;
+    }
+
+    // 날씨 데이터를 캐시에 저장하기
+    function saveWeatherDataToCache(currentData, forecastData) {
+        try {
+            const weatherData = {
+                current: currentData,
+                forecast: forecastData,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify(weatherData));
+            localStorage.setItem(WEATHER_TIMESTAMP_KEY, Date.now().toString());
+            console.log('날씨 데이터가 캐시에 저장되었습니다.');
+        } catch (error) {
+            console.error('날씨 캐시 저장 실패:', error);
+        }
+    }
+
+    // 날씨 데이터를 화면에 표시하는 함수
+    function displayWeatherData(weatherData) {
+        // 현재 날씨 표시
+        if (weatherData.current) {
+            const current = weatherData.current;
+            document.getElementById('current-temp').textContent = `${Math.round(current.main.temp)}°C`;
+            document.getElementById('current-weather').textContent = current.weather[0].description;
+            document.getElementById('current-feels-like').textContent = `체감: ${Math.round(current.main.feels_like)}°C`;
+            document.getElementById('current-wind').textContent = `${current.wind.speed} m/s`;
+            document.getElementById('current-humidity').textContent = `${current.main.humidity}%`;
+            document.getElementById('current-pressure').textContent = `${current.main.pressure} hPa`;
+            document.getElementById('current-weather-icon').src = getWeatherIconUrl(current.weather[0].icon);
+        }
+
+        // 예보 표시
+        if (weatherData.forecast) {
+            const today = new Date();
+            let idx = 1;
+            for(let i=1; i<=5; i++) {
+                const targetDate = new Date(today);
+                targetDate.setDate(today.getDate() + i);
+                
+                // 해당 날짜의 모든 예보 데이터 찾기
+                const dayForecasts = weatherData.forecast.list.filter(item => {
+                    const itemDate = new Date(item.dt * 1000);
+                    return itemDate.getDate() === targetDate.getDate();
+                });
+                
+                // 낮 시간대(9시~18시)의 데이터를 우선적으로 찾기
+                let forecast = dayForecasts.find(item => {
+                    const itemDate = new Date(item.dt * 1000);
+                    const hour = itemDate.getHours();
+                    return hour >= 9 && hour <= 18;
+                });
+                
+                // 낮 시간대 데이터가 없으면 첫 번째 데이터 사용
+                if (!forecast && dayForecasts.length > 0) {
+                    forecast = dayForecasts[0];
+                }
+                
+                if(forecast) {
+                    document.getElementById(`forecast${idx}-date`).textContent = targetDate.toLocaleDateString('ko-KR', {month:'long', day:'numeric', weekday:'short'});
+                    document.getElementById(`forecast${idx}-icon`).src = getWeatherIconUrl(forecast.weather[0].icon);
+                    document.getElementById(`forecast${idx}-temp`).textContent = `${Math.round(forecast.main.temp)}°C`;
+                    document.getElementById(`forecast${idx}-desc`).textContent = forecast.weather[0].description;
+                    idx++;
+                }
+            }
+        }
+    }
+
+    // 날씨 정보 업데이트 함수 (1시간마다)
+    async function updateWeatherIfNeeded() {
+        // 먼저 캐시에서 데이터 확인
+        const cachedData = getCachedWeatherData();
+        if (cachedData) {
+            // 캐시가 유효하면 표시 함수 호출하지 않음 (이미 표시되어 있음)
+            console.log('캐시된 날씨 데이터가 유효합니다.');
+            return;
+        }
+        
+        // 캐시에 데이터가 없거나 만료된 경우에만 API 호출
+        console.log('날씨 정보 업데이트 중...');
+        const currentData = await getCurrentWeather();
+        const forecastData = await getForecastWeather();
+        
+        // 성공적으로 데이터를 가져왔다면 캐시에 저장
+        if (currentData && forecastData) {
+            saveWeatherDataToCache(currentData, forecastData);
+        }
+    }
+
+    // 캐시 초기화 함수
+    function clearAllCache() {
+        try {
+            localStorage.removeItem(AIR_QUALITY_CACHE_KEY);
+            localStorage.removeItem(AIR_QUALITY_TIMESTAMP_KEY);
+            localStorage.removeItem(WEATHER_CACHE_KEY);
+            localStorage.removeItem(WEATHER_TIMESTAMP_KEY);
+            console.log('모든 캐시가 초기화되었습니다.');
+        } catch (error) {
+            console.error('캐시 초기화 실패:', error);
+        }
+    }
+
+    // 초기 데이터 로드 함수 (캐시 확인 후 표시 또는 API 호출)
+    async function loadInitialData() {
+        // 테스트를 위해 캐시 강제 초기화 (필요시 주석 처리)
+        clearAllCache();
+        
+        // 날씨 데이터 로드
+        const cachedWeatherData = getCachedWeatherData();
+        if (cachedWeatherData) {
+            console.log('캐시된 날씨 데이터로 초기 로드 중...');
+            displayWeatherData(cachedWeatherData);
+        } else {
+            console.log('날씨 데이터 초기 로드 중...');
+            const currentData = await getCurrentWeather();
+            const forecastData = await getForecastWeather();
+            if (currentData && forecastData) {
+                saveWeatherDataToCache(currentData, forecastData);
+            }
+        }
+        
+        // 대기질 데이터 로드
+        const cachedAirQualityData = getCachedAirQualityData();
+        if (cachedAirQualityData) {
+            console.log('캐시된 대기질 데이터로 초기 로드 중...');
+            displayAirQualityData(cachedAirQualityData);
+        } else {
+            console.log('대기질 데이터 초기 로드 중...');
+            await getAirQuality();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // 초기 로드
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+        
+        // 초기 데이터 로드
+        loadInitialData();
+        
+        // 주기적 업데이트 설정
+        setInterval(updateWeatherIfNeeded, 5 * 60 * 1000); // 5분마다 체크
+        setInterval(updateAirQualityIfNeeded, 5 * 60 * 1000); // 5분마다 체크
+        
+        // 페이지가 포커스를 받았을 때 업데이트 체크
+        window.addEventListener('focus', function() {
+            updateWeatherIfNeeded();
+            updateAirQualityIfNeeded();
+        });
+        
+        // 페이지가 보이게 될 때 업데이트 체크 (탭 전환 시)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                updateWeatherIfNeeded();
+                updateAirQualityIfNeeded();
+            }
+        });
+    });
+    </script>
+</body>
+</html> 

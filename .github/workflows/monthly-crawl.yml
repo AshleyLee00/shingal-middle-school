@@ -1,0 +1,67 @@
+name: Monthly Schedule Crawl
+
+on:
+  schedule:
+    # 매월 마지막날 밤 11시(한국 시간 기준)에 학사일정 크롤링
+    - cron: '0 14 28-31 * *'  # UTC 14시 = KST 23시
+  workflow_dispatch:  # 수동 실행 가능
+
+jobs:
+  monthly-schedule-crawl:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Create .env file
+      run: |
+        echo "OPENWEATHER_API_KEY=${{ secrets.OPENWEATHER_API_KEY }}" > .env
+        echo "AIRKOREA_API_KEY=${{ secrets.AIRKOREA_API_KEY }}" >> .env
+        echo "NEIS_API_KEY=${{ secrets.NEIS_API_KEY }}" >> .env
+        
+
+        
+    - name: Run schedule crawler
+      run: |
+        cd src
+        python school_schedule_crawler.py
+        
+    - name: Remove .env file
+      run: |
+        rm -f .env
+        
+    - name: Configure Git
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+    - name: Commit and push changes
+      run: |
+        git add .
+        git diff --quiet && git diff --staged --quiet || git commit -m "Schedule update: $(date '+%Y-%m-%d %H:%M:%S')"
+        git push
+        
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: .
+        publish_branch: gh-pages
+        force_orphan: true
+        user_name: 'github-actions[bot]'
+        user_email: 'github-actions[bot]@users.noreply.github.com'
+        commit_message: 'Deploy: Schedule update $(date +%Y-%m-%d)'
+        exclude_assets: |
+          .gitignore
+          .env
